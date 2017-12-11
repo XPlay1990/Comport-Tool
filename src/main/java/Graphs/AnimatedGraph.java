@@ -6,6 +6,7 @@ package Graphs;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Image;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import org.jfree.chart.ChartColor;
@@ -36,7 +38,7 @@ import org.jfree.ui.ApplicationFrame;
  * @author Jan.Adamczyk
  */
 public final class AnimatedGraph extends ApplicationFrame implements Runnable {
-    
+
     private static final String TITLE = "TouchFoilSeries";
     private static final float FATNESS = 3.0f;
     private XYSeriesCollection dataset;
@@ -55,7 +57,7 @@ public final class AnimatedGraph extends ApplicationFrame implements Runnable {
 
     private ArrayList<Integer> x_indexList;
     private ArrayList<SeriesHolder> seriesNameandData;
-    
+
     public void run() {
         dataset.setNotify(false);
         for (int index = 0; index < x_indexList.size(); index++) {
@@ -80,7 +82,7 @@ public final class AnimatedGraph extends ApplicationFrame implements Runnable {
      */
     public AnimatedGraph(HashMap<String, Integer> channelNameNumberAssigment) {
         super("AnimatedGraphs");
-        
+        setApplicationIcon();
         this.channelNameNumberAssigment = channelNameNumberAssigment;
         SwingUtilities.invokeLater(() -> {
             dataset = new XYSeriesCollection();
@@ -89,7 +91,7 @@ public final class AnimatedGraph extends ApplicationFrame implements Runnable {
         this.validate();
         this.repaint();
     }
-    
+
     private JFreeChart createChart(final XYDataset dataset) {
         JFreeChart chart = ChartFactory.createXYLineChart(TITLE, "", "TouchValue", dataset, PlotOrientation.VERTICAL, true, true, false);
         plot = chart.getXYPlot();
@@ -102,12 +104,12 @@ public final class AnimatedGraph extends ApplicationFrame implements Runnable {
         } catch (CloneNotSupportedException ex) {
         }
         valueAxis2.setAutoRange(true);
-        
+
         plot.setRangeAxis(1, valueAxis2);
         plot.setRangeAxisLocation(0, AxisLocation.TOP_OR_RIGHT);
         plot.setRangeAxisLocation(1, AxisLocation.BOTTOM_OR_LEFT);
         plot.mapDatasetToRangeAxes(0, Arrays.asList(0, 1));
-        
+
         plot.setBackgroundPaint(Color.LIGHT_GRAY);
         plot.setDomainGridlinePaint(Color.BLACK);
         plot.setDomainGridlineStroke(new BasicStroke(0));
@@ -175,7 +177,7 @@ public final class AnimatedGraph extends ApplicationFrame implements Runnable {
     public void setAllSeriesColor() {
         int index = 0;
         Color color;
-        
+
         Iterator iterator = dataset.getSeries().iterator();
         while (iterator.hasNext()) {
             XYSeries next = (XYSeries) iterator.next();
@@ -288,7 +290,7 @@ public final class AnimatedGraph extends ApplicationFrame implements Runnable {
             this.xAxisRange = xAxisRange;
             domain.setFixedAutoRange(xAxisRange);
         } catch (NullPointerException e) {
-            
+
         }
     }
 
@@ -303,7 +305,7 @@ public final class AnimatedGraph extends ApplicationFrame implements Runnable {
         chartPanel.setYValues(lowerY, upperY);
         setYRange();
     }
-    
+
     /**
      *
      */
@@ -313,7 +315,7 @@ public final class AnimatedGraph extends ApplicationFrame implements Runnable {
         chartPanel.setYValues(lowerY, upperY);
         setYRange();
     }
-    
+
     private void setYRange() {
         try {
             valueAxis.setRange(lowerY, upperY);
@@ -342,7 +344,7 @@ public final class AnimatedGraph extends ApplicationFrame implements Runnable {
     public XYSeriesCollection getDataset() {
         return dataset;
     }
-    
+
     /**
      *
      * @param channelNameNumberAssigment
@@ -350,27 +352,27 @@ public final class AnimatedGraph extends ApplicationFrame implements Runnable {
     public void setHashMap(HashMap<String, Integer> channelNameNumberAssigment) {
         this.channelNameNumberAssigment = channelNameNumberAssigment;
     }
-    
+
     private class ChartpanelUnzoomFixx extends ChartPanel {
-        
+
         private int maxYValue;
         private int minYValue;
-        
+
         public ChartpanelUnzoomFixx(JFreeChart chart, int minYValue, int maxYValue) {
             super(chart);
             this.minYValue = minYValue;
             this.maxYValue = maxYValue;
         }
-        
+
         public void setYValues(int lower, int upper) {
             this.maxYValue = upper;
             this.minYValue = lower;
         }
-        
+
         @Override
         public void restoreAutoBounds() {
             super.restoreAutoDomainBounds();
-            
+
             try {
                 valueAxis.setAutoRange(false);
                 valueAxis2.setAutoRange(false);
@@ -381,21 +383,28 @@ public final class AnimatedGraph extends ApplicationFrame implements Runnable {
                 try {
                     super.restoreAutoRangeBounds();
                 } catch (IndexOutOfBoundsException ex) {
-                    
+
                 }
             }
         }
     }
-    
+
     String time() {
 //        return Instant.now().toString();
         LocalTime toLocalTime = getTime();
         return toLocalTime.toString();
     }
-    
+
     LocalTime getTime() {
         ZoneId zone = ZoneId.systemDefault();
         ZonedDateTime zdt = ZonedDateTime.now(zone);
         return zdt.toLocalTime();
+    }
+
+    private void setApplicationIcon() {
+        ImageIcon icon = new javax.swing.ImageIcon(getClass().getResource("/Pictures/logo.jpg"));
+        Image img = icon.getImage();
+
+        this.setIconImage(img);
     }
 }

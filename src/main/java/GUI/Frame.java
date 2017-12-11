@@ -8,13 +8,17 @@ import Sorting.AlphanumComparator;
 import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Observer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.imageio.ImageIO;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
@@ -39,6 +43,7 @@ public final class Frame extends javax.swing.JFrame implements Observer {
     int baudrate = 400000;
     int dataBits = 8;
     int stopBits = 1;
+    int shownChannels = 60;
 
     /**
      * Creates new form Frame
@@ -48,6 +53,14 @@ public final class Frame extends javax.swing.JFrame implements Observer {
         initComponents();
         initConfig();
         setPlayPauseIcon("pause");
+        setApplicationIcon();
+    }
+
+    private void setApplicationIcon() {
+        ImageIcon icon = new javax.swing.ImageIcon(getClass().getResource("/Pictures/logo.jpg"));
+        Image img = icon.getImage();
+
+        this.setIconImage(img);
     }
 
     private void initConfig() {
@@ -60,6 +73,7 @@ public final class Frame extends javax.swing.JFrame implements Observer {
         jTextFieldBaudrate.setText(String.valueOf(baudrate));
         jTextFieldDataBits.setText(String.valueOf(dataBits));
         jTextFieldStopBits.setText(String.valueOf(stopBits));
+        jTextFieldNewChannelNumber.setText(String.valueOf(shownChannels));
     }
 
     /**
@@ -531,7 +545,7 @@ public final class Frame extends javax.swing.JFrame implements Observer {
         maxEmbeddedLatency.setEditable(false);
         maxEmbeddedLatency.setBackground(new java.awt.Color(255, 255, 255));
         maxEmbeddedLatency.setText("0");
-        maxEmbeddedLatency.setToolTipText("Timedifference between two received EOT Bytes");
+        maxEmbeddedLatency.setToolTipText("Max Embedded Latency (might be corrupted due to PC workload) ");
         maxEmbeddedLatency.setFocusable(false);
 
         javax.swing.GroupLayout EmbeddedLatencyPanelLayout = new javax.swing.GroupLayout(EmbeddedLatencyPanel);
@@ -800,7 +814,7 @@ public final class Frame extends javax.swing.JFrame implements Observer {
         comportHandler = new ComportHandler(selectedComport, selectedBaudrate, selectedDataBits, selectedStopBits, channelCount, channelNameNumberAssignment, reversedHashMap);
         comportHandler.addObserver(this);
         Thread thread = new Thread(comportHandler);
-        thread.setPriority(Thread.MAX_PRIORITY-1);
+        thread.setPriority(Thread.MAX_PRIORITY - 1);
         thread.start();
         try {
             thread.join();
@@ -1034,7 +1048,6 @@ public final class Frame extends javax.swing.JFrame implements Observer {
         }
         ChannelRemove.doClick();
     }
-
 
     private void setPlayPauseIcon(String name) {
         ImageIcon icon = new javax.swing.ImageIcon(getClass().getResource("/Pictures/" + name + ".png"));
