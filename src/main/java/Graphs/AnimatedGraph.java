@@ -3,6 +3,8 @@
  */
 package Graphs;
 
+import HelpClasses.SeriesNameAndData;
+import HelpClasses.SeriesHolder;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -406,5 +408,9 @@ public final class AnimatedGraph extends ApplicationFrame implements Runnable {
         Image img = icon.getImage();
 
         this.setIconImage(img);
+    }
+
+    public int getSeriesMaxLength() {
+        return seriesMaxLength;
     }
 }

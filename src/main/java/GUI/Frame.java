@@ -8,17 +8,13 @@ import Sorting.AlphanumComparator;
 import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.Image;
-import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Observer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.imageio.ImageIO;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
@@ -50,10 +46,16 @@ public final class Frame extends javax.swing.JFrame implements Observer {
      *
      */
     public Frame() {
+        init();
+    }
+
+    private void init() {
         initComponents();
         initConfig();
         setPlayPauseIcon("pause");
         setApplicationIcon();
+        this.validate();
+        this.repaint();
     }
 
     private void setApplicationIcon() {
@@ -65,8 +67,8 @@ public final class Frame extends javax.swing.JFrame implements Observer {
 
     private void initConfig() {
         boolean contains = Arrays.asList(SerialPortList.getPortNames()).contains(portname);
+        refreshComports();
         if (contains) {
-            refreshComports();
             comboBoxPortChooser.setSelectedItem(portname);
         }
 
@@ -826,8 +828,16 @@ public final class Frame extends javax.swing.JFrame implements Observer {
     }//GEN-LAST:event_jButtonToolConnectActionPerformed
 
     private void jButtonDisconnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDisconnectActionPerformed
-        setCardLayout("toolConnect");
+        disconnect();
     }//GEN-LAST:event_jButtonDisconnectActionPerformed
+
+    private void disconnect() {
+        comportHandler.disconnect();
+        setCardLayout("toolConnect");
+//        init();
+        this.validate();
+        this.repaint();
+    }
 
     private void jButtonPlayPauseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonPlayPauseActionPerformed
         if (isPaused) {
@@ -1177,11 +1187,15 @@ public final class Frame extends javax.swing.JFrame implements Observer {
 
     @Override
     public void update(java.util.Observable o, Object arg) {
-        jTextFieldEmbeddedLatency.setText(String.valueOf(comportHandler.getEmbeddedLatency()) + " ms");
-        maxEmbeddedLatency.setText(String.valueOf(comportHandler.getMaxEmbeddedLatency()) + " ms MAX");
-        jTextFieldToolLatency.setText(String.valueOf(comportHandler.getToolLatency()) + " ms");
-        jTextFieldErrorCount.setText(String.valueOf(comportHandler.getReceivedIncorrectLines()));
-        this.validate();
-        this.repaint();
+        if (comportHandler.isDisconnect()) {
+            disconnect();
+        } else {
+            jTextFieldEmbeddedLatency.setText(String.valueOf(comportHandler.getEmbeddedLatency()) + " ms");
+            maxEmbeddedLatency.setText(String.valueOf(comportHandler.getMaxEmbeddedLatency()) + " ms MAX");
+            jTextFieldToolLatency.setText(String.valueOf(comportHandler.getToolLatency()) + " ms");
+            jTextFieldErrorCount.setText(String.valueOf(comportHandler.getReceivedIncorrectLines()));
+            this.validate();
+            this.repaint();
+        }
     }
 }

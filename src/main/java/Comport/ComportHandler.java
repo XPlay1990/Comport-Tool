@@ -4,8 +4,9 @@
 package Comport;
 
 import Graphs.AnimatedGraph;
-import Graphs.SeriesHolder;
-import Graphs.SeriesNameAndData;
+import HelpClasses.MultipleSeriesHolder;
+import HelpClasses.SeriesHolder;
+import HelpClasses.SeriesNameAndData;
 import Protocol.Stream_Evaluation;
 import Protocol.InputStreamMatrix;
 import Logs.TxtLog;
@@ -48,7 +49,7 @@ public class ComportHandler extends java.util.Observable implements SerialPortEv
     private boolean isPaused = false;
     private boolean startReading = true;
 
-    private ArrayList<SeriesHolder> multipleSeriesHolder;
+    private MultipleSeriesHolder multipleSeriesHolder;
     private ArrayList<Integer> x_indexHolder;
 
     private final String comport;
@@ -67,6 +68,7 @@ public class ComportHandler extends java.util.Observable implements SerialPortEv
     private int embeddedLatency;
     private int maxEmbeddedLatency;
     private int toolLatency;
+    private boolean disconnect = false;
 
     @Override
     public void run() {
@@ -77,8 +79,14 @@ public class ComportHandler extends java.util.Observable implements SerialPortEv
 
             animated.setVisible(true);
         } catch (SerialPortException | FileNotFoundException ex) {
-            animated.dispose();
-            JOptionPane.showMessageDialog(null, ex);
+            Thread t = new Thread(() -> {
+                animated.dispose();
+                disconnect = true;
+                setChanged();
+                notifyObservers(true);
+                JOptionPane.showMessageDialog(null, ex);
+            });
+            t.start();
         }
     }
 
@@ -114,7 +122,7 @@ public class ComportHandler extends java.util.Observable implements SerialPortEv
             this.assignedOffset.put(index, 0);
         }
 
-        multipleSeriesHolder = new ArrayList<>();
+        multipleSeriesHolder = new MultipleSeriesHolder();
         x_indexHolder = new ArrayList<>();
     }
 
@@ -142,6 +150,15 @@ public class ComportHandler extends java.util.Observable implements SerialPortEv
         serialPort.addEventListener(this, SerialPort.MASK_RXCHAR);
     }
 
+    public void disconnect() {
+        try {
+            serialPort.closePort();
+        } catch (SerialPortException ex) {
+            Logger.getLogger(ComportHandler.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        animated.dispose();
+    }
+
     /**
      *
      * @param event
@@ -153,79 +170,79 @@ public class ComportHandler extends java.util.Observable implements SerialPortEv
                 if (startReading) {
                     isInserting = true;
 //                    if (inputStream.available() > 10) { // breaks embeddedlatency if streamlength too small
-                        while (inputStream.available() > 0) {
-                            int lastByte;
-                            lastByte = this.inputStream.read();
+                    while (inputStream.available() > 0) {
+                        int lastByte;
+                        lastByte = this.inputStream.read();
 
-                            if (lastByte == ExceptionChar.EXC_ENQ.getValue()) {
-                                //Start of transmission
-                                inputStreamMatrix.add(new Stream_Evaluation());
-                            } else if (lastByte == ExceptionChar.EXC_EOT.getValue()) {
-                                //End of transmission -> evaluation
-                                LocalTime eventReceived_Time = getTime();
+                        if (lastByte == ExceptionChar.EXC_ENQ.getValue()) {
+                            //Start of transmission
+                            inputStreamMatrix.add(new Stream_Evaluation());
+                        } else if (lastByte == ExceptionChar.EXC_EOT.getValue()) {
+                            //End of transmission -> evaluation
+                            LocalTime eventReceived_Time = getTime();
 
-                                Iterator<Stream_Evaluation> iterator = inputStreamMatrix.iterator();
-                                while (iterator.hasNext()) {
-                                    Stream_Evaluation etbsRemoved = iterator.next().removeETBs();
-                                    iterator.remove();
+                            Iterator<Stream_Evaluation> iterator = inputStreamMatrix.iterator();
+                            while (iterator.hasNext()) {
+                                Stream_Evaluation etbsRemoved = iterator.next().removeETBs();
+                                iterator.remove();
 
-                                    ArrayList<Integer> bytesFolded = new ArrayList<>();
-                                    //insert into animatedgraph if correct
-                                    try {
-                                        if (etbsRemoved.checkCorrectness(bytesFolded)) {
-                                            int channelNumber = 0;
-                                            String txtLogLine = (LocalDate.now().toString() + "\t") + (LocalTime.now().toString() + "\t\t");
+                                ArrayList<Integer> bytesFolded = new ArrayList<>();
+                                //insert into animatedgraph if correct
+                                try {
+                                    if (etbsRemoved.checkCorrectness(bytesFolded)) {
+                                        int channelNumber = 0;
+                                        String txtLogLine = (LocalDate.now().toString() + "\t") + (LocalTime.now().toString() + "\t\t");
 
-                                            //retreive data
-                                            SeriesHolder seriesNameAndData = new SeriesHolder();
-                                            for (int value : bytesFolded) {
-                                                offsetMap.put(channelNumber, value);
-                                                if (activeChannelList.contains(channelNumber)) {
-                                                    seriesNameAndData.add(new SeriesNameAndData(reversedHashMap.get(channelNumber), value - (assignedOffset.get(channelNumber))));
-                                                }
-                                                txtLogLine += (value + "\t");
-                                                channelNumber++;
+                                        //retreive data
+                                        SeriesHolder seriesNameAndData = new SeriesHolder();
+                                        for (int value : bytesFolded) {
+                                            offsetMap.put(channelNumber, value);
+                                            if (activeChannelList.contains(channelNumber)) {
+                                                seriesNameAndData.add(new SeriesNameAndData(reversedHashMap.get(channelNumber), value - (assignedOffset.get(channelNumber))));
                                             }
-
-                                            //using the retreived data
-                                            txtLogger.newLogLine(txtLogLine);
-                                            Thread txtloggerThread = new Thread(txtLogger);
-                                            txtloggerThread.start();
-                                            multipleSeriesHolder.add(seriesNameAndData);
-                                            x_indexHolder.add(channelcount);
-                                            if (!isPaused) {
-                                                animated.setDataToProcess(x_indexHolder, multipleSeriesHolder);
-                                                Thread animatedThread = new Thread(animated);
-                                                animatedThread.setPriority(Thread.NORM_PRIORITY + 3);
-                                                animatedThread.start();
-                                                animatedThread.join();
-                                                multipleSeriesHolder = new ArrayList<>();
-                                                x_indexHolder = new ArrayList<>();
-                                            }
-                                            txtloggerThread.join();
-
-                                            updateFrameLatencys(eventReceived_Time);
-
-                                            channelcount++;
-                                        } else {
-                                            //stream was corrupted
-                                            receivedIncorrectLines++;
-                                            if (receivedIncorrectLines == 250) {
-                                                JOptionPane.showMessageDialog(null, "Already received 250 corrupt lines!");
-                                            }
+                                            txtLogLine += (value + "\t");
+                                            channelNumber++;
                                         }
-                                    } catch (NullPointerException e) {
-                                        //List was Empty when end of stream reached
-                                    } catch (InterruptedException ex) {
-                                        Logger.getLogger(ComportHandler.class.getName()).log(Level.SEVERE, null, ex);
+
+                                        //using the retreived data
+                                        txtLogger.newLogLine(txtLogLine);
+                                        Thread txtloggerThread = new Thread(txtLogger);
+                                        txtloggerThread.start();
+                                        multipleSeriesHolder.add(seriesNameAndData, animated.getSeriesMaxLength());
+                                        x_indexHolder.add(channelcount);
+                                        if (!isPaused) {
+                                            animated.setDataToProcess(x_indexHolder, multipleSeriesHolder);
+                                            Thread animatedThread = new Thread(animated);
+                                            animatedThread.setPriority(Thread.NORM_PRIORITY + 3);
+                                            animatedThread.start();
+                                            animatedThread.join();
+                                            multipleSeriesHolder = new MultipleSeriesHolder();
+                                            x_indexHolder = new ArrayList<>();
+                                        }
+                                        txtloggerThread.join();
+
+                                        updateFrameLatencys(eventReceived_Time);
+
+                                        channelcount++;
+                                    } else {
+                                        //stream was corrupted
+                                        receivedIncorrectLines++;
+                                        if (receivedIncorrectLines == 250) {
+                                            JOptionPane.showMessageDialog(null, "Already received 250 corrupt lines!");
+                                        }
                                     }
+                                } catch (NullPointerException e) {
+                                    //List was Empty when end of stream reached
+                                } catch (InterruptedException ex) {
+                                    Logger.getLogger(ComportHandler.class.getName()).log(Level.SEVERE, null, ex);
                                 }
-                            } else {
-                                //add data to List
-                                inputStreamMatrix.addLast(lastByte);
-                                //TODO: if empty -> errorcount++;
                             }
+                        } else {
+                            //add data to List
+                            inputStreamMatrix.addLast(lastByte);
+                            //TODO: if empty -> errorcount++;
                         }
+                    }
 //                    }
                     isInserting = false;
                 }
@@ -443,148 +460,8 @@ public class ComportHandler extends java.util.Observable implements SerialPortEv
     public void setIsPaused(boolean isPaused) {
         this.isPaused = isPaused;
     }
+
+    public boolean isDisconnect() {
+        return disconnect;
+    }
 }
-//
-//    /**
-//     *
-//     * @return
-//     */
-//    public AnimatedGraph getAnimated() {
-//        return animated;
-//    }
-//
-//    /**
-//     *
-//     * @return
-//     */
-//    public InputStream getInputStream() {
-//        return inputStream;
-//    }
-//
-////    public void addToHashmap(int channelNumber, String channelName) {
-////        this.ChannelKeyMap.put(channelNumber, channelName);
-////    }
-//    /**
-//     *
-//     * @throws jssc.SerialPortException
-//     */
-//    public void disconnect() throws SerialPortException {
-//        serialPort.closePort();//Close serial port
-//        txtLogger.closeStream();
-//        txtLogger.setFinished();
-//    }
-//
-//
-//    String time() {
-////        return Instant.now().toString();
-//        LocalTime toLocalTime = getTime();
-//        return toLocalTime.toString();
-//    }
-//
-//    LocalTime getTime() {
-//        ZoneId zone = ZoneId.systemDefault();
-//        ZonedDateTime zdt = ZonedDateTime.now(zone);
-//        return zdt.toLocalTime();
-//    }
-//
-//    /**
-//     *
-//     * @param isCreatingExcel
-//     */
-//    public synchronized void setIsCreatingExcel(boolean isCreatingExcel) {
-//        this.isCreatingExcel = isCreatingExcel;
-//    }
-//
-//    /**
-//     *
-//     * @return
-//     */
-//    public synchronized ArrayList<Integer> getActiveChannelList() {
-//        return activeChannelList;
-//    }
-//
-//    /**
-//     *
-//     */
-//    public void setOffset() {
-//        tempChannelMatrix.forEach((channel) -> {
-//            if (!channel.isEmpty()) {
-//                channel.setOffset(channel.getLastElement()); // ToDo: set to own list
-//            } else {
-//                channel.setOffset(channel.getLastElementBeforeFlush()); // ToDo: set to own list
-//            }
-//        });
-//    }
-//
-//    /**
-//     *
-//     */
-//    public void removeOffset() {
-//        tempChannelMatrix.forEach((channel) -> {
-//            channel.setOffset(0);
-//        });
-//    }
-//
-//    /**
-//     *
-//     */
-//    public synchronized void startInput() {
-//        startInput = true;
-//    }
-//
-//    /**
-//     *
-//     * @param state
-//     */
-//    public synchronized void toOldInputState(Boolean state) {
-//        startInput = state;
-//    }
-//
-//    /**
-//     *
-//     */
-//    public synchronized void stopInput() {
-////        pauseMatrix = new ChannelMatrix();
-//        startInput = false;
-//    }
-//
-//    /**
-//     *
-//     * @return
-//     */
-//    public boolean getActualInputState() {
-//        return startInput;
-//    }
-//
-//    /**
-//     *
-//     */
-//    public synchronized void toggleInputState() {
-//        startInput = !startInput;
-//    }
-//
-//    /**
-//     *
-//     * @return
-//     */
-//    public boolean getInsertingState() {
-//        return isInserting;
-//    }
-//
-//    /**
-//     *
-//     * @return
-//     */
-//    public ChannelMatrix getChannelMatrix() {
-//        return tempChannelMatrix;
-//    }
-//
-//    /**
-//     *
-//     */
-//    @SuppressWarnings("empty-statement")
-//    public void stopInputAndWait() {
-//        stopInput();
-//        while (isInserting);
-//    }
-//}
