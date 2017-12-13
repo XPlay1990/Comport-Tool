@@ -44,7 +44,7 @@ public class ComportTool {
                 frame.setMinimumSize(frame.getMinimumSize());
                 frame.setMaximumSize(frame.getPreferredSize());
                 frame.setResizable(false);
-                frame.setTitle("ComportTool v5.2");
+                frame.setTitle("ComportTool v5.3");
 //                frame.allChannelOff();
                 frame.setVisible(true);
 //                EventHandler connectDisconnectHandler = new EventHandler(frame);
