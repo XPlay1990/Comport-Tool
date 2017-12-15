@@ -4,6 +4,7 @@
 package Comport;
 
 import Graphs.AnimatedGraph;
+import HelpClasses.IndexHolder;
 import HelpClasses.MultipleSeriesHolder;
 import HelpClasses.SeriesHolder;
 import HelpClasses.SeriesNameAndData;
@@ -50,7 +51,7 @@ public class ComportHandler extends java.util.Observable implements SerialPortEv
     private boolean startReading = true;
 
     private MultipleSeriesHolder multipleSeriesHolder;
-    private ArrayList<Integer> x_indexHolder;
+    private IndexHolder x_indexHolder;
 
     private final String comport;
     private final int baudrate;
@@ -123,7 +124,7 @@ public class ComportHandler extends java.util.Observable implements SerialPortEv
         }
 
         multipleSeriesHolder = new MultipleSeriesHolder();
-        x_indexHolder = new ArrayList<>();
+        x_indexHolder = new IndexHolder();
     }
 
     /**
@@ -208,8 +209,9 @@ public class ComportHandler extends java.util.Observable implements SerialPortEv
                                         txtLogger.newLogLine(txtLogLine);
                                         Thread txtloggerThread = new Thread(txtLogger);
                                         txtloggerThread.start();
-                                        multipleSeriesHolder.add(seriesNameAndData, animated.getSeriesMaxLength());
-                                        x_indexHolder.add(channelcount);
+                                        int graphMaxLength = animated.getSeriesMaxLength();
+                                        multipleSeriesHolder.add(seriesNameAndData, graphMaxLength);
+                                        x_indexHolder.add(channelcount, graphMaxLength);
                                         if (!isPaused) {
                                             animated.setDataToProcess(x_indexHolder, multipleSeriesHolder);
                                             Thread animatedThread = new Thread(animated);
@@ -217,7 +219,7 @@ public class ComportHandler extends java.util.Observable implements SerialPortEv
                                             animatedThread.start();
                                             animatedThread.join();
                                             multipleSeriesHolder = new MultipleSeriesHolder();
-                                            x_indexHolder = new ArrayList<>();
+                                            x_indexHolder = new IndexHolder();
                                         }
                                         txtloggerThread.join();
 
