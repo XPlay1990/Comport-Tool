@@ -27,22 +27,23 @@ import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
-import jssc.SerialPort;
-import jssc.SerialPortEvent;
-import jssc.SerialPortEventListener;
-import jssc.SerialPortException;
+//import jssc.SerialPort;
+//import jssc.SerialPortEvent;
+//import jssc.SerialPortEventListener;
+//import jssc.SerialPortException;
 import org.jfree.ui.RefineryUtilities;
+
+import com.fazecast.jSerialComm.*;
 
 /**
  * handles connection to the serialport and receiving of data
  *
  * @author jan.Adamczyk
  */
-public class ComportHandler extends java.util.Observable implements SerialPortEventListener, Runnable {
+public class ComportHandler extends java.util.Observable implements SerialPortDataListener, Runnable {
 
     private InputStreamMatrix inputStreamMatrix;
     private SerialPort serialPort;
-    private SerialInputStream inputStream;
     private Integer channelcount = 0;
     private final AnimatedGraph animated;
     private final ArrayList<Integer> activeChannelList;
@@ -79,7 +80,7 @@ public class ComportHandler extends java.util.Observable implements SerialPortEv
             txtLogger = new TxtLog(txtLogline);
 
             animated.setVisible(true);
-        } catch (SerialPortException | FileNotFoundException ex) {
+        } catch (FileNotFoundException ex) {
             Thread t = new Thread(() -> {
                 animated.dispose();
                 disconnect = true;
@@ -135,28 +136,23 @@ public class ComportHandler extends java.util.Observable implements SerialPortEv
      * @param stopBits
      * @throws jssc.SerialPortException
      */
-    private void connect(String comport, int baudrate, int dataBits, int stopBits) throws SerialPortException {
+    private void connect(String comport, int baudrate, int dataBits, int stopBits) {
         this.inputStreamMatrix = new InputStreamMatrix();
 
         //read Port
-        serialPort = new SerialPort(comport);
+        serialPort = SerialPort.getCommPort(comport);
+
         serialPort.openPort();//Open serial port
-        serialPort.setParams(baudrate, dataBits, stopBits, 0);//Set params.
-        int mask = SerialPort.MASK_RXCHAR + SerialPort.MASK_CTS + SerialPort.MASK_DSR;//Prepare mask
-        serialPort.setEventsMask(mask);//Set mask
+        serialPort.setComPortParameters(baudrate, dataBits, stopBits, 0);//Set params.
 //        serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_RTSCTS_IN
 //                | SerialPort.FLOWCONTROL_RTSCTS_OUT);
 
         inputStream = new SerialInputStream(serialPort);
-        serialPort.addEventListener(this, SerialPort.MASK_RXCHAR);
+        serialPort.addDataListener(this);
     }
 
     public void disconnect() {
-        try {
-            serialPort.closePort();
-        } catch (SerialPortException ex) {
-            Logger.getLogger(ComportHandler.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        serialPort.closePort();
         animated.dispose();
     }
 
@@ -165,15 +161,17 @@ public class ComportHandler extends java.util.Observable implements SerialPortEv
      * @param event
      */
     @Override
-    public synchronized void serialEvent(SerialPortEvent event) {
-        if (event.isRXCHAR()) {
+    public void serialEvent(SerialPortEvent event) {
+        if (event.getEventType() != SerialPort.LISTENING_EVENT_DATA_AVAILABLE) {
+            return;
+        } else {
             try {
                 if (startReading) {
                     isInserting = true;
 //                    if (inputStream.available() > 10) { // breaks embeddedlatency if streamlength too small
-                    while (inputStream.available() > 0) {
+                    while (serialPort.bytesAvailable() > 0) {
                         int lastByte;
-                        lastByte = this.inputStream.read();
+                        lastByte = this.serialPort.re
 
                         if (lastByte == ExceptionChar.EXC_ENQ.getValue()) {
                             //Start of transmission
@@ -248,7 +246,7 @@ public class ComportHandler extends java.util.Observable implements SerialPortEv
 //                    }
                     isInserting = false;
                 }
-            } catch (HeadlessException | IOException ex) {
+            } catch (HeadlessException ex) {
                 JOptionPane.showMessageDialog(null, ex);
             }
         }

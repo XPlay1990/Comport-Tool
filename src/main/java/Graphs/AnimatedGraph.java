@@ -61,11 +61,15 @@ public final class AnimatedGraph extends ApplicationFrame implements Runnable {
     private ArrayList<SeriesHolder> seriesNameandData;
 
     public void run() {
-        dataset.setNotify(false);
-        for (int index = 0; index < x_indexList.size(); index++) {
-            addValuesToSeries(x_indexList.get(index), seriesNameandData.get(index));
+        try {
+            dataset.setNotify(false);
+            for (int index = 0; index < x_indexList.size(); index++) {
+                addValuesToSeries(x_indexList.get(index), seriesNameandData.get(index));
+            }
+            dataset.setNotify(true);
+        } catch (NullPointerException e) {
+            System.out.println(e + ": DataSet was not existing yet");
         }
-        dataset.setNotify(true);
     }
 
     /**
