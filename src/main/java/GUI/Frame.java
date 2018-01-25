@@ -5,6 +5,7 @@ package GUI;
 
 import Comport.ComportHandler;
 import Sorting.AlphanumComparator;
+import com.fazecast.jSerialComm.SerialPort;
 import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.Image;
@@ -18,7 +19,6 @@ import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
-import jssc.SerialPortList;
 
 /**
  * GUI class to access the tool
@@ -66,7 +66,12 @@ public final class Frame extends javax.swing.JFrame implements Observer {
     }
 
     private void initConfig() {
-        boolean contains = Arrays.asList(SerialPortList.getPortNames()).contains(portname);
+        SerialPort[] commPorts = SerialPort.getCommPorts();
+        ArrayList<String> portnameList = new ArrayList<>();
+        for (SerialPort comport : commPorts) {
+            portnameList.add(comport.getDescriptivePortName());
+        }
+        boolean contains = portnameList.contains(portname);
         refreshComports();
         if (contains) {
             comboBoxPortChooser.setSelectedItem(portname);
@@ -1068,7 +1073,12 @@ public final class Frame extends javax.swing.JFrame implements Observer {
     }
 
     private void refreshComports() {
-        this.portNames = SerialPortList.getPortNames();
+        SerialPort[] commPorts = SerialPort.getCommPorts();
+        ArrayList<String> portnameList = new ArrayList<>();
+        for (SerialPort comport : commPorts) {
+            portnameList.add(comport.getDescriptivePortName());
+        }
+        this.portNames = portnameList.toArray(new String[portnameList.size()]);
         if (portNames.length > 0) {
             comboBoxPortChooser.setModel(new javax.swing.DefaultComboBoxModel<>(portNames));
         } else {

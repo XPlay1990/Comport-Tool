@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
 import org.jfree.chart.ChartColor;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -90,10 +89,8 @@ public final class AnimatedGraph extends ApplicationFrame implements Runnable {
         super("AnimatedGraphs");
         setApplicationIcon();
         this.channelNameNumberAssigment = channelNameNumberAssigment;
-        SwingUtilities.invokeLater(() -> {
-            dataset = new XYSeriesCollection();
-            jfreeChart = createChart(dataset);
-        });
+        dataset = new XYSeriesCollection();
+        jfreeChart = createChart(dataset);
         this.validate();
         this.repaint();
     }
