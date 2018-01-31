@@ -1,3 +1,5 @@
+package Main;
+
 
 import GUI.Frame;
 import javax.swing.BoxLayout;

@@ -25,7 +25,7 @@ import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
-import org.jfree.ui.RefineryUtilities;
+//import org.jfree.ui.RefineryUtilities;
 
 import com.fazecast.jSerialComm.*;
 import java.awt.HeadlessException;
@@ -207,9 +207,9 @@ public class ComportHandler extends java.util.Observable implements Runnable {
 
         //create Animated-Graph-Window
         animated = new AnimatedGraph(channelNameNumberAssignment);
-        animated.pack();
+//        animated.pack();
         animated.setMinimumSize(new Dimension(500, 500));
-        RefineryUtilities.centerFrameOnScreen(animated);
+//        RefineryUtilities.centerFrameOnScreen(animated);
 
         this.offsetMap = new HashMap<>();
         this.assignedOffset = new HashMap<>();

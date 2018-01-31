@@ -31,7 +31,7 @@ import org.jfree.data.UnknownKeyException;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.jfree.ui.ApplicationFrame;
+import org.jfree.chart.ui.ApplicationFrame;
 
 /**
  * creates a live-graph of the received data
