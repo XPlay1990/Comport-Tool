@@ -11,7 +11,6 @@ import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Observer;
 import java.util.logging.Level;
@@ -845,15 +844,7 @@ public final class Frame extends javax.swing.JFrame implements Observer {
     }
 
     private void jButtonPlayPauseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonPlayPauseActionPerformed
-        if (isPaused) {
-            isPaused = false;
-            comportHandler.setIsPaused(false);
-            setPlayPauseIcon("pause");
-        } else {
-            isPaused = true;
-            comportHandler.setIsPaused(true);
-            setPlayPauseIcon("play");
-        }
+        togglePause();
     }//GEN-LAST:event_jButtonPlayPauseActionPerformed
 
     private void ChannelRemoveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ChannelRemoveActionPerformed
@@ -1034,6 +1025,26 @@ public final class Frame extends javax.swing.JFrame implements Observer {
         card.show(mainPanel, cardName);
         this.validate();
         this.repaint();
+    }
+
+    private void togglePause() {
+        if (isPaused) {
+            isPaused = false;
+            comportHandler.setIsPaused(false);
+            setPlayPauseIcon("pause");
+        } else {
+            isPaused = true;
+            comportHandler.setIsPaused(true);
+            setPlayPauseIcon("play");
+        }
+    }
+
+    public void klickPausePlay() {
+        jButtonPlayPause.doClick();
+    }
+
+    public void klickAllOnOff() {
+        jToggleButtonChannelOnOff.doClick();
     }
 
     /**
