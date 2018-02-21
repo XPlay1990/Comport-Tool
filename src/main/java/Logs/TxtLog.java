@@ -30,12 +30,13 @@ public final class TxtLog implements Runnable {
     /**
      *
      * @param logLine
+     * @param comport
      * @throws FileNotFoundException
      */
-    public TxtLog(String logLine) throws FileNotFoundException {
+    public TxtLog(String logLine, String comport) throws FileNotFoundException {
         String dateTime = LocalDateTime.now().toString().replaceAll(":", "-");
         dateTime = dateTime.replaceAll("T", "_Time_");
-        this.file = new File("ComportTool_Logfile_" + dateTime + ".txt");
+        this.file = new File("ComportTool_Logfile_" + dateTime + "_" + comport.replaceAll(" ", "_") +".txt");
 
         try {
             if (!file.exists()) {

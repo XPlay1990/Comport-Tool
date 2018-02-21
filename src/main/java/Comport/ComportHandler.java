@@ -72,7 +72,7 @@ public class ComportHandler extends java.util.Observable implements Runnable {
         try {
             connect(comport, baudrate, dataBits, stopBits);
 
-            txtLogger = new TxtLog(txtLogline);
+            txtLogger = new TxtLog(txtLogline, comport);
 
             animated.setVisible(true);
         } catch (FileNotFoundException ex) {
