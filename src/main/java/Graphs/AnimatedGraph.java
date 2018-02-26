@@ -85,8 +85,8 @@ public final class AnimatedGraph extends ApplicationFrame implements Runnable {
      *
      * @param channelNameNumberAssigment
      */
-    public AnimatedGraph(HashMap<String, Integer> channelNameNumberAssigment) {
-        super("AnimatedGraphs");
+    public AnimatedGraph(HashMap<String, Integer> channelNameNumberAssigment, String comport) {
+        super(comport);
         setApplicationIcon();
         this.channelNameNumberAssigment = channelNameNumberAssigment;
         dataset = new XYSeriesCollection();

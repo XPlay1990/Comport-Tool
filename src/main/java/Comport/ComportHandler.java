@@ -206,7 +206,7 @@ public class ComportHandler extends java.util.Observable implements Runnable {
 //        this.channelNameNumberAssignment = channelNameNumberAssignment;
 
         //create Animated-Graph-Window
-        animated = new AnimatedGraph(channelNameNumberAssignment);
+        animated = new AnimatedGraph(channelNameNumberAssignment, comport);
 //        animated.pack();
         animated.setMinimumSize(new Dimension(500, 500));
 //        RefineryUtilities.centerFrameOnScreen(animated);
@@ -241,7 +241,7 @@ public class ComportHandler extends java.util.Observable implements Runnable {
         }
         //read Port
         serialPort = SerialPort.getCommPort(comportSystemName);//comport);
-        serialPort.openPort();
+        boolean openPort = serialPort.openPort();
         serialPort.setComPortTimeouts(SerialPort.TIMEOUT_NONBLOCKING, 0, 0);
 
         serialPort.setComPortParameters(baudrate, dataBits, stopBits, 0);//Set params.
