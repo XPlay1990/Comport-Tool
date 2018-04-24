@@ -249,6 +249,9 @@ public class ComportHandler extends java.util.Observable implements Runnable {
         serialPort.setComPortParameters(baudrate, dataBits, stopBits, 0);//Set params.
     }
 
+    /**
+     *
+     */
     public void disconnect() {
         serialPort.closePort();
         animated.dispose();
@@ -331,7 +334,7 @@ public class ComportHandler extends java.util.Observable implements Runnable {
      * @param channelNumber
      */
     public void removeFromActiveChannelList(int channelNumber) {
-        activeChannelList.remove((Object) channelNumber);
+        activeChannelList.remove(new Integer(channelNumber));
     }
 
     /**
@@ -463,6 +466,10 @@ public class ComportHandler extends java.util.Observable implements Runnable {
         this.isPaused = isPaused;
     }
 
+    /**
+     *
+     * @return
+     */
     public boolean isDisconnect() {
         return disconnect;
     }

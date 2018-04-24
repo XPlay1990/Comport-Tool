@@ -50,7 +50,7 @@ public class FrameCreator {
                 frame.setMinimumSize(frame.getMinimumSize());
                 frame.setMaximumSize(frame.getPreferredSize());
                 frame.setResizable(false);
-                frame.setTitle("ComportTool v6.0_beta5");
+                frame.setTitle("ComportTool v6.5");
 //                frame.allChannelOff();
                 frame.setVisible(true);
 //                EventHandler connectDisconnectHandler = new EventHandler(frame);
