@@ -1,4 +1,9 @@
+# File Types 	  #
+###################
 *.txt
+*.BIN
+*.LOCK
 
-*.bin
-*.lock
+# Folders 	  #
+###################
+.gradle
