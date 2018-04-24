@@ -75,7 +75,7 @@ public class ComportHandler extends java.util.Observable implements Runnable {
             txtLogger = new TxtLog(txtLogline, comport);
 
             animated.setVisible(true);
-        } catch (FileNotFoundException ex) {
+        } catch (FileNotFoundException | PortAlreadyInUseException ex) {
             Thread t = new Thread(() -> {
                 animated.dispose();
                 disconnect = true;
@@ -229,19 +229,21 @@ public class ComportHandler extends java.util.Observable implements Runnable {
      * @param stopBits
      * @throws jssc.SerialPortException
      */
-    private void connect(String comport, int baudrate, int dataBits, int stopBits) {
+    private void connect(String comport, int baudrate, int dataBits, int stopBits) throws PortAlreadyInUseException {
         this.inputStreamMatrix = new InputStreamMatrix();
         String comportSystemName = null;
         SerialPort[] commPorts = SerialPort.getCommPorts();
-        for (int i = 0; i < commPorts.length; i++) {
-            SerialPort port = commPorts[i];
+        for (SerialPort port : commPorts) {
             if (port.getDescriptivePortName().equals(comport)) {
                 comportSystemName = port.getSystemPortName();
             }
         }
         //read Port
         serialPort = SerialPort.getCommPort(comportSystemName);//comport);
-        boolean openPort = serialPort.openPort();
+        if (!serialPort.openPort()) {
+            throw new PortAlreadyInUseException("Port busy!");
+        }
+
         serialPort.setComPortTimeouts(SerialPort.TIMEOUT_NONBLOCKING, 0, 0);
 
         serialPort.setComPortParameters(baudrate, dataBits, stopBits, 0);//Set params.

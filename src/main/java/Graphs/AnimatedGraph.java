@@ -42,7 +42,7 @@ public final class AnimatedGraph extends ApplicationFrame implements Runnable {
 
     private static final String TITLE = "TouchFoilSeries";
     private static final float FATNESS = 3.0f;
-    private XYSeriesCollection dataset;
+    private final XYSeriesCollection dataset;
     private Integer xAxisRange = 500;
     private ValueAxis domain;
     private int lowerY = 0;
@@ -50,7 +50,7 @@ public final class AnimatedGraph extends ApplicationFrame implements Runnable {
     private ValueAxis valueAxis;
     private ValueAxis valueAxis2;
     private final int seriesMaxLength = 2500;
-    private JFreeChart jfreeChart;
+    private final JFreeChart jfreeChart;
     private XYPlot plot;
     private HashMap<String, Integer> channelNameNumberAssigment;
     private ChartpanelUnzoomFixx chartPanel;
