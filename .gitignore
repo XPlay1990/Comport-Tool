@@ -6,4 +6,12 @@
 
 # Folders 	  #
 ###################
-.gradle
+/*/nb-configuration.xml
+/nbproject/
+/*/nbproject/
+/*/target/
+/*/build/
+/netbeans-gradle-javaee-models/gradle-api/
+.gradle/
+/.nb-gradle-properties
+.nb-gradle/

@@ -138,8 +138,12 @@ public class ComportHandler extends java.util.Observable implements Runnable {
                                             Thread txtloggerThread = new Thread(txtLogger);
                                             txtloggerThread.start();
                                             int graphMaxLength = animated.getSeriesMaxLength();
+                                            
+                                            //TODO: move everything into hashmaps Map<index, Map<names, data>>
                                             multipleSeriesHolder.add(seriesNameAndData, graphMaxLength);
                                             x_indexHolder.add(channelcount, graphMaxLength);
+                                            
+                                            
                                             if (!isPaused) {
                                                 animated.setDataToProcess(x_indexHolder, multipleSeriesHolder);
                                                 Thread animatedThread = new Thread(animated);
