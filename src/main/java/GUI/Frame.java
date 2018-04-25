@@ -836,6 +836,7 @@ public final class Frame extends javax.swing.JFrame implements Observer {
     }//GEN-LAST:event_jButtonDisconnectActionPerformed
 
     private void disconnect() {
+        allChannelOff();
         comportHandler.disconnect();
         setCardLayout("toolConnect");
 //        init();
