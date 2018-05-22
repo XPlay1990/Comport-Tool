@@ -232,7 +232,7 @@ public final class Frame extends javax.swing.JFrame implements Observer {
 
         jLabelQDIcon.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Pictures/logo.jpg"))); // NOI18N
 
-        jTextFieldNewChannelNumber.setText("33");
+        jTextFieldNewChannelNumber.setText("60");
 
         jLabel1.setText("Shown Channels");
 

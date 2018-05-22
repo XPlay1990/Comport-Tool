@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import org.jfree.chart.ChartColor;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -84,6 +85,7 @@ public final class AnimatedGraph extends ApplicationFrame implements Runnable {
     /**
      *
      * @param channelNameNumberAssigment
+     * @param comport
      */
     public AnimatedGraph(HashMap<String, Integer> channelNameNumberAssigment, String comport) {
         super(comport);
@@ -413,5 +415,12 @@ public final class AnimatedGraph extends ApplicationFrame implements Runnable {
 
     public int getSeriesMaxLength() {
         return seriesMaxLength;
+    }
+
+    public static void main(String[] args) {
+        // Run the GUI codes in the Event-dispatching thread for thread-safety
+        SwingUtilities.invokeLater(() -> {
+            AnimatedGraph animatedGraph = new AnimatedGraph(new HashMap<>(), "Test"); // Let the constructor do the job
+        });
     }
 }

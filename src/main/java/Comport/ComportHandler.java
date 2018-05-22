@@ -28,7 +28,6 @@ import javax.swing.JOptionPane;
 //import org.jfree.ui.RefineryUtilities;
 
 import com.fazecast.jSerialComm.*;
-import java.awt.HeadlessException;
 
 /**
  * handles connection to the serialport and receiving of data
