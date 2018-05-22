@@ -14,11 +14,13 @@
       "channelNumberToNameMapping": {}
     }
   },
-  "comport_Config": {
-    "portname": "COM1",
-    "baudrate": 400000,
-    "dataBits": 8,
-    "stopBits": 1,
-    "shownChannels": 60
+  "hw_Config": {
+    "comport_Config": {
+      "portname": "COM1",
+      "baudrate": 400000,
+      "dataBits": 8,
+      "stopBits": 1,
+      "shownChannels": 60
+    }
   }
 }

@@ -3,7 +3,7 @@
  */
 package Config;
 
-import Config.HW_Config.Comport_Config;
+import Config.HW_Config.HW_Config;
 import Config.Tool_Config.Tool_Config;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -19,7 +19,7 @@ import java.io.IOException;
 public class Config_JSON {
 
     private Tool_Config tool_Config = new Tool_Config();
-    private Comport_Config comport_Config = new Comport_Config();
+    private HW_Config hw_Config = new HW_Config();
 
     /**
      *
@@ -51,12 +51,13 @@ public class Config_JSON {
         this.tool_Config = tool_Config;
     }
 
-    public Comport_Config getComport_Config() {
-        return comport_Config;
+    public HW_Config getHw_Config() {
+        return hw_Config;
     }
 
-    public void setComport_Config(Comport_Config comport_Config) {
-        this.comport_Config = comport_Config;
+    public void setHw_Config(HW_Config hw_Config) {
+        this.hw_Config = hw_Config;
     }
 
+    
 }
