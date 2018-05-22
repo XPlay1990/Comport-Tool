@@ -11,6 +11,12 @@ import java.util.ArrayList;
  */
 public class MultipleSeriesHolder extends ArrayList<SeriesHolder> {
 
+    /**
+     *
+     * @param e
+     * @param maxLength
+     * @return
+     */
     public boolean add(SeriesHolder e, int maxLength) {
         while (this.size() > (maxLength - 1)) {
             this.remove(0);

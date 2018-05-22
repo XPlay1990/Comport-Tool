@@ -43,18 +43,34 @@ public class Config_JSON {
         }
     }
 
+    /**
+     *
+     * @return
+     */
     public Tool_Config getTool_Config() {
         return tool_Config;
     }
 
+    /**
+     *
+     * @param tool_Config
+     */
     public void setTool_Config(Tool_Config tool_Config) {
         this.tool_Config = tool_Config;
     }
 
+    /**
+     *
+     * @return
+     */
     public HW_Config getHw_Config() {
         return hw_Config;
     }
 
+    /**
+     *
+     * @param hw_Config
+     */
     public void setHw_Config(HW_Config hw_Config) {
         this.hw_Config = hw_Config;
     }

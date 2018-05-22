@@ -10,7 +10,14 @@ import java.util.ArrayList;
  * @author Jan.Adamczyk
  */
 public class IndexHolder extends ArrayList<Integer>{
-        public boolean add(Integer e, int maxLength) {
+
+    /**
+     *
+     * @param e
+     * @param maxLength
+     * @return
+     */
+    public boolean add(Integer e, int maxLength) {
         while (this.size() > (maxLength - 1)) {
             this.remove(0);
         }

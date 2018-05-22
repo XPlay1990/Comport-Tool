@@ -9,6 +9,10 @@ package Comport;
  */
 public class PortAlreadyInUseException extends Exception {
 
+    /**
+     *
+     * @param message
+     */
     public PortAlreadyInUseException(String message) {
         super(message);
     }

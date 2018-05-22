@@ -12,6 +12,10 @@
 /*/target/
 /*/build/
 /netbeans-gradle-javaee-models/gradle-api/
-/.gradle/
+.gradle/
 /.nb-gradle-properties
-/.nb-gradle/
+.nb-gradle/
+
+# Directories left from old Ant project
+/build/
+/nbproject/private/

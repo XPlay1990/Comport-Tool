@@ -16,6 +16,9 @@ public class Server_Config {
     private int port = 3000;
     private Boolean autoConnectToServer = false;
 
+    /**
+     *
+     */
     public Server_Config() {
         serverList.put(
                 "localhost", "localhost");
@@ -23,34 +26,66 @@ public class Server_Config {
                 "Ruslan", "10.131.251.208");
     }
 
+    /**
+     *
+     * @return
+     */
     public HashMap<String, String> getServerList() {
         return serverList;
     }
 
+    /**
+     *
+     * @param serverList
+     */
     public void setServerList(HashMap<String, String> serverList) {
         this.serverList = serverList;
     }
 
+    /**
+     *
+     * @return
+     */
     public int getPort() {
         return port;
     }
 
+    /**
+     *
+     * @param port
+     */
     public void setPort(int port) {
         this.port = port;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getDefaultServer() {
         return defaultServer;
     }
 
+    /**
+     *
+     * @param defaultServer
+     */
     public void setDefaultServer(String defaultServer) {
         this.defaultServer = defaultServer;
     }
 
+    /**
+     *
+     * @return
+     */
     public Boolean getAutoConnectToServer() {
         return autoConnectToServer;
     }
 
+    /**
+     *
+     * @param autoConnectToServer
+     */
     public void setAutoConnectToServer(Boolean autoConnectToServer) {
         this.autoConnectToServer = autoConnectToServer;
     }

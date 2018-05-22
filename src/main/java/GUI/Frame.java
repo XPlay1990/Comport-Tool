@@ -1050,10 +1050,16 @@ public final class Frame extends javax.swing.JFrame implements Observer {
         }
     }
 
+    /**
+     *
+     */
     public void klickPausePlay() {
         jButtonPlayPause.doClick();
     }
 
+    /**
+     *
+     */
     public void klickAllOnOff() {
         jToggleButtonChannelOnOff.doClick();
     }

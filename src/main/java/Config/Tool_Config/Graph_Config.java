@@ -16,26 +16,50 @@ public class Graph_Config {
     private ArrayList<Integer> activeChannelList = new ArrayList<>();
     private HashMap<Integer, String> channelNumberToNameMapping = new HashMap<>();
 
+    /**
+     *
+     * @return
+     */
     public ArrayList<Integer> getActiveChannelList() {
         return activeChannelList;
     }
 
+    /**
+     *
+     * @param activeChannelList
+     */
     public void setActiveChannelList(ArrayList<Integer> activeChannelList) {
         this.activeChannelList = activeChannelList;
     }
 
+    /**
+     *
+     * @return
+     */
     public Boolean getOffset() {
         return offset;
     }
 
+    /**
+     *
+     * @param offset
+     */
     public void setOffset(Boolean offset) {
         this.offset = offset;
     }
 
+    /**
+     *
+     * @return
+     */
     public HashMap<Integer, String> getChannelNumberToNameMapping() {
         return channelNumberToNameMapping;
     }
 
+    /**
+     *
+     * @param channelNumberToNameMapping
+     */
     public void setChannelNumberToNameMapping(HashMap<Integer, String> channelNumberToNameMapping) {
         this.channelNumberToNameMapping = channelNumberToNameMapping;
     }

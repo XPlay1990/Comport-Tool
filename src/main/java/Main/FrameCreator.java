@@ -19,6 +19,9 @@ public class FrameCreator {
 
     Frame frame;
 
+    /**
+     *
+     */
     public void createFrame() {
         try {
             JPanel container = new JPanel();

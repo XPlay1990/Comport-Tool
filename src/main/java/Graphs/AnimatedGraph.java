@@ -413,10 +413,18 @@ public final class AnimatedGraph extends ApplicationFrame implements Runnable {
         this.setIconImage(img);
     }
 
+    /**
+     *
+     * @return
+     */
     public int getSeriesMaxLength() {
         return seriesMaxLength;
     }
 
+    /**
+     *
+     * @param args
+     */
     public static void main(String[] args) {
         // Run the GUI codes in the Event-dispatching thread for thread-safety
         SwingUtilities.invokeLater(() -> {
