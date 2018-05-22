@@ -4,12 +4,14 @@
 package GUI;
 
 import Comport.ComportHandler;
+import Config.Config_JSON;
 import Sorting.AlphanumComparator;
 import com.fazecast.jSerialComm.SerialPort;
 import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Observer;
@@ -763,9 +765,9 @@ public final class Frame extends javax.swing.JFrame implements Observer {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
+                .addGap(0, 0, 0)
                 .addComponent(mainPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -829,6 +831,14 @@ public final class Frame extends javax.swing.JFrame implements Observer {
         }
         this.jComboBoxValuesShown.setSelectedItem("500");
         this.jToggleButtonChannelOnOff.setSelected(true);
+        
+        
+        Config_JSON cfg = new Config_JSON();
+        try {
+            cfg.toJSON();
+        } catch (IOException ex) {
+            Logger.getLogger(Frame.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_jButtonToolConnectActionPerformed
 
     private void jButtonDisconnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDisconnectActionPerformed

@@ -1,8 +1,8 @@
 # File Types 	  #
 ###################
 *.txt
-*.BIN
-*.LOCK
+*.bin
+*.lock
 
 # Folders 	  #
 ###################
@@ -12,6 +12,6 @@
 /*/target/
 /*/build/
 /netbeans-gradle-javaee-models/gradle-api/
-.gradle/
+/.gradle/
 /.nb-gradle-properties
-.nb-gradle/
+/.nb-gradle/
