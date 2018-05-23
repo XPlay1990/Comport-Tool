@@ -1,12 +1,12 @@
 /*
  *  Copyright (C) Jan Adamczyk (j_adamczyk@hotmail.com) 2017
  */
-package Frame;
+package Frame.Schema;
 
 /**
  *
  * @author jan.adamczyk
  */
-public class PASSAT_Frame implements Frame{
+public class PASSAT_Data {
     
 }

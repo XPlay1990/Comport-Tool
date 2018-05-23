@@ -3,11 +3,15 @@
  */
 package Socket;
 
+import DataHandling.DataHandler;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -15,24 +19,15 @@ import java.util.logging.Logger;
  *
  * @author jan.adamczyk
  */
-public class SocketHandler implements Runnable {
+public class SocketHandler {
+
+    DataHandler dataHandler;
 
     BufferedReader reader;
     PrintWriter writer;
 
-    @Override
-    public void run() {
-        while (true) {
-            try {
-                String input;
-                while ((input = reader.readLine()) != null) {
-                    //TODO:CODE
-                }
-            } catch (IOException ex) {
-                Logger.getLogger(SocketHandler.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-    }
+    SocketWriter socketWriter;
+    ExecutorService writeExecutor;
 
     /**
      *
@@ -44,17 +39,38 @@ public class SocketHandler implements Runnable {
             Socket socket = new Socket(ip, port);
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             writer = new PrintWriter(socket.getOutputStream(), true);
+
+            prepareWriterThread();
+            createReaderThread();
         } catch (IOException ex) {
             Logger.getLogger(SocketHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
+    private void createReaderThread() {
+        SocketReader socketReader = new SocketReader(reader);
+
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.execute(socketReader);
+        executor.shutdown();
+    }
+
+    private void prepareWriterThread() {
+        socketWriter = new SocketWriter(writer);
+        writeExecutor = Executors.newSingleThreadExecutor();
+    }
+
     /**
      *
-     * @param o
+     * @param frame
      */
-    public void writeToSocket(Object o) {
-        writer.write(o.toString());
-        writer.flush();
+    public void writeToSocket(String frame) {
+        socketWriter.setDataToWrite(frame);
+        writeExecutor.execute(socketWriter);
+        try {
+            writeExecutor.awaitTermination(100, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(SocketHandler.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }

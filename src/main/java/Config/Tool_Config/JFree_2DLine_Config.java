@@ -16,6 +16,9 @@ public class JFree_2DLine_Config implements Graph_Config {
     private ArrayList<Integer> activeChannelList = new ArrayList<>();
     private HashMap<Integer, String> channelNumberToNameMapping = new HashMap<>();
 
+    /**
+     *
+     */
     public JFree_2DLine_Config() {
 
     }

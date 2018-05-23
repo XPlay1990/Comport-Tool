@@ -5,6 +5,7 @@ package GUI;
 
 import Comport.ComportHandler;
 import Config.Config_JSON;
+import Frame.Schema.PASSAT_Frame;
 import Sorting.AlphanumComparator;
 import com.fazecast.jSerialComm.SerialPort;
 import java.awt.CardLayout;
@@ -834,8 +835,10 @@ public final class Frame extends javax.swing.JFrame implements Observer {
         
         
         Config_JSON cfg = new Config_JSON();
+        PASSAT_Frame passat_frame = new PASSAT_Frame();
         try {
             cfg.toJSON();
+            passat_frame.toJson();
         } catch (IOException ex) {
             Logger.getLogger(Frame.class.getName()).log(Level.SEVERE, null, ex);
         }
