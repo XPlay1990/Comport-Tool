@@ -16,11 +16,13 @@
   },
   "hw_Config": {
     "comport_Config": {
-      "portname": "COM1",
-      "baudrate": 400000,
-      "dataBits": 8,
-      "stopBits": 1,
-      "shownChannels": 60
+      "last_Used_Port": "COM1",
+      "config": {
+        "baudrate": 400000,
+        "stopBits": 1,
+        "dataBits": 8,
+        "shownChannels": 60
+      }
     }
   }
 }

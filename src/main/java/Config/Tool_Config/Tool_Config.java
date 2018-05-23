@@ -10,7 +10,7 @@ package Config.Tool_Config;
 public class Tool_Config {
 
     private Server_Config server_Config = new Server_Config();
-    private Graph_Config graph_Config = new Graph_Config();
+    private Graph_Config graph_Config = new JFree_2DLine_Config();
 
     /**
      *
@@ -40,7 +40,7 @@ public class Tool_Config {
      *
      * @param graph_Config
      */
-    public void setGraph_Config(Graph_Config graph_Config) {
+    public void setGraph_Config(JFree_2DLine_Config graph_Config) {
         this.graph_Config = graph_Config;
     }
 }

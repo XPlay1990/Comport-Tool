@@ -8,5 +8,5 @@ package Config.HW_Config;
  * @author jan.adamczyk
  */
 public class HW_Config {
-    Comport_Config comport_Config = new Comport_Config();
+    HW_Interface comport_Config = new Comport_Config();
 }

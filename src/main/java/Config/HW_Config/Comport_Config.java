@@ -3,98 +3,47 @@
  */
 package Config.HW_Config;
 
+import java.util.HashMap;
+
 /**
  *
  * @author jan.adamczyk
  */
-public class Comport_Config {
+public class Comport_Config implements HW_Interface {
 
-    //default values before configread
-    private String portname = "COM1";
-    private int baudrate = 400000;
-    private int dataBits = 8;
-    private int stopBits = 1;
-    private int shownChannels = 60;
+    private String last_Used_Port = "COM1";
+    private HashMap<String, Object> config = new HashMap<>();
 
-    /**
-     *
-     * @return
-     */
-    public String getPortname() {
-        return portname;
+    public Comport_Config() {
+        config.put("baudrate", 400000);
+        config.put("dataBits", 8);
+        config.put("stopBits", 1);
+        config.put("shownChannels", 60);
     }
 
-    /**
-     *
-     * @param portname
-     */
-    public void setPortname(String portname) {
-        this.portname = portname;
+    public String getLast_Used_Port() {
+        return last_Used_Port;
     }
 
-    /**
-     *
-     * @return
-     */
-    public int getBaudrate() {
-        return baudrate;
+    public void setLast_Used_Port(String last_Used_Port) {
+        this.last_Used_Port = last_Used_Port;
     }
 
-    /**
-     *
-     * @param baudrate
-     */
-    public void setBaudrate(int baudrate) {
-        this.baudrate = baudrate;
+    public HashMap<String, Object> getConfig() {
+        return config;
     }
 
-    /**
-     *
-     * @return
-     */
-    public int getDataBits() {
-        return dataBits;
+    public void setConfig(HashMap<String, Object> config) {
+        this.config = config;
     }
 
-    /**
-     *
-     * @param dataBits
-     */
-    public void setDataBits(int dataBits) {
-        this.dataBits = dataBits;
+    @Override
+    public void setParameter(String name, Object value) {
+        config.put(name, value);
     }
 
-    /**
-     *
-     * @return
-     */
-    public int getStopBits() {
-        return stopBits;
+    @Override
+    public void removeParameter(String name) {
+        config.remove(name);
     }
-
-    /**
-     *
-     * @param stopBits
-     */
-    public void setStopBits(int stopBits) {
-        this.stopBits = stopBits;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public int getShownChannels() {
-        return shownChannels;
-    }
-
-    /**
-     *
-     * @param shownChannels
-     */
-    public void setShownChannels(int shownChannels) {
-        this.shownChannels = shownChannels;
-    }
-    
-    
 }
