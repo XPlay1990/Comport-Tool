@@ -26,6 +26,7 @@ public class SocketHandler {
     BufferedReader reader;
     PrintWriter writer;
 
+    SocketReader socketReader;
     SocketWriter socketWriter;
     ExecutorService writeExecutor;
 
@@ -48,7 +49,7 @@ public class SocketHandler {
     }
 
     private void createReaderThread() {
-        SocketReader socketReader = new SocketReader(reader);
+        socketReader = new SocketReader(reader);
 
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(socketReader);

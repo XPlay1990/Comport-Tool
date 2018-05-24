@@ -12,15 +12,28 @@ import java.util.Observable;
  *
  * @author jan.adamczyk
  */
-public class Frame_Handler extends Observable {
+public class Frame_Handler extends Observable implements Runnable {
 
-    PASSAT_Frame_Parser parser;
+    private final PASSAT_Frame_Parser parser;
+    private String jsonString;
+
+    @Override
+    public void run() {
+        handleJSONString(jsonString);
+    }
+
+    /**
+     *
+     */
+    public Frame_Handler() {
+        this.parser = new PASSAT_Frame_Parser();
+    }
 
     /**
      *
      * @param json
      */
-    public void handleJSONString(String json) {
+    private void handleJSONString(String json) {
         PASSAT_Frame passat_Frame = parser.parseJSONStringtoPASSAT(json);
         evaluatePASSAT_FRAME(passat_Frame);
     }
@@ -28,6 +41,7 @@ public class Frame_Handler extends Observable {
     private void evaluatePASSAT_FRAME(PASSAT_Frame passat_Frame) {
         PASSAT_Header header = passat_Frame.getHeader();
         HashMap<String, String> headerMessage = header.getmessage();
+
         switch (headerMessage.get("type")) {
             case "":
                 break;
@@ -42,8 +56,9 @@ public class Frame_Handler extends Observable {
 
     /**
      *
+     * @param jsonString
      */
-    public Frame_Handler() {
-        this.parser = new PASSAT_Frame_Parser();
+    public void setJsonString(String jsonString) {
+        this.jsonString = jsonString;
     }
 }

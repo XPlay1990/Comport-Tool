@@ -3,7 +3,7 @@
  */
 package DataHandling;
 
-import Frame.Schema.PASSAT_Frame;
+import java.util.ArrayList;
 
 /**
  *
@@ -13,9 +13,9 @@ public interface DataHandler {
 
     /**
      *
-     * @param frame
+     * @param data
      */
-    public void setFrame(PASSAT_Frame frame);
+    public void setData(ArrayList<Integer> data);
 
     /**
      *

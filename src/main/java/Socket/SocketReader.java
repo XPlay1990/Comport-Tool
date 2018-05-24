@@ -3,14 +3,14 @@
  */
 package Socket;
 
-import Comport.ComportHandler;
-import DataHandling.Comport_DataHandler;
+import Frame.Frame_Handler;
 import Frame.PASSAT_Frame_Parser;
-import Frame.Schema.PASSAT_Frame;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -22,7 +22,7 @@ public class SocketReader implements Runnable {
 
     BufferedReader reader;
     ExecutorService executor;
-    Comport_DataHandler dataHandler;
+    Frame_Handler frame_Handler;
     PASSAT_Frame_Parser parser;
 
     @Override
@@ -31,15 +31,27 @@ public class SocketReader implements Runnable {
         while (true) {
             try {
                 while ((input = reader.readLine()) != null) {
-                    //TODO:CODE
-                    PASSAT_Frame passat_frame = parser.parseJSONStringtoPASSAT(input);
-
-                    dataHandler.setFrame(passat_frame);
-                    executor.execute(dataHandler);
+                    startFrameHandler(input);
                 }
             } catch (IOException ex) {
                 Logger.getLogger(SocketHandler.class.getName()).log(Level.SEVERE, null, ex);
             }
+        }
+    }
+
+    /**
+     *  fills and starts FrameHandler and waits for completition
+     * @author jan.adamczyk
+     */
+    private void startFrameHandler(String input) {
+        frame_Handler.setJsonString(input);
+
+        Future<?> future = executor.submit(frame_Handler);
+
+        try {
+            future.get();   //Wait for thread to finish successfull
+        } catch (ExecutionException | InterruptedException ex) {
+            Logger.getLogger(SocketReader.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

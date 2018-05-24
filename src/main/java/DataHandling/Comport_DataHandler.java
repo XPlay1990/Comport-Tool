@@ -3,29 +3,54 @@
  */
 package DataHandling;
 
-import Frame.Schema.PASSAT_Frame;
+import Graphs.AnimatedGraph;
+import Logs.TxtLog;
+import java.util.ArrayList;
 import java.util.Observable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author jan.adamczyk
  */
 public class Comport_DataHandler extends Observable implements Runnable, DataHandler {
-    
-    PASSAT_Frame frame;
+
+    private ArrayList<Integer> data;
+    private Integer dataCounter;
+    private AnimatedGraph graph;
+    private TxtLog txtLogger;
+    ExecutorService executor;
 
     @Override
     public void run() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        //set Graph-data
+//        graph.setDataToProcess(data, seriesNameAndData);
+        
+        //build logline
+        txtLogger.newLogLine("t");
+        
+        //print graph
+        executor.execute(graph);
+        //log data to txt
+        executor.execute(txtLogger);
+        try {
+            executor.awaitTermination(200, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Comport_DataHandler.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        dataCounter++;
     }
 
     /**
      *
-     * @param frame
      */
-    @Override
-    public void setFrame(PASSAT_Frame frame) {
-        this.frame = frame;
+    public void setData(ArrayList<Integer> data) {
+        this.data = data;
     }
 
     /**
@@ -34,5 +59,12 @@ public class Comport_DataHandler extends Observable implements Runnable, DataHan
     @Override
     public void processData() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    /**
+     *
+     */
+    public Comport_DataHandler() {
+        executor = Executors.newFixedThreadPool(2);
     }
 }

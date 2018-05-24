@@ -27,7 +27,7 @@ import javax.swing.JOptionPane;
  *
  * @author jan.Adamczyk
  */
-public final class Frame extends javax.swing.JFrame implements Observer {
+public final class QD_GUI extends javax.swing.JFrame implements Observer {
 
     private String[] portNames;
     private ComportHandler comportHandler;
@@ -47,7 +47,7 @@ public final class Frame extends javax.swing.JFrame implements Observer {
      * Creates new form Frame
      *
      */
-    public Frame() {
+    public QD_GUI() {
         init();
     }
 
@@ -828,7 +828,7 @@ public final class Frame extends javax.swing.JFrame implements Observer {
         try {
             thread.join();
         } catch (InterruptedException ex) {
-            Logger.getLogger(Frame.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(QD_GUI.class.getName()).log(Level.SEVERE, null, ex);
         }
         this.jComboBoxValuesShown.setSelectedItem("500");
         this.jToggleButtonChannelOnOff.setSelected(true);
@@ -840,7 +840,7 @@ public final class Frame extends javax.swing.JFrame implements Observer {
             cfg.toJSON();
             passat_frame.toJson();
         } catch (IOException ex) {
-            Logger.getLogger(Frame.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(QD_GUI.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jButtonToolConnectActionPerformed
 

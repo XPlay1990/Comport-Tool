@@ -3,7 +3,7 @@
  */
 package Main;
 
-import GUI.Frame;
+import GUI.QD_GUI;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.KeyEvent;
@@ -17,7 +17,7 @@ import javax.swing.JPanel;
  */
 public class FrameCreator {
 
-    Frame frame;
+    QD_GUI frame;
 
     /**
      *
@@ -49,7 +49,7 @@ public class FrameCreator {
             /* Create and display the form */
             java.awt.EventQueue.invokeLater(() -> {
 
-                frame = new Frame();
+                frame = new QD_GUI();
                 frame.setMinimumSize(frame.getMinimumSize());
                 frame.setMaximumSize(frame.getPreferredSize());
                 frame.setResizable(false);
