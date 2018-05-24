@@ -23,6 +23,7 @@ public class SocketHandler {
 
     DataHandler dataHandler;
 
+    Socket socket;
     BufferedReader reader;
     PrintWriter writer;
 
@@ -37,13 +38,23 @@ public class SocketHandler {
      */
     public SocketHandler(String ip, int port) {
         try {
-            Socket socket = new Socket(ip, port);
+            socket = new Socket(ip, port);
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             writer = new PrintWriter(socket.getOutputStream(), true);
 
             prepareWriterThread();
             createReaderThread();
         } catch (IOException ex) {
+            //socket could not be opened
+            Logger.getLogger(SocketHandler.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public void disconnect(){
+        try {
+            socket.close();
+        } catch (IOException ex) {
+            //socket was already closed
             Logger.getLogger(SocketHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -71,6 +82,7 @@ public class SocketHandler {
         try {
             writeExecutor.awaitTermination(100, TimeUnit.MILLISECONDS);
         } catch (InterruptedException ex) {
+            //write took too long
             Logger.getLogger(SocketHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }

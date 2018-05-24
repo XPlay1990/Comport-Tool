@@ -44,6 +44,88 @@
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.DesignCardLayout"/>
       <SubComponents>
+        <Container class="javax.swing.JPanel" name="serverSelect">
+          <Constraints>
+            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignCardLayout" value="org.netbeans.modules.form.compat2.layouts.DesignCardLayout$CardConstraintsDescription">
+              <CardConstraints cardName="serverSelect"/>
+            </Constraint>
+          </Constraints>
+
+          <Layout>
+            <DimensionLayout dim="0">
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" alignment="0" attributes="0">
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="connectServer_Button" max="32767" attributes="0"/>
+                          <Group type="102" attributes="0">
+                              <Component id="serverSelect_ComboBox" pref="476" max="32767" attributes="0"/>
+                              <EmptySpace type="separate" max="-2" attributes="0"/>
+                              <Component id="jLabelQDIcon1" min="-2" pref="130" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" attributes="0">
+                              <Component id="autoConnect_Checkbox" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                          </Group>
+                      </Group>
+                  </Group>
+              </Group>
+            </DimensionLayout>
+            <DimensionLayout dim="1">
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" alignment="0" attributes="0">
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="serverSelect_ComboBox" min="-2" pref="82" max="-2" attributes="0"/>
+                          <Component id="jLabelQDIcon1" min="-2" pref="96" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace type="separate" max="-2" attributes="0"/>
+                      <Component id="autoConnect_Checkbox" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace pref="315" max="32767" attributes="0"/>
+                      <Component id="connectServer_Button" min="-2" pref="89" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                  </Group>
+              </Group>
+            </DimensionLayout>
+          </Layout>
+          <SubComponents>
+            <Component class="javax.swing.JComboBox" name="serverSelect_ComboBox">
+              <Properties>
+                <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
+                  <StringArray count="1">
+                    <StringItem index="0" value="Select Server"/>
+                  </StringArray>
+                </Property>
+              </Properties>
+              <AuxValues>
+                <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
+              </AuxValues>
+            </Component>
+            <Component class="javax.swing.JLabel" name="jLabelQDIcon1">
+              <Properties>
+                <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+                  <Image iconType="3" name="/Pictures/logo.jpg"/>
+                </Property>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JCheckBox" name="autoConnect_Checkbox">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="AutoConnect"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="autoConnect_CheckboxActionPerformed"/>
+              </Events>
+            </Component>
+            <Component class="javax.swing.JButton" name="connectServer_Button">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Connect"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="connectServer_ButtonActionPerformed"/>
+              </Events>
+            </Component>
+          </SubComponents>
+        </Container>
         <Container class="javax.swing.JPanel" name="toolConnect">
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignCardLayout" value="org.netbeans.modules.form.compat2.layouts.DesignCardLayout$CardConstraintsDescription">
@@ -66,12 +148,12 @@
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="1" attributes="0">
-                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
+                      <EmptySpace min="0" pref="34" max="32767" attributes="0"/>
+                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                          <Component id="jPanelConnectButtonPanel" max="32767" attributes="0"/>
                           <Component id="jPanelLogoPanel" max="32767" attributes="0"/>
-                          <Component id="jPanelConnectButtonPanel" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace max="-2" attributes="0"/>
+                      <EmptySpace pref="36" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -82,19 +164,23 @@
               <Layout>
                 <DimensionLayout dim="0">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" attributes="0">
-                          <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="jLabelBaudrate" linkSize="8" min="-2" pref="193" max="-2" attributes="0"/>
-                              <Component id="jTextFieldBaudrate" linkSize="8" min="-2" pref="114" max="-2" attributes="0"/>
-                              <Component id="jLabelDataBits" linkSize="8" min="-2" pref="134" max="-2" attributes="0"/>
-                              <Component id="jTextFieldDataBits" linkSize="8" min="-2" pref="176" max="-2" attributes="0"/>
-                              <Component id="jLabelStopBits" linkSize="8" min="-2" pref="168" max="-2" attributes="0"/>
-                              <Component id="jTextFieldStopBits" linkSize="8" min="-2" pref="166" max="-2" attributes="0"/>
-                          </Group>
-                          <EmptySpace max="32767" attributes="0"/>
-                      </Group>
                       <Component id="comboBoxPortChooser" max="32767" attributes="0"/>
-                      <Component id="jButtonToolConnect" alignment="0" max="32767" attributes="0"/>
+                      <Group type="102" alignment="0" attributes="0">
+                          <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                              <Component id="connectAQ_Button" alignment="0" max="32767" attributes="0"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="jLabelBaudrate" linkSize="8" pref="193" max="32767" attributes="0"/>
+                                  <Component id="jTextFieldBaudrate" linkSize="8" pref="114" max="32767" attributes="0"/>
+                                  <Component id="jLabelDataBits" linkSize="8" pref="134" max="32767" attributes="0"/>
+                                  <Component id="jTextFieldDataBits" linkSize="8" pref="176" max="32767" attributes="0"/>
+                                  <Component id="jLabelStopBits" linkSize="8" pref="168" max="32767" attributes="0"/>
+                                  <Component id="jTextFieldStopBits" linkSize="8" pref="166" max="32767" attributes="0"/>
+                              </Group>
+                          </Group>
+                          <EmptySpace pref="93" max="32767" attributes="0"/>
+                          <Component id="disconnectServer_Button" min="-2" pref="148" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                      </Group>
                   </Group>
                 </DimensionLayout>
                 <DimensionLayout dim="1">
@@ -115,7 +201,10 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="jTextFieldStopBits" linkSize="9" min="-2" max="-2" attributes="0"/>
                           <EmptySpace type="separate" max="-2" attributes="0"/>
-                          <Component id="jButtonToolConnect" linkSize="7" min="-2" pref="67" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                              <Component id="disconnectServer_Button" max="32767" attributes="0"/>
+                              <Component id="connectAQ_Button" linkSize="7" pref="67" max="32767" attributes="0"/>
+                          </Group>
                           <EmptySpace max="32767" attributes="0"/>
                       </Group>
                   </Group>
@@ -165,12 +254,20 @@
                     <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
                   </AuxValues>
                 </Component>
-                <Component class="javax.swing.JButton" name="jButtonToolConnect">
+                <Component class="javax.swing.JButton" name="connectAQ_Button">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="Connect"/>
+                    <Property name="text" type="java.lang.String" value="Connect AQ"/>
                   </Properties>
                   <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonToolConnectActionPerformed"/>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="connectAQ_ButtonActionPerformed"/>
+                  </Events>
+                </Component>
+                <Component class="javax.swing.JButton" name="disconnectServer_Button">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Disconnect Server"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="disconnectServer_ButtonActionPerformed"/>
                   </Events>
                 </Component>
               </SubComponents>
@@ -184,13 +281,6 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Component id="jTextFieldNewChannelNumber" max="32767" attributes="0"/>
-                              <Group type="102" alignment="1" attributes="0">
-                                  <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
-                                  <Group type="103" groupAlignment="0" attributes="0">
-                                      <Component id="jLabelExeption" linkSize="10" alignment="1" min="-2" pref="125" max="-2" attributes="0"/>
-                                      <Component id="jLabelError" linkSize="10" alignment="1" min="-2" pref="125" max="-2" attributes="0"/>
-                                  </Group>
-                              </Group>
                               <Group type="102" attributes="0">
                                   <Group type="103" groupAlignment="0" attributes="0">
                                       <Component id="jLabelQDIcon" min="-2" pref="130" max="-2" attributes="0"/>
@@ -209,10 +299,6 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="jLabelQDIcon" min="-2" pref="96" max="-2" attributes="0"/>
                           <EmptySpace max="32767" attributes="0"/>
-                          <Component id="jLabelExeption" linkSize="11" min="-2" pref="67" max="-2" attributes="0"/>
-                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                          <Component id="jLabelError" linkSize="11" min="-2" pref="67" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
                           <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
                           <EmptySpace min="-2" pref="10" max="-2" attributes="0"/>
                           <Component id="jTextFieldNewChannelNumber" min="-2" pref="32" max="-2" attributes="0"/>
@@ -228,10 +314,6 @@
                       <Image iconType="3" name="/Pictures/logo.jpg"/>
                     </Property>
                   </Properties>
-                </Component>
-                <Component class="javax.swing.JLabel" name="jLabelExeption">
-                </Component>
-                <Component class="javax.swing.JLabel" name="jLabelError">
                 </Component>
                 <Component class="javax.swing.JTextField" name="jTextFieldNewChannelNumber">
                   <Properties>

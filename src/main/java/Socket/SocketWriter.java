@@ -16,7 +16,7 @@ public class SocketWriter implements Runnable {
 
     @Override
     public void run() {
-        writer.print(dataToWrite);
+        writer.println(dataToWrite);
     }
 
     /**
