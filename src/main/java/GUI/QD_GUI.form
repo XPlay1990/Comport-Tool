@@ -44,10 +44,10 @@
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.DesignCardLayout"/>
       <SubComponents>
-        <Container class="javax.swing.JPanel" name="serverSelect">
+        <Container class="javax.swing.JPanel" name="serverSelect_Panel">
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignCardLayout" value="org.netbeans.modules.form.compat2.layouts.DesignCardLayout$CardConstraintsDescription">
-              <CardConstraints cardName="serverSelect"/>
+              <CardConstraints cardName="serverSelect_CardLayout"/>
             </Constraint>
           </Constraints>
 
@@ -112,9 +112,6 @@
               <Properties>
                 <Property name="text" type="java.lang.String" value="AutoConnect"/>
               </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="autoConnect_CheckboxActionPerformed"/>
-              </Events>
             </Component>
             <Component class="javax.swing.JButton" name="connectServer_Button">
               <Properties>
@@ -129,7 +126,7 @@
         <Container class="javax.swing.JPanel" name="toolConnect">
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignCardLayout" value="org.netbeans.modules.form.compat2.layouts.DesignCardLayout$CardConstraintsDescription">
-              <CardConstraints cardName="toolConnect"/>
+              <CardConstraints cardName="toolConnect_CardLayout"/>
             </Constraint>
           </Constraints>
 
@@ -247,9 +244,6 @@
                       <Connection code="new javax.swing.DefaultComboBoxModel&lt;&gt;(new String[] { &quot;Choose Port&quot; })" type="code"/>
                     </Property>
                   </Properties>
-                  <Events>
-                    <EventHandler event="popupMenuWillBecomeVisible" listener="javax.swing.event.PopupMenuListener" parameters="javax.swing.event.PopupMenuEvent" handler="comboBoxPortChooserPopupMenuWillBecomeVisible"/>
-                  </Events>
                   <AuxValues>
                     <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
                   </AuxValues>
@@ -332,7 +326,7 @@
         <Container class="javax.swing.JPanel" name="channelSelect">
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignCardLayout" value="org.netbeans.modules.form.compat2.layouts.DesignCardLayout$CardConstraintsDescription">
-              <CardConstraints cardName="channelSelect"/>
+              <CardConstraints cardName="channelSelect_CardLayout"/>
             </Constraint>
           </Constraints>
 

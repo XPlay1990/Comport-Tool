@@ -12,15 +12,39 @@ import java.util.HashMap;
  */
 public interface Graph_Config {
 
+    /**
+     *
+     * @return
+     */
     public ArrayList<Integer> getActiveChannelList();
 
+    /**
+     *
+     * @param activeChannelList
+     */
     public void setActiveChannelList(ArrayList<Integer> activeChannelList);
 
+    /**
+     *
+     * @return
+     */
     public Boolean getOffset();
 
+    /**
+     *
+     * @param offset
+     */
     public void setOffset(Boolean offset);
 
+    /**
+     *
+     * @return
+     */
     public HashMap<Integer, String> getChannelNumberToNameMapping();
 
+    /**
+     *
+     * @param channelNumberToNameMapping
+     */
     public void setChannelNumberToNameMapping(HashMap<Integer, String> channelNumberToNameMapping);
 }

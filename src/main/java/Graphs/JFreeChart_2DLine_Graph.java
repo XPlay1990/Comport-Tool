@@ -39,7 +39,7 @@ import org.jfree.chart.ui.ApplicationFrame;
  *
  * @author Jan.Adamczyk
  */
-public final class AnimatedGraph extends ApplicationFrame implements Runnable {
+public final class JFreeChart_2DLine_Graph extends ApplicationFrame implements Runnable, Graph {
 
     private static final String TITLE = "TouchFoilSeries";
     private static final float FATNESS = 3.0f;
@@ -85,10 +85,10 @@ public final class AnimatedGraph extends ApplicationFrame implements Runnable {
     /**
      *
      * @param channelNameNumberAssigment
-     * @param comport
+     * @param hw_Interface
      */
-    public AnimatedGraph(HashMap<String, Integer> channelNameNumberAssigment, String comport) {
-        super(comport);
+    public JFreeChart_2DLine_Graph(HashMap<String, Integer> channelNameNumberAssigment, String hw_Interface) {
+        super(hw_Interface);
         setApplicationIcon();
         this.channelNameNumberAssigment = channelNameNumberAssigment;
         dataset = new XYSeriesCollection();
@@ -428,7 +428,7 @@ public final class AnimatedGraph extends ApplicationFrame implements Runnable {
     public static void main(String[] args) {
         // Run the GUI codes in the Event-dispatching thread for thread-safety
         SwingUtilities.invokeLater(() -> {
-            AnimatedGraph animatedGraph = new AnimatedGraph(new HashMap<>(), "Test"); // Let the constructor do the job
+            JFreeChart_2DLine_Graph animatedGraph = new JFreeChart_2DLine_Graph(new HashMap<>(), "Test"); // Let the constructor do the job
         });
     }
 }

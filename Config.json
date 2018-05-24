@@ -1,0 +1,105 @@
+{
+  "tool_Config": {
+    "server_Config": {
+      "serverList": {
+        "localhost": "localhost",
+        "Ruslan": "10.131.251.208"
+      },
+      "defaultServer": "localhost",
+      "port": 1337,
+      "autoConnectToServer": false
+    },
+    "graph_Config": {
+      "offset": false,
+      "channelNumber": 60,
+      "activeChannelList": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "channelNumberToNameMapping": {
+        "0": "Channel_0",
+        "1": "Channel_1",
+        "2": "Channel_2",
+        "3": "Channel_3",
+        "4": "Channel_4",
+        "5": "Channel_5",
+        "6": "Channel_6",
+        "7": "Channel_7",
+        "8": "Channel_8",
+        "9": "Channel_9",
+        "10": "Channel_10",
+        "11": "Channel_11",
+        "12": "Channel_12",
+        "13": "Channel_13",
+        "14": "Channel_14",
+        "15": "Channel_15",
+        "16": "Channel_16",
+        "17": "Channel_17",
+        "18": "Channel_18",
+        "19": "Channel_19",
+        "20": "Channel_20",
+        "21": "Channel_21",
+        "22": "Channel_22",
+        "23": "Channel_23",
+        "24": "Channel_24",
+        "25": "Channel_25",
+        "26": "Channel_26",
+        "27": "Channel_27",
+        "28": "Channel_28",
+        "29": "Channel_29",
+        "30": "Channel_30",
+        "31": "Channel_31",
+        "32": "Channel_32",
+        "33": "Channel_33",
+        "34": "Channel_34",
+        "35": "Channel_35",
+        "36": "Channel_36",
+        "37": "Channel_37",
+        "38": "Channel_38",
+        "39": "Channel_39",
+        "40": "Channel_40",
+        "41": "Channel_41",
+        "42": "Channel_42",
+        "43": "Channel_43",
+        "44": "Channel_44",
+        "45": "Channel_45",
+        "46": "Channel_46",
+        "47": "Channel_47",
+        "48": "Channel_48",
+        "49": "Channel_49",
+        "50": "Channel_50",
+        "51": "Channel_51",
+        "52": "Channel_52",
+        "53": "Channel_53",
+        "54": "Channel_54",
+        "55": "Channel_55",
+        "56": "Channel_56",
+        "57": "Channel_57",
+        "58": "Channel_58",
+        "59": "Channel_59"
+      },
+      "x_Values_Shown": 500,
+      "autoRange": true,
+      "min_y": 0,
+      "min_x": 0
+    }
+  },
+  "hw_Config": {
+    "comport_Config": {
+      "last_Used_Port": "COM1",
+      "config": {
+        "baudrate": 400000,
+        "stopBits": 1,
+        "dataBits": 8
+      }
+    }
+  }
+}

@@ -29,14 +29,13 @@ public final class TxtLog implements Runnable {
 
     /**
      *
-     * @param logLine
-     * @param comport
+     * @param hw_Interface
      * @throws FileNotFoundException
      */
-    public TxtLog(String logLine, String comport) throws FileNotFoundException {
+    public TxtLog(String hw_Interface) throws FileNotFoundException {
         String dateTime = LocalDateTime.now().toString().replaceAll(":", "-");
         dateTime = dateTime.replaceAll("T", "_Time_");
-        this.file = new File("ComportTool_Logfile_" + dateTime + "_" + comport.replaceAll(" ", "_") +".txt");
+        this.file = new File("ComportTool_Logfile_" + dateTime + "_" + hw_Interface.replaceAll(" ", "_") + ".txt");
 
         try {
             if (!file.exists()) {
@@ -47,7 +46,6 @@ public final class TxtLog implements Runnable {
         }
 
         writer = new PrintWriter(file);
-        this.logLine = logLine;
     }
 
     /**

@@ -3,7 +3,7 @@
  */
 package Comport;
 
-import Graphs.AnimatedGraph;
+import Graphs.JFreeChart_2DLine_Graph;
 import HelpClasses.IndexHolder;
 import HelpClasses.MultipleSeriesHolder;
 import HelpClasses.SeriesHolder;
@@ -39,7 +39,7 @@ public class ComportHandler extends java.util.Observable implements Runnable {
     private InputStreamMatrix inputStreamMatrix;
     private SerialPort serialPort;
     private Integer channelcount = 0;
-    private final AnimatedGraph animated;
+    private final JFreeChart_2DLine_Graph animated;
     private final ArrayList<Integer> activeChannelList;
     private boolean isInserting = false;
     private boolean isPaused = false;
@@ -68,124 +68,124 @@ public class ComportHandler extends java.util.Observable implements Runnable {
 
     @Override
     public void run() {
-        try {
-            connect(comport, baudrate, dataBits, stopBits);
-
-            txtLogger = new TxtLog(txtLogline, comport);
-
-            animated.setVisible(true);
-        } catch (FileNotFoundException | PortAlreadyInUseException ex) {
-            Thread t = new Thread(() -> {
-                animated.dispose();
-                disconnect = true;
-                setChanged();
-                notifyObservers(true);
-                JOptionPane.showMessageDialog(null, ex);
-            });
-            t.start();
-        }
-
-        // start the thread
-        Runnable dataReader = () -> {
-            try {
-                while (true) {
-                    while (serialPort.bytesAvailable() == 0) {
-                        try {
-                            Thread.sleep(3);
-                        } catch (InterruptedException ex) {
-                            Logger.getLogger(ComportHandler.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                    }
-
-                    if (startReading) {
-                        isInserting = true;
-                        byte[] readBuffer = new byte[serialPort.bytesAvailable()];
-                        serialPort.readBytes(readBuffer, readBuffer.length);
-                        for (int lastByte : readBuffer) {
-                            if (lastByte == ExceptionChar.EXC_ENQ.getValue()) {
-                                //Start of transmission
-                                inputStreamMatrix.add(new Stream_Evaluation());
-                            } else if (lastByte == ExceptionChar.EXC_EOT.getValue()) {
-                                //End of transmission -> evaluation
-                                LocalTime eventReceived_Time = getTime();
-
-                                Iterator<Stream_Evaluation> iterator = inputStreamMatrix.iterator();
-                                while (iterator.hasNext()) {
-                                    Stream_Evaluation etbsRemoved = iterator.next().removeETBs();
-                                    iterator.remove();
-
-                                    ArrayList<Integer> bytesFolded = new ArrayList<>();
-                                    //insert into animatedgraph if correct
-                                    try {
-                                        if (etbsRemoved.checkCorrectness(bytesFolded)) {
-                                            int channelNumber = 0;
-                                            String txtLogLine = (LocalDate.now().toString() + "\t") + (LocalTime.now().toString() + "\t\t");
-
-                                            //retreive data
-                                            SeriesHolder seriesNameAndData = new SeriesHolder();
-                                            for (int value : bytesFolded) {
-                                                offsetMap.put(channelNumber, value);
-                                                if (activeChannelList.contains(channelNumber)) {
-                                                    seriesNameAndData.add(new SeriesNameAndData(reversedHashMap.get(channelNumber), value - (assignedOffset.get(channelNumber))));
-                                                }
-                                                txtLogLine += (value + "\t");
-                                                channelNumber++;
-                                            }
-
-                                            //using the retreived data
-                                            txtLogger.newLogLine(txtLogLine);
-                                            Thread txtloggerThread = new Thread(txtLogger);
-                                            txtloggerThread.start();
-                                            int graphMaxLength = animated.getSeriesMaxLength();
-
-                                            //TODO: move everything into hashmaps Map<index, Map<names, data>>
-                                            multipleSeriesHolder.add(seriesNameAndData, graphMaxLength);
-                                            x_indexHolder.add(channelcount, graphMaxLength);
-
-                                            
-                                            if (!isPaused) {
-                                                animated.setDataToProcess(x_indexHolder, multipleSeriesHolder);
-                                                Thread animatedThread = new Thread(animated);
-                                                animatedThread.setPriority(Thread.NORM_PRIORITY + 3);
-                                                animatedThread.start();
-                                                animatedThread.join();
-                                                multipleSeriesHolder = new MultipleSeriesHolder();
-                                                x_indexHolder = new IndexHolder();
-                                            }
-                                            txtloggerThread.join();
-
-                                            updateFrameLatencys(eventReceived_Time);
-
-                                            channelcount++;
-                                        } else {
-                                            //stream was corrupted
-                                            receivedIncorrectLines++;
-                                            if (receivedIncorrectLines == 250) {
-                                                JOptionPane.showMessageDialog(null, "Already received 250 corrupt lines!");
-                                            }
-                                        }
-                                    } catch (NullPointerException e) {
-                                        //List was Empty when end of stream reached
-                                    } catch (InterruptedException ex) {
-                                        Logger.getLogger(ComportHandler.class.getName()).log(Level.SEVERE, null, ex);
-                                    }
-                                }
-                            } else {
-                                //add data to List
-                                inputStreamMatrix.addLast(lastByte);
-                                //TODO: if empty -> errorcount++;
-                            }
-                        }
+//        try {
+//            connect(comport, baudrate, dataBits, stopBits);
+//
+//            txtLogger = new TxtLog(txtLogline, comport);
+//
+//            animated.setVisible(true);
+//        } catch (FileNotFoundException | PortAlreadyInUseException ex) {
+//            Thread t = new Thread(() -> {
+//                animated.dispose();
+//                disconnect = true;
+//                setChanged();
+//                notifyObservers(true);
+//                JOptionPane.showMessageDialog(null, ex);
+//            });
+//            t.start();
+//        }
+//
+//        // start the thread
+//        Runnable dataReader = () -> {
+//            try {
+//                while (true) {
+//                    while (serialPort.bytesAvailable() == 0) {
+//                        try {
+//                            Thread.sleep(3);
+//                        } catch (InterruptedException ex) {
+//                            Logger.getLogger(ComportHandler.class.getName()).log(Level.SEVERE, null, ex);
+//                        }
 //                    }
-                        isInserting = false;
-                    }
-
-                }
-            } catch (Exception e) {
-                serialPort.closePort();
-            }
-        };
-        new Thread(dataReader).start();
+//
+//                    if (startReading) {
+//                        isInserting = true;
+//                        byte[] readBuffer = new byte[serialPort.bytesAvailable()];
+//                        serialPort.readBytes(readBuffer, readBuffer.length);
+//                        for (int lastByte : readBuffer) {
+//                            if (lastByte == ExceptionChar.EXC_ENQ.getValue()) {
+//                                //Start of transmission
+//                                inputStreamMatrix.add(new Stream_Evaluation());
+//                            } else if (lastByte == ExceptionChar.EXC_EOT.getValue()) {
+//                                //End of transmission -> evaluation
+//                                LocalTime eventReceived_Time = getTime();
+//
+//                                Iterator<Stream_Evaluation> iterator = inputStreamMatrix.iterator();
+//                                while (iterator.hasNext()) {
+//                                    Stream_Evaluation etbsRemoved = iterator.next().removeETBs();
+//                                    iterator.remove();
+//
+//                                    ArrayList<Integer> bytesFolded = new ArrayList<>();
+//                                    //insert into animatedgraph if correct
+//                                    try {
+//                                        if (etbsRemoved.checkCorrectness(bytesFolded)) {
+//                                            int channelNumber = 0;
+//                                            String txtLogLine = (LocalDate.now().toString() + "\t") + (LocalTime.now().toString() + "\t\t");
+//
+//                                            //retreive data
+//                                            SeriesHolder seriesNameAndData = new SeriesHolder();
+//                                            for (int value : bytesFolded) {
+//                                                offsetMap.put(channelNumber, value);
+//                                                if (activeChannelList.contains(channelNumber)) {
+//                                                    seriesNameAndData.add(new SeriesNameAndData(reversedHashMap.get(channelNumber), value - (assignedOffset.get(channelNumber))));
+//                                                }
+//                                                txtLogLine += (value + "\t");
+//                                                channelNumber++;
+//                                            }
+//
+//                                            //using the retreived data
+//                                            txtLogger.newLogLine(txtLogLine);
+//                                            Thread txtloggerThread = new Thread(txtLogger);
+//                                            txtloggerThread.start();
+//                                            int graphMaxLength = animated.getSeriesMaxLength();
+//
+//                                            //TODO: move everything into hashmaps Map<index, Map<names, data>>
+//                                            multipleSeriesHolder.add(seriesNameAndData, graphMaxLength);
+//                                            x_indexHolder.add(channelcount, graphMaxLength);
+//
+//                                            
+//                                            if (!isPaused) {
+//                                                animated.setDataToProcess(x_indexHolder, multipleSeriesHolder);
+//                                                Thread animatedThread = new Thread(animated);
+//                                                animatedThread.setPriority(Thread.NORM_PRIORITY + 3);
+//                                                animatedThread.start();
+//                                                animatedThread.join();
+//                                                multipleSeriesHolder = new MultipleSeriesHolder();
+//                                                x_indexHolder = new IndexHolder();
+//                                            }
+//                                            txtloggerThread.join();
+//
+//                                            updateFrameLatencys(eventReceived_Time);
+//
+//                                            channelcount++;
+//                                        } else {
+//                                            //stream was corrupted
+//                                            receivedIncorrectLines++;
+//                                            if (receivedIncorrectLines == 250) {
+//                                                JOptionPane.showMessageDialog(null, "Already received 250 corrupt lines!");
+//                                            }
+//                                        }
+//                                    } catch (NullPointerException e) {
+//                                        //List was Empty when end of stream reached
+//                                    } catch (InterruptedException ex) {
+//                                        Logger.getLogger(ComportHandler.class.getName()).log(Level.SEVERE, null, ex);
+//                                    }
+//                                }
+//                            } else {
+//                                //add data to List
+//                                inputStreamMatrix.addLast(lastByte);
+//                                //TODO: if empty -> errorcount++;
+//                            }
+//                        }
+////                    }
+//                        isInserting = false;
+//                    }
+//
+//                }
+//            } catch (Exception e) {
+//                serialPort.closePort();
+//            }
+//        };
+//        new Thread(dataReader).start();
     }
 
     /**
@@ -209,7 +209,7 @@ public class ComportHandler extends java.util.Observable implements Runnable {
 //        this.channelNameNumberAssignment = channelNameNumberAssignment;
 
         //create Animated-Graph-Window
-        animated = new AnimatedGraph(channelNameNumberAssignment, comport);
+        animated = new JFreeChart_2DLine_Graph(channelNameNumberAssignment, comport);
 //        animated.pack();
         animated.setMinimumSize(new Dimension(500, 500));
 //        RefineryUtilities.centerFrameOnScreen(animated);

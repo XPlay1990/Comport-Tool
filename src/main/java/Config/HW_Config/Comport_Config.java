@@ -21,7 +21,6 @@ public class Comport_Config implements HW_Interface {
         config.put("baudrate", 400000);
         config.put("dataBits", 8);
         config.put("stopBits", 1);
-        config.put("shownChannels", 60);
     }
 
     /**

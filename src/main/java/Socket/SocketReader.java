@@ -28,19 +28,24 @@ public class SocketReader implements Runnable {
     @Override
     public void run() {
         String input;
-        while (true) {
-            try {
+        try {
+            while (true) {
+
                 while ((input = reader.readLine()) != null) {
-                    startFrameHandler(input);
+//                    startFrameHandler(input);
+                    System.out.println(input);
                 }
-            } catch (IOException ex) {
-                Logger.getLogger(SocketHandler.class.getName()).log(Level.SEVERE, null, ex);
+
             }
+        } catch (IOException ex) {
+            //Socket closed!
+            Logger.getLogger(SocketHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
     /**
-     *  fills and starts FrameHandler and waits for completition
+     * fills and starts FrameHandler and waits for completition
+     *
      * @author jan.adamczyk
      */
     private void startFrameHandler(String input) {

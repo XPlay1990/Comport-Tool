@@ -1,7 +1,7 @@
 /* 
  *  Copyright (C) Jan Adamczyk (j_adamczyk@hotmail.com) 2017
  */
-package Sorting;
+package HelpClasses.Sorting;
 
 /*
  * The Alphanum Algorithm is an improved sorting algorithm for strings

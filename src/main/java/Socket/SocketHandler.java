@@ -3,7 +3,6 @@
  */
 package Socket;
 
-import DataHandling.DataHandler;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -14,6 +13,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import DataEvaluation.DataEvaluator_Interface;
 
 /**
  *
@@ -21,7 +21,7 @@ import java.util.logging.Logger;
  */
 public class SocketHandler {
 
-    DataHandler dataHandler;
+    DataEvaluator_Interface dataHandler;
 
     Socket socket;
     BufferedReader reader;
@@ -35,22 +35,21 @@ public class SocketHandler {
      *
      * @param ip
      * @param port
+     * @throws java.net.ConnectException
      */
-    public SocketHandler(String ip, int port) {
-        try {
-            socket = new Socket(ip, port);
-            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            writer = new PrintWriter(socket.getOutputStream(), true);
+    public SocketHandler(String ip, int port) throws IOException {
+        socket = new Socket(ip, port);
+        reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        writer = new PrintWriter(socket.getOutputStream(), true);
 
-            prepareWriterThread();
-            createReaderThread();
-        } catch (IOException ex) {
-            //socket could not be opened
-            Logger.getLogger(SocketHandler.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        prepareWriterThread();
+        createReaderThread();
     }
-    
-    public void disconnect(){
+
+    /**
+     *
+     */
+    public void disconnect() {
         try {
             socket.close();
         } catch (IOException ex) {

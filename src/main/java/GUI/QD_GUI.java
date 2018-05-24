@@ -4,11 +4,14 @@
 package GUI;
 
 import Config.Config_JSON;
-import DataHandling.DataHandler;
-import Frame.Schema.PASSAT_Frame;
+import Config.Tool_Config.Graph_Config;
+import Config.Tool_Config.Server_Config;
+import Config.Tool_Config.Tool_Config;
+import DataEvaluation.MWO_DataEvaluator;
 import Graphs.Graph;
-import Sorting.AlphanumComparator;
-import com.fazecast.jSerialComm.SerialPort;
+import Graphs.JFreeChart_2DLine_Graph;
+import Socket.SocketHandler;
+import HelpClasses.Sorting.AlphanumComparator;
 import com.google.gson.JsonSyntaxException;
 import java.awt.CardLayout;
 import java.awt.Dimension;
@@ -21,9 +24,11 @@ import java.util.HashMap;
 import java.util.Observer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
+import DataEvaluation.DataEvaluator_Interface;
 
 /**
  * GUI class to access the tool
@@ -33,16 +38,24 @@ import javax.swing.JOptionPane;
 public final class QD_GUI extends javax.swing.JFrame implements Observer {
 
     private Config_JSON config;
-    private String config_FileName = "cfg.json";
+    private Server_Config serverConfig;
+    private Graph_Config graphConfig;
+    private String config_FileName = "Config.json";
+    private final String config_Fallback_FileName = "Fallback_Config.json";
 
-    private DataHandler dataHandler;
-    private Graph graph;
+    private SocketHandler socketHandler;
+    private MWO_DataEvaluator dataHandler;
+    private JFreeChart_2DLine_Graph graph;
 
     private String[] portNames;
     private boolean isPaused = false;
     private HashMap<String, Integer> channelNameNumberAssignment;
     private HashMap<Integer, String> reversedHashMap;
     ArrayList<String> allChannelNames;
+
+    private final String serverSelect_CardLayout = "serverSelect_CardLayout";
+    private final String toolConnect_CardLayout = "toolConnect_CardLayout";
+    private final String channelSelect_CardLayout = "channelSelect_CardLayout";
 
     /**
      * Creates new form Frame
@@ -61,7 +74,6 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
         setApplicationIcon();
 
         initConfig();
-
         saveConfigOnClose();
 
         this.validate();
@@ -72,6 +84,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
         getConfig();
 
         //use config to initialize program
+        initGUI();
     }
 
     private void getConfig() {
@@ -80,10 +93,14 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
         } catch (FileNotFoundException ex) {
             config = new Config_JSON();
         } catch (JsonSyntaxException ex) {
-            config_FileName = "default_config.json";
+            JOptionPane.showMessageDialog(this, config_FileName + " corrupted. Creating " + config_Fallback_FileName);
             config = new Config_JSON();
-            JOptionPane.showMessageDialog(this, "Config-File corrupted. Creating default-Config.");
+            config_FileName = config_Fallback_FileName;
         }
+        Tool_Config toolConfig = config.getTool_Config();
+
+        this.serverConfig = toolConfig.getServer_Config();
+        this.graphConfig = toolConfig.getGraph_Config();
     }
 
     private void saveConfigOnClose() {
@@ -114,6 +131,24 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
         }
     }
 
+    private void initGUI() {
+        //Init ServerList
+        HashMap<String, String> serverHashMap = serverConfig.getServerList();
+        DefaultComboBoxModel model = new DefaultComboBoxModel();
+        serverHashMap.entrySet().forEach((entry) -> {
+//            model.addElement(entry.getKey() + " (" + entry.getValue() + ")");
+            model.addElement(entry.getKey());
+        });
+        this.serverSelect_ComboBox.setModel(model);
+
+        //Init selected Server
+        serverSelect_ComboBox.setSelectedItem(serverConfig.getDefaultServer());
+
+        //Init autoConnect to Server
+        autoConnect_Checkbox.setSelected(serverConfig.getAutoConnectToServer());
+
+    }
+
     private void setApplicationIcon() {
         ImageIcon icon = new javax.swing.ImageIcon(getClass().getResource("/Pictures/logo.jpg"));
         Image img = icon.getImage();
@@ -128,7 +163,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
 //            portnameList.add(comport.getDescriptivePortName());
 //        }
 //        boolean contains = portnameList.contains(portname);
-//        refreshComports();
+//        refreshAndSetToolConnect();
 //        if (contains) {
 //            comboBoxPortChooser.setSelectedItem(portname);
 //        }
@@ -148,7 +183,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
     private void initComponents() {
 
         mainPanel = new javax.swing.JPanel();
-        serverSelect = new javax.swing.JPanel();
+        serverSelect_Panel = new javax.swing.JPanel();
         serverSelect_ComboBox = new javax.swing.JComboBox<>();
         jLabelQDIcon1 = new javax.swing.JLabel();
         autoConnect_Checkbox = new javax.swing.JCheckBox();
@@ -220,11 +255,6 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
         jLabelQDIcon1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Pictures/logo.jpg"))); // NOI18N
 
         autoConnect_Checkbox.setText("AutoConnect");
-        autoConnect_Checkbox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                autoConnect_CheckboxActionPerformed(evt);
-            }
-        });
 
         connectServer_Button.setText("Connect");
         connectServer_Button.addActionListener(new java.awt.event.ActionListener() {
@@ -233,27 +263,27 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
             }
         });
 
-        javax.swing.GroupLayout serverSelectLayout = new javax.swing.GroupLayout(serverSelect);
-        serverSelect.setLayout(serverSelectLayout);
-        serverSelectLayout.setHorizontalGroup(
-            serverSelectLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(serverSelectLayout.createSequentialGroup()
+        javax.swing.GroupLayout serverSelect_PanelLayout = new javax.swing.GroupLayout(serverSelect_Panel);
+        serverSelect_Panel.setLayout(serverSelect_PanelLayout);
+        serverSelect_PanelLayout.setHorizontalGroup(
+            serverSelect_PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(serverSelect_PanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(serverSelectLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(serverSelect_PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(connectServer_Button, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(serverSelectLayout.createSequentialGroup()
+                    .addGroup(serverSelect_PanelLayout.createSequentialGroup()
                         .addComponent(serverSelect_ComboBox, 0, 476, Short.MAX_VALUE)
                         .addGap(18, 18, 18)
                         .addComponent(jLabelQDIcon1, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(serverSelectLayout.createSequentialGroup()
+                    .addGroup(serverSelect_PanelLayout.createSequentialGroup()
                         .addComponent(autoConnect_Checkbox)
                         .addGap(0, 0, Short.MAX_VALUE))))
         );
-        serverSelectLayout.setVerticalGroup(
-            serverSelectLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(serverSelectLayout.createSequentialGroup()
+        serverSelect_PanelLayout.setVerticalGroup(
+            serverSelect_PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(serverSelect_PanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(serverSelectLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(serverSelect_PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(serverSelect_ComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabelQDIcon1, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
@@ -263,7 +293,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
                 .addContainerGap())
         );
 
-        mainPanel.add(serverSelect, "serverSelect");
+        mainPanel.add(serverSelect_Panel, "serverSelect_CardLayout");
 
         jTextFieldBaudrate.setText("400000");
 
@@ -278,15 +308,6 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
         jLabelStopBits.setText("StopBits:");
 
         comboBoxPortChooser.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Choose Port" }));
-        comboBoxPortChooser.addPopupMenuListener(new javax.swing.event.PopupMenuListener() {
-            public void popupMenuCanceled(javax.swing.event.PopupMenuEvent evt) {
-            }
-            public void popupMenuWillBecomeInvisible(javax.swing.event.PopupMenuEvent evt) {
-            }
-            public void popupMenuWillBecomeVisible(javax.swing.event.PopupMenuEvent evt) {
-                comboBoxPortChooserPopupMenuWillBecomeVisible(evt);
-            }
-        });
 
         connectAQ_Button.setText("Connect AQ");
         connectAQ_Button.addActionListener(new java.awt.event.ActionListener() {
@@ -406,7 +427,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
                 .addContainerGap(36, Short.MAX_VALUE))
         );
 
-        mainPanel.add(toolConnect, "toolConnect");
+        mainPanel.add(toolConnect, "toolConnect_CardLayout");
 
         jListInactiveChannels.setModel(new javax.swing.AbstractListModel<String>() {
             String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
@@ -864,7 +885,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
                 .addGap(5, 5, 5))
         );
 
-        mainPanel.add(channelSelect, "channelSelect");
+        mainPanel.add(channelSelect, "channelSelect_CardLayout");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -1005,7 +1026,9 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
     }//GEN-LAST:event_jToggleButtonAntiAliasingActionPerformed
 
     private void disconnectServer_ButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_disconnectServer_ButtonActionPerformed
-        // TODO add your handling code here:
+        socketHandler.disconnect();
+        socketHandler = null;
+        setCardLayout(serverSelect_CardLayout);
     }//GEN-LAST:event_disconnectServer_ButtonActionPerformed
 
     private void connectAQ_ButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectAQ_ButtonActionPerformed
@@ -1014,25 +1037,43 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
         int selectedDataBits = Integer.valueOf(jTextFieldDataBits.getText());
         int selectedStopBits = Integer.valueOf(jTextFieldStopBits.getText());
         int channelCount = Integer.valueOf(jTextFieldNewChannelNumber.getText());
+        
+        //Create Graph Components
+        graph = new JFreeChart_2DLine_Graph(channelNameNumberAssignment, selectedComport);
+        dataHandler = new MWO_DataEvaluator();
+//        graph.add
+        dataHandler.addObserver(this);
 
         initChannelLists();
-        setCardLayout("channelSelect");
+        setCardLayout(channelSelect_CardLayout);
 
         this.jComboBoxValuesShown.setSelectedItem("500");
         this.jToggleButtonChannelOnOff.setSelected(true);
     }//GEN-LAST:event_connectAQ_ButtonActionPerformed
 
-    private void comboBoxPortChooserPopupMenuWillBecomeVisible(javax.swing.event.PopupMenuEvent evt) {//GEN-FIRST:event_comboBoxPortChooserPopupMenuWillBecomeVisible
-        refreshComports();
-    }//GEN-LAST:event_comboBoxPortChooserPopupMenuWillBecomeVisible
-
     private void connectServer_ButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectServer_ButtonActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_connectServer_ButtonActionPerformed
+        String selectedItem = serverSelect_ComboBox.getSelectedItem().toString();
 
-    private void autoConnect_CheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_autoConnect_CheckboxActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_autoConnect_CheckboxActionPerformed
+        //Update Config
+        try {
+            String defaultServer = selectedItem;
+            serverConfig.setDefaultServer(defaultServer);
+        } catch (NullPointerException e) {
+            //nothing was selected yet
+        }
+        serverConfig.setAutoConnectToServer(autoConnect_Checkbox.isSelected());
+
+        //Connect to Server
+        try {
+            socketHandler = new SocketHandler(serverConfig.getServerList().get(selectedItem), serverConfig.getPort());
+
+            refreshAndSetToolConnect();
+
+        } catch (IOException ex) {
+            Logger.getLogger(QD_GUI.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(this, "Connection to " + selectedItem + " failed!");
+        }
+    }//GEN-LAST:event_connectServer_ButtonActionPerformed
 
     /**
      *
@@ -1175,18 +1216,19 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
         jButtonPlayPause.setIcon(icon);
     }
 
-    private void refreshComports() {
-        SerialPort[] commPorts = SerialPort.getCommPorts();
-        ArrayList<String> portnameList = new ArrayList<>();
-        for (SerialPort comport : commPorts) {
-            portnameList.add(comport.getDescriptivePortName());
-        }
-        this.portNames = portnameList.toArray(new String[portnameList.size()]);
-        if (portNames.length > 0) {
-            comboBoxPortChooser.setModel(new javax.swing.DefaultComboBoxModel<>(portNames));
-        } else {
-            comboBoxPortChooser.setModel(new javax.swing.DefaultComboBoxModel<>(new String[]{"No active Port found"}));
-        }
+    private void refreshAndSetToolConnect() {
+//        SerialPort[] commPorts = SerialPort.getCommPorts();
+//        ArrayList<String> portnameList = new ArrayList<>();
+//        for (SerialPort comport : commPorts) {
+//            portnameList.add(comport.getDescriptivePortName());
+//        }
+//        this.portNames = portnameList.toArray(new String[portnameList.size()]);
+//        if (portNames.length > 0) {
+//            comboBoxPortChooser.setModel(new javax.swing.DefaultComboBoxModel<>(portNames));
+//        } else {
+//            comboBoxPortChooser.setModel(new javax.swing.DefaultComboBoxModel<>(new String[]{"No active Port found"}));
+//        }
+        setCardLayout(toolConnect_CardLayout);
     }
 
     /**
@@ -1297,8 +1339,8 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
     private javax.swing.JToggleButton jToggleButtonOffsetRaw;
     private javax.swing.JPanel mainPanel;
     private javax.swing.JTextField maxEmbeddedLatency;
-    private javax.swing.JPanel serverSelect;
     private javax.swing.JComboBox<String> serverSelect_ComboBox;
+    private javax.swing.JPanel serverSelect_Panel;
     private javax.swing.JPanel toolConnect;
     // End of variables declaration//GEN-END:variables
 
