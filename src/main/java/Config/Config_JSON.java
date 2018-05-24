@@ -23,21 +23,23 @@ public class Config_JSON {
 
     /**
      *
+     * @param fileName
      * @return @throws FileNotFoundException
      */
-    public static Config_JSON main() throws FileNotFoundException {
+    public static Config_JSON main(String fileName) throws FileNotFoundException {
         Gson gson = new Gson();
-        Config_JSON cfg = gson.fromJson(new FileReader("cfg.json"), Config_JSON.class);
+        Config_JSON cfg = gson.fromJson(new FileReader(fileName), Config_JSON.class);
         return cfg;
     }
 
     /**
      *
+     * @param fileName
      * @throws IOException
      */
-    public void toJSON() throws IOException {
+    public void toJSON(String fileName) throws IOException {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        try (FileWriter filewriter = new FileWriter("cfg.json")) {
+        try (FileWriter filewriter = new FileWriter(fileName)) {
             gson.toJson(this, filewriter);
             filewriter.flush();
         }

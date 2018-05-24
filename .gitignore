@@ -1,11 +1,9 @@
-# File Types 	  #
-###################
+# File Types
 *.txt
 *.bin
 *.lock
 
-# Folders 	  #
-###################
+# Folders
 /*/nb-configuration.xml
 /nbproject/
 /*/nbproject/

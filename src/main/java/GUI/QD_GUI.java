@@ -9,10 +9,12 @@ import Frame.Schema.PASSAT_Frame;
 import Graphs.Graph;
 import Sorting.AlphanumComparator;
 import com.fazecast.jSerialComm.SerialPort;
+import com.google.gson.JsonSyntaxException;
 import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.event.KeyEvent;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,7 +31,10 @@ import javax.swing.JOptionPane;
  * @author jan.Adamczyk
  */
 public final class QD_GUI extends javax.swing.JFrame implements Observer {
-    
+
+    private Config_JSON config;
+    private String config_FileName = "cfg.json";
+
     private DataHandler dataHandler;
     private Graph graph;
 
@@ -38,7 +43,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
     private HashMap<String, Integer> channelNameNumberAssignment;
     private HashMap<Integer, String> reversedHashMap;
     ArrayList<String> allChannelNames;
-    
+
     /**
      * Creates new form Frame
      *
@@ -47,13 +52,66 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
         init();
     }
 
+    /**
+     * init all Components
+     */
     private void init() {
         initComponents();
-        initConfig();
         setPlayPauseIcon("pause");
         setApplicationIcon();
+
+        initConfig();
+
+        saveConfigOnClose();
+
         this.validate();
         this.repaint();
+    }
+
+    private void initConfig() {
+        getConfig();
+
+        //use config to initialize program
+    }
+
+    private void getConfig() {
+        try {
+            config = Config_JSON.main(config_FileName);
+        } catch (FileNotFoundException ex) {
+            config = new Config_JSON();
+        } catch (JsonSyntaxException ex) {
+            config_FileName = "default_config.json";
+            config = new Config_JSON();
+            JOptionPane.showMessageDialog(this, "Config-File corrupted. Creating default-Config.");
+        }
+    }
+
+    private void saveConfigOnClose() {
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        this.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                saveConfigToFile();
+                System.exit(0);
+            }
+        });
+    }
+
+    private void saveConfigToFile() {
+        try {
+            config.toJSON(config_FileName);
+        } catch (IOException ex) {
+            int response = JOptionPane.showConfirmDialog(this, "Retry?", "Could not save Config-File",
+                    JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+            switch (response) {
+                case JOptionPane.YES_OPTION:
+                    saveConfigToFile();
+                    break;
+                case JOptionPane.NO_OPTION:
+                case JOptionPane.CANCEL_OPTION:
+                    break;
+            }
+        }
     }
 
     private void setApplicationIcon() {
@@ -63,7 +121,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
         this.setIconImage(img);
     }
 
-    private void initConfig() {
+//    private void initConfig() {
 //        SerialPort[] commPorts = SerialPort.getCommPorts();
 //        ArrayList<String> portnameList = new ArrayList<>();
 //        for (SerialPort comport : commPorts) {
@@ -79,8 +137,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
 //        jTextFieldDataBits.setText(String.valueOf(dataBits));
 //        jTextFieldStopBits.setText(String.valueOf(stopBits));
 //        jTextFieldNewChannelNumber.setText(String.valueOf(shownChannels));
-    }
-
+//    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -963,15 +1020,6 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
 
         this.jComboBoxValuesShown.setSelectedItem("500");
         this.jToggleButtonChannelOnOff.setSelected(true);
-
-        Config_JSON cfg = new Config_JSON();
-        PASSAT_Frame passat_frame = new PASSAT_Frame();
-        try {
-            cfg.toJSON();
-            passat_frame.toJson();
-        } catch (IOException ex) {
-            Logger.getLogger(QD_GUI.class.getName()).log(Level.SEVERE, null, ex);
-        }
     }//GEN-LAST:event_connectAQ_ButtonActionPerformed
 
     private void comboBoxPortChooserPopupMenuWillBecomeVisible(javax.swing.event.PopupMenuEvent evt) {//GEN-FIRST:event_comboBoxPortChooserPopupMenuWillBecomeVisible
@@ -1256,6 +1304,6 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
 
     @Override
     public void update(java.util.Observable o, Object arg) {
-        
+
     }
 }

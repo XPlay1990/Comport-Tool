@@ -18,6 +18,11 @@
     "comport_Config": {
       "last_Used_Port": "COM1",
       "config": {
+        "baudrate": 400000,
+        "stopBits": 1,
+        "dataBits": 8,
+        "shownChannels": 60
+      }
     }
   }
 }
