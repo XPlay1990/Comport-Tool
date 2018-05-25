@@ -7,7 +7,7 @@
       },
       "defaultServer": "localhost",
       "port": 1337,
-      "autoConnectToServer": false
+      "autoConnectToServer": true
     },
     "graph_Config": {
       "offset": false,
@@ -96,9 +96,9 @@
     "comport_Config": {
       "last_Used_Port": "COM1",
       "config": {
-        "baudrate": 400000,
-        "stopBits": 1,
-        "dataBits": 8
+        "baudrate": 400000.0,
+        "stopBits": 1.0,
+        "dataBits": 8.0
       }
     }
   }

@@ -1,0 +1,22 @@
+{
+  "header": {},
+  "data": {
+    "targets": [
+      {
+        "target_name": "asdf",
+        "target_uuid": "70",
+        "created": "gestern"
+      },
+      {
+        "target_name": "asdf",
+        "target_uuid": "70",
+        "created": "gestern"
+      },
+      {
+        "target_name": "asdf",
+        "target_uuid": "70",
+        "created": "gestern"
+      }
+    ]
+  }
+}

@@ -3,12 +3,12 @@
  */
 package DataEvaluation;
 
-import java.util.Observable;
+import HelpClasses.Threading.ThreadStarter_Abstract;
 
 /**
  *
  * @author jan.adamczyk
  */
-public abstract class DataEvaluator_Abstract extends Observable implements Runnable, DataEvaluator_Interface{
-    
+public abstract class DataEvaluator_Abstract extends ThreadStarter_Abstract implements DataEvaluator_Interface {
+
 }

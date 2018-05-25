@@ -7,6 +7,6 @@ package Graphs;
  *
  * @author jan.adamczyk
  */
-public interface Graph {
-    
+public interface Graph extends Runnable {
+
 }

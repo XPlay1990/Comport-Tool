@@ -14,12 +14,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import DataEvaluation.DataEvaluator_Interface;
+import HelpClasses.Threading.ThreadStarter_Abstract;
 
 /**
  *
  * @author jan.adamczyk
  */
-public class SocketHandler {
+public class SocketHandler extends ThreadStarter_Abstract{
 
     DataEvaluator_Interface dataHandler;
 
@@ -77,12 +78,14 @@ public class SocketHandler {
      */
     public void writeToSocket(String frame) {
         socketWriter.setDataToWrite(frame);
+        
+        //Nonblocking Threading
         writeExecutor.execute(socketWriter);
-        try {
-            writeExecutor.awaitTermination(100, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException ex) {
-            //write took too long
-            Logger.getLogger(SocketHandler.class.getName()).log(Level.SEVERE, null, ex);
-        }
+//        try {
+//            writeExecutor.awaitTermination(100, TimeUnit.MILLISECONDS);
+//        } catch (InterruptedException ex) {
+//            //write took too long
+//            Logger.getLogger(SocketHandler.class.getName()).log(Level.SEVERE, null, ex);
+//        }
     }
 }

@@ -9,7 +9,7 @@ import java.util.ArrayList;
  *
  * @author jan.adamczyk
  */
-public interface DataEvaluator_Interface {
+public interface DataEvaluator_Interface extends Runnable {
 
     /**
      *

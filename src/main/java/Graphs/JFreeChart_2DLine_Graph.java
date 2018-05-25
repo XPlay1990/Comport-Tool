@@ -39,7 +39,7 @@ import org.jfree.chart.ui.ApplicationFrame;
  *
  * @author Jan.Adamczyk
  */
-public final class JFreeChart_2DLine_Graph extends ApplicationFrame implements Runnable, Graph {
+public final class JFreeChart_2DLine_Graph extends ApplicationFrame implements Graph {
 
     private static final String TITLE = "TouchFoilSeries";
     private static final float FATNESS = 3.0f;

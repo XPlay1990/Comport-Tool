@@ -4,13 +4,11 @@
 package Socket;
 
 import Frame.Frame_Handler;
-import Frame.PASSAT_Frame_Parser;
+import HelpClasses.Threading.ThreadStarter_Abstract;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -18,12 +16,11 @@ import java.util.logging.Logger;
  *
  * @author jan.adamczyk
  */
-public class SocketReader implements Runnable {
+public class SocketReader extends ThreadStarter_Abstract implements Runnable {
 
-    BufferedReader reader;
-    ExecutorService executor;
-    Frame_Handler frame_Handler;
-    PASSAT_Frame_Parser parser;
+    private final BufferedReader reader;
+    private final ExecutorService executor;
+    private final Frame_Handler frame_Handler;
 
     @Override
     public void run() {
@@ -32,8 +29,8 @@ public class SocketReader implements Runnable {
             while (true) {
 
                 while ((input = reader.readLine()) != null) {
-//                    startFrameHandler(input);
-                    System.out.println(input);
+                    startFrameHandler(input);
+//                    System.out.println(input);
                 }
 
             }
@@ -51,13 +48,7 @@ public class SocketReader implements Runnable {
     private void startFrameHandler(String input) {
         frame_Handler.setJsonString(input);
 
-        Future<?> future = executor.submit(frame_Handler);
-
-        try {
-            future.get();   //Wait for thread to finish successfull
-        } catch (ExecutionException | InterruptedException ex) {
-            Logger.getLogger(SocketReader.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        startThreadAndWaitForCompletition(frame_Handler, executor);
     }
 
     /**
@@ -66,8 +57,7 @@ public class SocketReader implements Runnable {
      */
     public SocketReader(BufferedReader reader) {
         this.reader = reader;
-
-        executor = Executors.newSingleThreadExecutor();
-        this.parser = new PASSAT_Frame_Parser();
+        this.executor = Executors.newSingleThreadExecutor();
+        this.frame_Handler = new Frame_Handler();
     }
 }

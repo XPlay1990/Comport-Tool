@@ -3,10 +3,13 @@
  */
 package Frame;
 
+import DataEvaluation.DataEvaluator_Abstract;
 import Frame.Schema.PASSAT_Frame;
 import Frame.Schema.PASSAT_Header;
+import com.google.gson.JsonSyntaxException;
 import java.util.HashMap;
 import java.util.Observable;
+import java.util.concurrent.ExecutorService;
 
 /**
  *
@@ -16,6 +19,9 @@ public class Frame_Handler extends Observable implements Runnable {
 
     private final PASSAT_Frame_Parser parser;
     private String jsonString;
+    
+    private DataEvaluator_Abstract dataEvaluator;
+    ExecutorService executor;
 
     @Override
     public void run() {
@@ -34,8 +40,13 @@ public class Frame_Handler extends Observable implements Runnable {
      * @param json
      */
     private void handleJSONString(String json) {
-        PASSAT_Frame passat_Frame = parser.parseJSONStringtoPASSAT(json);
-        evaluatePASSAT_FRAME(passat_Frame);
+        try {
+            PASSAT_Frame passat_Frame = parser.parseJSONStringtoPASSAT(json);
+            evaluatePASSAT_FRAME(passat_Frame);
+        } catch (JsonSyntaxException e) {
+            //update GUI-Errorcounter
+            System.out.println("FRAME PARSING ERROR");
+        }
     }
 
     private void evaluatePASSAT_FRAME(PASSAT_Frame passat_Frame) {
@@ -47,7 +58,9 @@ public class Frame_Handler extends Observable implements Runnable {
                 break;
             case "1":
                 break;
-            case "2":
+            case "data":
+//                dataEvaluator.setData(passat_Frame.getData());
+                
                 break;
             default:
                 break;
@@ -60,5 +73,13 @@ public class Frame_Handler extends Observable implements Runnable {
      */
     public void setJsonString(String jsonString) {
         this.jsonString = jsonString;
+    }
+
+    /**
+     *
+     * @param dataEvaluator
+     */
+    public void setDataEvaluator(DataEvaluator_Abstract dataEvaluator) {
+        this.dataEvaluator = dataEvaluator;
     }
 }

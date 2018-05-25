@@ -7,7 +7,9 @@ import Config.Config_JSON;
 import Config.Tool_Config.Graph_Config;
 import Config.Tool_Config.Server_Config;
 import Config.Tool_Config.Tool_Config;
+import DataEvaluation.DataEvaluator_Abstract;
 import DataEvaluation.MWO_DataEvaluator;
+import Frame.newpackage.TEST_FRAME_AQJOIN_REQ;
 import Graphs.Graph;
 import Graphs.JFreeChart_2DLine_Graph;
 import Socket.SocketHandler;
@@ -28,7 +30,6 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
-import DataEvaluation.DataEvaluator_Interface;
 
 /**
  * GUI class to access the tool
@@ -44,8 +45,8 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
     private final String config_Fallback_FileName = "Fallback_Config.json";
 
     private SocketHandler socketHandler;
-    private MWO_DataEvaluator dataHandler;
-    private JFreeChart_2DLine_Graph graph;
+    private DataEvaluator_Abstract dataHandler;
+    private Graph graph;
 
     private String[] portNames;
     private boolean isPaused = false;
@@ -129,6 +130,9 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
                     break;
             }
         }
+
+        TEST_FRAME_AQJOIN_REQ x = new TEST_FRAME_AQJOIN_REQ();
+        x.toJson();
     }
 
     private void initGUI() {
@@ -196,13 +200,13 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
         jLabelBaudrate = new javax.swing.JLabel();
         jLabelDataBits = new javax.swing.JLabel();
         jLabelStopBits = new javax.swing.JLabel();
-        comboBoxPortChooser = new javax.swing.JComboBox<>();
-        connectAQ_Button = new javax.swing.JButton();
-        disconnectServer_Button = new javax.swing.JButton();
         jPanelLogoPanel = new javax.swing.JPanel();
         jLabelQDIcon = new javax.swing.JLabel();
         jTextFieldNewChannelNumber = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
+        connectAQ_Button = new javax.swing.JButton();
+        disconnectServer_Button = new javax.swing.JButton();
+        comboBoxPortChooser = new javax.swing.JComboBox<>();
         channelSelect = new javax.swing.JPanel();
         jPanelControlPanel = new javax.swing.JPanel();
         channelPanel = new javax.swing.JPanel();
@@ -288,7 +292,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
                     .addComponent(jLabelQDIcon1, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(autoConnect_Checkbox)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 315, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 390, Short.MAX_VALUE)
                 .addComponent(connectServer_Button, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -307,40 +311,19 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
 
         jLabelStopBits.setText("StopBits:");
 
-        comboBoxPortChooser.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Choose Port" }));
-
-        connectAQ_Button.setText("Connect AQ");
-        connectAQ_Button.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                connectAQ_ButtonActionPerformed(evt);
-            }
-        });
-
-        disconnectServer_Button.setText("Disconnect Server");
-        disconnectServer_Button.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                disconnectServer_ButtonActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout jPanelConnectButtonPanelLayout = new javax.swing.GroupLayout(jPanelConnectButtonPanel);
         jPanelConnectButtonPanel.setLayout(jPanelConnectButtonPanelLayout);
         jPanelConnectButtonPanelLayout.setHorizontalGroup(
             jPanelConnectButtonPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(comboBoxPortChooser, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(jPanelConnectButtonPanelLayout.createSequentialGroup()
-                .addGroup(jPanelConnectButtonPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(connectAQ_Button, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(jPanelConnectButtonPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(jLabelBaudrate, javax.swing.GroupLayout.DEFAULT_SIZE, 193, Short.MAX_VALUE)
-                        .addComponent(jTextFieldBaudrate, javax.swing.GroupLayout.DEFAULT_SIZE, 114, Short.MAX_VALUE)
-                        .addComponent(jLabelDataBits, javax.swing.GroupLayout.DEFAULT_SIZE, 134, Short.MAX_VALUE)
-                        .addComponent(jTextFieldDataBits, javax.swing.GroupLayout.DEFAULT_SIZE, 176, Short.MAX_VALUE)
-                        .addComponent(jLabelStopBits, javax.swing.GroupLayout.DEFAULT_SIZE, 168, Short.MAX_VALUE)
-                        .addComponent(jTextFieldStopBits, javax.swing.GroupLayout.DEFAULT_SIZE, 166, Short.MAX_VALUE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 93, Short.MAX_VALUE)
-                .addComponent(disconnectServer_Button, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addGroup(jPanelConnectButtonPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabelBaudrate, javax.swing.GroupLayout.DEFAULT_SIZE, 193, Short.MAX_VALUE)
+                    .addComponent(jTextFieldBaudrate, javax.swing.GroupLayout.DEFAULT_SIZE, 114, Short.MAX_VALUE)
+                    .addComponent(jLabelDataBits, javax.swing.GroupLayout.DEFAULT_SIZE, 134, Short.MAX_VALUE)
+                    .addComponent(jTextFieldDataBits, javax.swing.GroupLayout.DEFAULT_SIZE, 176, Short.MAX_VALUE)
+                    .addComponent(jLabelStopBits, javax.swing.GroupLayout.DEFAULT_SIZE, 168, Short.MAX_VALUE)
+                    .addComponent(jTextFieldStopBits, javax.swing.GroupLayout.DEFAULT_SIZE, 166, Short.MAX_VALUE))
+                .addContainerGap(253, Short.MAX_VALUE))
         );
 
         jPanelConnectButtonPanelLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jLabelBaudrate, jLabelDataBits, jLabelStopBits, jTextFieldBaudrate, jTextFieldDataBits, jTextFieldStopBits});
@@ -348,9 +331,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
         jPanelConnectButtonPanelLayout.setVerticalGroup(
             jPanelConnectButtonPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanelConnectButtonPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(comboBoxPortChooser, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addGap(82, 82, 82)
                 .addComponent(jLabelBaudrate, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jTextFieldBaudrate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -362,14 +343,8 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
                 .addComponent(jLabelStopBits, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jTextFieldStopBits, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addGroup(jPanelConnectButtonPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(disconnectServer_Button, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(connectAQ_Button, javax.swing.GroupLayout.DEFAULT_SIZE, 67, Short.MAX_VALUE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(98, Short.MAX_VALUE))
         );
-
-        jPanelConnectButtonPanelLayout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {comboBoxPortChooser, connectAQ_Button});
 
         jPanelConnectButtonPanelLayout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {jLabelBaudrate, jLabelDataBits, jLabelStopBits, jTextFieldBaudrate, jTextFieldDataBits, jTextFieldStopBits});
 
@@ -406,26 +381,59 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
                 .addContainerGap())
         );
 
+        connectAQ_Button.setText("Connect AQ");
+        connectAQ_Button.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                connectAQ_ButtonActionPerformed(evt);
+            }
+        });
+
+        disconnectServer_Button.setText("Disconnect Server");
+        disconnectServer_Button.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                disconnectServer_ButtonActionPerformed(evt);
+            }
+        });
+
+        comboBoxPortChooser.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Choose Port" }));
+
         javax.swing.GroupLayout toolConnectLayout = new javax.swing.GroupLayout(toolConnect);
         toolConnect.setLayout(toolConnectLayout);
         toolConnectLayout.setHorizontalGroup(
             toolConnectLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(toolConnectLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanelConnectButtonPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(toolConnectLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(toolConnectLayout.createSequentialGroup()
+                        .addGroup(toolConnectLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jPanelConnectButtonPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(comboBoxPortChooser, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(12, 12, 12))
+                    .addGroup(toolConnectLayout.createSequentialGroup()
+                        .addComponent(connectAQ_Button, javax.swing.GroupLayout.PREFERRED_SIZE, 211, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(32, 32, 32)
+                        .addComponent(disconnectServer_Button, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addComponent(jPanelLogoPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
         toolConnectLayout.setVerticalGroup(
             toolConnectLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, toolConnectLayout.createSequentialGroup()
-                .addGap(0, 34, Short.MAX_VALUE)
-                .addGroup(toolConnectLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jPanelConnectButtonPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(toolConnectLayout.createSequentialGroup()
+                .addGroup(toolConnectLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(toolConnectLayout.createSequentialGroup()
+                        .addComponent(comboBoxPortChooser, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jPanelConnectButtonPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(toolConnectLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(connectAQ_Button, javax.swing.GroupLayout.DEFAULT_SIZE, 67, Short.MAX_VALUE)
+                            .addComponent(disconnectServer_Button, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addComponent(jPanelLogoPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(36, Short.MAX_VALUE))
+                .addContainerGap())
         );
+
+        toolConnectLayout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {comboBoxPortChooser, connectAQ_Button});
 
         mainPanel.add(toolConnect, "toolConnect_CardLayout");
 
@@ -1037,10 +1045,10 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
         int selectedDataBits = Integer.valueOf(jTextFieldDataBits.getText());
         int selectedStopBits = Integer.valueOf(jTextFieldStopBits.getText());
         int channelCount = Integer.valueOf(jTextFieldNewChannelNumber.getText());
-        
+
         //Create Graph Components
         graph = new JFreeChart_2DLine_Graph(channelNameNumberAssignment, selectedComport);
-        dataHandler = new MWO_DataEvaluator();
+        dataHandler = new MWO_DataEvaluator(graph);
 //        graph.add
         dataHandler.addObserver(this);
 
@@ -1217,18 +1225,30 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
     }
 
     private void refreshAndSetToolConnect() {
-//        SerialPort[] commPorts = SerialPort.getCommPorts();
-//        ArrayList<String> portnameList = new ArrayList<>();
-//        for (SerialPort comport : commPorts) {
-//            portnameList.add(comport.getDescriptivePortName());
-//        }
-//        this.portNames = portnameList.toArray(new String[portnameList.size()]);
-//        if (portNames.length > 0) {
-//            comboBoxPortChooser.setModel(new javax.swing.DefaultComboBoxModel<>(portNames));
-//        } else {
-//            comboBoxPortChooser.setModel(new javax.swing.DefaultComboBoxModel<>(new String[]{"No active Port found"}));
-//        }
+        //get HW && config-fields from Server
+
+        //init HW-List
+        initHW_Interface_List();
+        
+        //set last used HW if possible && create configuration of hw
+        
         setCardLayout(toolConnect_CardLayout);
+    }
+
+    private void initHW_Interface_List() {
+        //TODO: Temporary, until RST fixes HW-Request/Response
+        ArrayList<String> portnameList = new ArrayList<>();
+        for (int i = 0; i < 30; i++) {
+            portnameList.add("Com" + (i+1));
+        }
+
+        this.portNames = portnameList.toArray(new String[portnameList.size()]);
+
+        if (portNames.length > 0) {
+            comboBoxPortChooser.setModel(new javax.swing.DefaultComboBoxModel<>(portNames));
+        } else {
+            comboBoxPortChooser.setModel(new javax.swing.DefaultComboBoxModel<>(new String[]{"No active Port found"}));
+        }
     }
 
     /**

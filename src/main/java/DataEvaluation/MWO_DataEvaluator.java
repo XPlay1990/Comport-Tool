@@ -3,13 +3,13 @@
  */
 package DataEvaluation;
 
-import Graphs.JFreeChart_2DLine_Graph;
+import Graphs.Graph;
 import Logs.TxtLog;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -21,9 +21,11 @@ public class MWO_DataEvaluator extends DataEvaluator_Abstract {
 
     private ArrayList<Integer> data;
     private Integer dataCounter;
-    private JFreeChart_2DLine_Graph graph;
+
+    private ExecutorService executor;
+    private final Graph graph;
     private TxtLog txtLogger;
-    ExecutorService executor;
+    private final List<Runnable> runnables;
 
     @Override
     public void run() {
@@ -33,15 +35,8 @@ public class MWO_DataEvaluator extends DataEvaluator_Abstract {
         //build logline
         txtLogger.newLogLine("t");
 
-        //print graph
-        executor.execute(graph);
-        //log data to txt
-        executor.execute(txtLogger);
-        try {
-            executor.awaitTermination(200, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(MWO_DataEvaluator.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        //print graph && log data to txt
+        startThreadsAndWaitForCompletition(runnables, executor);
 
         dataCounter++;
     }
@@ -64,13 +59,18 @@ public class MWO_DataEvaluator extends DataEvaluator_Abstract {
 
     /**
      *
+     * @param graph
      */
-    public MWO_DataEvaluator() {
+    public MWO_DataEvaluator(Graph graph) {
+        this.graph = graph;
         executor = Executors.newFixedThreadPool(2);
         try {
             txtLogger = new TxtLog("dummyName");
         } catch (FileNotFoundException ex) {
             Logger.getLogger(MWO_DataEvaluator.class.getName()).log(Level.SEVERE, null, ex);
         }
+        runnables = new ArrayList<>();
+        runnables.add(graph);
+        runnables.add(txtLogger);
     }
 }
