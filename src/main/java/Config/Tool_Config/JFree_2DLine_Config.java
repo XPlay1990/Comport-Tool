@@ -17,9 +17,10 @@ public class JFree_2DLine_Config implements Graph_Config {
     private ArrayList<Integer> activeChannelList = new ArrayList<>();
     private HashMap<Integer, String> channelNumberToNameMapping = new HashMap<>();
     private int x_Values_Shown = 500;
+    private int maximum_x_Values_Shown = 2500;
     private boolean autoRange = true;
     private int min_y;
-    private int min_x;
+    private int max_y;
 
     /**
      *
@@ -117,22 +118,6 @@ public class JFree_2DLine_Config implements Graph_Config {
      *
      * @return
      */
-    public int getMin_x() {
-        return min_x;
-    }
-
-    /**
-     *
-     * @param min_x
-     */
-    public void setMin_x(int min_x) {
-        this.min_x = min_x;
-    }
-
-    /**
-     *
-     * @return
-     */
     public boolean isAutoRange() {
         return autoRange;
     }
@@ -159,6 +144,32 @@ public class JFree_2DLine_Config implements Graph_Config {
      */
     public void setChannelNumber(int channelNumber) {
         this.channelNumber = channelNumber;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public int getMaximum_x_Values_Shown() {
+        return maximum_x_Values_Shown;
+    }
+
+    /**
+     *
+     * @param maximum_x_Values_Shown
+     */
+    public void setMaximum_x_Values_Shown(int maximum_x_Values_Shown) {
+        this.maximum_x_Values_Shown = maximum_x_Values_Shown;
+    }
+
+    @Override
+    public int getMax_y() {
+        return max_y;
+    }
+
+    @Override
+    public void setMax_y(int max_y) {
+        this.max_y = max_y;
     }
 
 }

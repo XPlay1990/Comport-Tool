@@ -82,4 +82,8 @@ public class Frame_Handler extends Observable implements Runnable {
     public void setDataEvaluator(DataEvaluator_Abstract dataEvaluator) {
         this.dataEvaluator = dataEvaluator;
     }
+    
+     public void initGraphComponents(DataEvaluator_Abstract dataEvaluator){
+         this.dataEvaluator = dataEvaluator;
+     }
 }

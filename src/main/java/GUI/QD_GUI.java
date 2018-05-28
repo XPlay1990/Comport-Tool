@@ -45,7 +45,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
     private final String config_Fallback_FileName = "Fallback_Config.json";
 
     private SocketHandler socketHandler;
-    private DataEvaluator_Abstract dataHandler;
+    private DataEvaluator_Abstract dataEvaluator;
     private Graph graph;
 
     private String[] portNames;
@@ -1040,23 +1040,30 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
     }//GEN-LAST:event_disconnectServer_ButtonActionPerformed
 
     private void connectAQ_ButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectAQ_ButtonActionPerformed
-        String selectedComport = comboBoxPortChooser.getSelectedItem().toString();
+        String selectedHW_Interface = comboBoxPortChooser.getSelectedItem().toString();
         int selectedBaudrate = Integer.valueOf(jTextFieldBaudrate.getText());
         int selectedDataBits = Integer.valueOf(jTextFieldDataBits.getText());
         int selectedStopBits = Integer.valueOf(jTextFieldStopBits.getText());
         int channelCount = Integer.valueOf(jTextFieldNewChannelNumber.getText());
 
-        //Create Graph Components
-        graph = new JFreeChart_2DLine_Graph(channelNameNumberAssignment, selectedComport);
-        dataHandler = new MWO_DataEvaluator(graph);
-//        graph.add
-        dataHandler.addObserver(this);
+        //Check if join was successful
+//        if(joinmessage_received){
+        //create Graph and dataevaluator
+        graph = new JFreeChart_2DLine_Graph(channelNameNumberAssignment, graphConfig, selectedHW_Interface);
+        dataEvaluator = new MWO_DataEvaluator(graph, selectedHW_Interface);
+        dataEvaluator.addObserver(this);
 
-        initChannelLists();
-        setCardLayout(channelSelect_CardLayout);
+        //give framehandler access to dataevaluator
+        socketHandler.initGraphComponents(dataEvaluator);
+//        frame_handler.set
 
-        this.jComboBoxValuesShown.setSelectedItem("500");
+          //TODO: create reversed-map
+//        initChannelLists();
+
+        this.jComboBoxValuesShown.setSelectedItem(Integer.toString(graphConfig.getX_Values_Shown()));
         this.jToggleButtonChannelOnOff.setSelected(true);
+        setCardLayout(channelSelect_CardLayout);
+        //        }
     }//GEN-LAST:event_connectAQ_ButtonActionPerformed
 
     private void connectServer_ButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectServer_ButtonActionPerformed
@@ -1229,9 +1236,8 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
 
         //init HW-List
         initHW_Interface_List();
-        
+
         //set last used HW if possible && create configuration of hw
-        
         setCardLayout(toolConnect_CardLayout);
     }
 
@@ -1239,7 +1245,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
         //TODO: Temporary, until RST fixes HW-Request/Response
         ArrayList<String> portnameList = new ArrayList<>();
         for (int i = 0; i < 30; i++) {
-            portnameList.add("Com" + (i+1));
+            portnameList.add("Com" + (i + 1));
         }
 
         this.portNames = portnameList.toArray(new String[portnameList.size()]);
@@ -1366,6 +1372,6 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
 
     @Override
     public void update(java.util.Observable o, Object arg) {
-
+        this.jTextFieldToolLatency.setText(arg.toString());
     }
 }

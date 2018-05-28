@@ -209,8 +209,9 @@ public class ComportHandler extends java.util.Observable implements Runnable {
 //        this.channelNameNumberAssignment = channelNameNumberAssignment;
 
         //create Animated-Graph-Window
-        animated = new JFreeChart_2DLine_Graph(channelNameNumberAssignment, comport);
+//        animated = new JFreeChart_2DLine_Graph(channelNameNumberAssignment, comport);
 //        animated.pack();
+        animated = null;
         animated.setMinimumSize(new Dimension(500, 500));
 //        RefineryUtilities.centerFrameOnScreen(animated);
 

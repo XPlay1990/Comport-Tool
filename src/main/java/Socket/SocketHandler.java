@@ -3,6 +3,7 @@
  */
 package Socket;
 
+import DataEvaluation.DataEvaluator_Abstract;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -10,7 +11,6 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import DataEvaluation.DataEvaluator_Interface;
@@ -20,7 +20,7 @@ import HelpClasses.Threading.ThreadStarter_Abstract;
  *
  * @author jan.adamczyk
  */
-public class SocketHandler extends ThreadStarter_Abstract{
+public class SocketHandler extends ThreadStarter_Abstract {
 
     DataEvaluator_Interface dataHandler;
 
@@ -78,7 +78,7 @@ public class SocketHandler extends ThreadStarter_Abstract{
      */
     public void writeToSocket(String frame) {
         socketWriter.setDataToWrite(frame);
-        
+
         //Nonblocking Threading
         writeExecutor.execute(socketWriter);
 //        try {
@@ -87,5 +87,9 @@ public class SocketHandler extends ThreadStarter_Abstract{
 //            //write took too long
 //            Logger.getLogger(SocketHandler.class.getName()).log(Level.SEVERE, null, ex);
 //        }
+    }
+
+    public void initGraphComponents(DataEvaluator_Abstract dataEvaluator) {
+        socketReader.initGraphComponents(dataEvaluator);
     }
 }

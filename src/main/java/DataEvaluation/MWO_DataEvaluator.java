@@ -6,12 +6,18 @@ package DataEvaluation;
 import Graphs.Graph;
 import Logs.TxtLog;
 import java.io.FileNotFoundException;
+import java.lang.reflect.InvocationTargetException;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.SwingUtilities;
 
 /**
  *
@@ -25,20 +31,29 @@ public class MWO_DataEvaluator extends DataEvaluator_Abstract {
     private ExecutorService executor;
     private final Graph graph;
     private TxtLog txtLogger;
-    private final List<Runnable> runnables;
 
     @Override
     public void run() {
+        //TimeStamp for Tool-Latency
+        LocalTime timeStamp = getTimeStamp();
+
+        //Process data
+//        processData();
         //set Graph-data
 //        graph.setDataToProcess(data, seriesNameAndData);
-
         //build logline
         txtLogger.newLogLine("t");
 
         //print graph && log data to txt
-        startThreadsAndWaitForCompletition(runnables, executor);
+        startThreadAndWaitForCompletition(txtLogger, executor);
+        try {
+            SwingUtilities.invokeAndWait(graph);
+        } catch (InterruptedException | InvocationTargetException ex) {
+            Logger.getLogger(MWO_DataEvaluator.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
         dataCounter++;
+        updateFrameLatencys(timeStamp);
     }
 
     /**
@@ -55,22 +70,43 @@ public class MWO_DataEvaluator extends DataEvaluator_Abstract {
     @Override
     public void processData() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        //Insert Code if there is something to process
     }
 
     /**
      *
      * @param graph
+     * @param hw_Interface
      */
-    public MWO_DataEvaluator(Graph graph) {
+    public MWO_DataEvaluator(Graph graph, String hw_Interface) {
         this.graph = graph;
-        executor = Executors.newFixedThreadPool(2);
+        executor = Executors.newSingleThreadExecutor();
         try {
-            txtLogger = new TxtLog("dummyName");
+            txtLogger = new TxtLog(hw_Interface);
         } catch (FileNotFoundException ex) {
             Logger.getLogger(MWO_DataEvaluator.class.getName()).log(Level.SEVERE, null, ex);
         }
-        runnables = new ArrayList<>();
-        runnables.add(graph);
-        runnables.add(txtLogger);
+    }
+
+    private LocalTime getTimeStamp() {
+        ZoneId zone = ZoneId.systemDefault();
+        ZonedDateTime zdt = ZonedDateTime.now(zone);
+        return zdt.toLocalTime();
+    }
+
+    /**
+     *
+     * @param eventReceived_Time
+     */
+    private void updateFrameLatencys(LocalTime eventReceived_Time) {
+//        try {
+//            embeddedLatency = (int) comportReceivedLine_Time.until(eventReceived_Time, ChronoUnit.MILLIS);
+//            if (embeddedLatency > maxEmbeddedLatency) {
+//                maxEmbeddedLatency = embeddedLatency;
+//            }
+        int toolLatency = (int) eventReceived_Time.until(getTimeStamp(), ChronoUnit.MICROS);
+        setChanged();
+        notifyObservers(toolLatency);
+//        comportReceivedLine_Time = eventReceived_Time;
     }
 }

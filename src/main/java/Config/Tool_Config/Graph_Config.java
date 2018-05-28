@@ -47,4 +47,76 @@ public interface Graph_Config {
      * @param channelNumberToNameMapping
      */
     public void setChannelNumberToNameMapping(HashMap<Integer, String> channelNumberToNameMapping);
+
+    /**
+     *
+     * @return
+     */
+    public int getX_Values_Shown();
+
+    /**
+     *
+     * @param x_Values_Shown
+     */
+    public void setX_Values_Shown(int x_Values_Shown);
+
+    /**
+     *
+     * @return
+     */
+    public int getMin_y();
+
+    /**
+     *
+     * @param min_y
+     */
+    public void setMin_y(int min_y);
+
+    /**
+     *
+     * @return
+     */
+    public int getMax_y();
+
+    /**
+     *
+     * @param max_y
+     */
+    public void setMax_y(int max_y);
+
+    /**
+     *
+     * @return
+     */
+    public boolean isAutoRange();
+
+    /**
+     *
+     * @param autoRange
+     */
+    public void setAutoRange(boolean autoRange);
+
+    /**
+     *
+     * @return
+     */
+    public int getChannelNumber();
+
+    /**
+     *
+     * @param channelNumber
+     */
+    public void setChannelNumber(int channelNumber);
+
+    /**
+     *
+     * @return
+     */
+    public int getMaximum_x_Values_Shown();
+
+    /**
+     *
+     * @param maximum_x_Values_Shown
+     */
+    public void setMaximum_x_Values_Shown(int maximum_x_Values_Shown);
 }

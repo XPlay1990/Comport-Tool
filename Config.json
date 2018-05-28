@@ -87,9 +87,10 @@
         "59": "Channel_59"
       },
       "x_Values_Shown": 500,
+      "maximum_x_Values_Shown": 2500,
       "autoRange": true,
       "min_y": 0,
-      "min_x": 0
+      "max_y": 0
     }
   },
   "hw_Config": {

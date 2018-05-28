@@ -3,6 +3,7 @@
  */
 package Graphs;
 
+import Config.Tool_Config.Graph_Config;
 import HelpClasses.SeriesNameAndData;
 import HelpClasses.SeriesHolder;
 import java.awt.BasicStroke;
@@ -44,21 +45,24 @@ public final class JFreeChart_2DLine_Graph extends ApplicationFrame implements G
     private static final String TITLE = "TouchFoilSeries";
     private static final float FATNESS = 3.0f;
     private final XYSeriesCollection dataset;
-    private Integer xAxisRange = 500;
     private ValueAxis domain;
-    private int lowerY = 0;
-    private int upperY = 0;
+
     private ValueAxis valueAxis;
     private ValueAxis valueAxis2;
-    private final int seriesMaxLength = 2500;
+
     private final JFreeChart jfreeChart;
     private XYPlot plot;
-    private HashMap<String, Integer> channelNameNumberAssigment;
+    private HashMap<String, Integer> channelNameToNumberMapping;
     private ChartpanelUnzoomFixx chartPanel;
-//    private final ArrayList<JCheckBox> checkboxes;
 
     private ArrayList<Integer> x_indexList;
     private ArrayList<SeriesHolder> seriesNameandData;
+
+    //Config
+    private int seriesMaxLength = 2500;
+    private Integer xAxisRange = 500;
+    private int lowerY = 0;
+    private int upperY = 0;
 
     public void run() {
         try {
@@ -84,17 +88,32 @@ public final class JFreeChart_2DLine_Graph extends ApplicationFrame implements G
 
     /**
      *
-     * @param channelNameNumberAssigment
+     * @param channelNameToNumberMapping
+     * @param cfg
      * @param hw_Interface
      */
-    public JFreeChart_2DLine_Graph(HashMap<String, Integer> channelNameNumberAssigment, String hw_Interface) {
+    public JFreeChart_2DLine_Graph(HashMap<String, Integer> channelNameToNumberMapping, Graph_Config cfg, String hw_Interface) {
         super(hw_Interface);
         setApplicationIcon();
-        this.channelNameNumberAssigment = channelNameNumberAssigment;
+
+        //init config
+        this.channelNameToNumberMapping = channelNameToNumberMapping;
+        initCfg(cfg);
+
+        //create Graph
         dataset = new XYSeriesCollection();
         jfreeChart = createChart(dataset);
+
+        this.setVisible(true);
         this.validate();
         this.repaint();
+    }
+
+    private void initCfg(Graph_Config cfg) {
+        this.xAxisRange = cfg.getX_Values_Shown();
+        this.seriesMaxLength = cfg.getMaximum_x_Values_Shown();
+        this.lowerY = cfg.getMin_y();
+        this.upperY = cfg.getMax_y();
     }
 
     private JFreeChart createChart(final XYDataset dataset) {
@@ -189,7 +208,7 @@ public final class JFreeChart_2DLine_Graph extends ApplicationFrame implements G
             String key = (String) next.getKey();
             int channelNumber = 0;
             try {
-                channelNumber = channelNameNumberAssigment.get(key);
+                channelNumber = channelNameToNumberMapping.get(key);
             } catch (NullPointerException e) {
                 System.out.println(e);
             }
@@ -355,7 +374,7 @@ public final class JFreeChart_2DLine_Graph extends ApplicationFrame implements G
      * @param channelNameNumberAssigment
      */
     public void setHashMap(HashMap<String, Integer> channelNameNumberAssigment) {
-        this.channelNameNumberAssigment = channelNameNumberAssigment;
+        this.channelNameToNumberMapping = channelNameNumberAssigment;
     }
 
     private class ChartpanelUnzoomFixx extends ChartPanel {
@@ -419,16 +438,5 @@ public final class JFreeChart_2DLine_Graph extends ApplicationFrame implements G
      */
     public int getSeriesMaxLength() {
         return seriesMaxLength;
-    }
-
-    /**
-     *
-     * @param args
-     */
-    public static void main(String[] args) {
-        // Run the GUI codes in the Event-dispatching thread for thread-safety
-        SwingUtilities.invokeLater(() -> {
-            JFreeChart_2DLine_Graph animatedGraph = new JFreeChart_2DLine_Graph(new HashMap<>(), "Test"); // Let the constructor do the job
-        });
     }
 }

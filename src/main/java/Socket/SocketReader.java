@@ -3,6 +3,7 @@
  */
 package Socket;
 
+import DataEvaluation.DataEvaluator_Abstract;
 import Frame.Frame_Handler;
 import HelpClasses.Threading.ThreadStarter_Abstract;
 import java.io.BufferedReader;
@@ -59,5 +60,9 @@ public class SocketReader extends ThreadStarter_Abstract implements Runnable {
         this.reader = reader;
         this.executor = Executors.newSingleThreadExecutor();
         this.frame_Handler = new Frame_Handler();
+    }
+
+    public void initGraphComponents(DataEvaluator_Abstract dataEvaluator) {
+        frame_Handler.initGraphComponents(dataEvaluator);
     }
 }
