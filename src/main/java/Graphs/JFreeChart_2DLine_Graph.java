@@ -9,6 +9,7 @@ import HelpClasses.SeriesHolder;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Image;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -19,7 +20,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
 import org.jfree.chart.ChartColor;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -104,9 +104,11 @@ public final class JFreeChart_2DLine_Graph extends ApplicationFrame implements G
         dataset = new XYSeriesCollection();
         jfreeChart = createChart(dataset);
 
-        this.setVisible(true);
+        this.setMinimumSize(new Dimension(500, 500));
+        this.pack();
         this.validate();
         this.repaint();
+        this.setVisible(true);
     }
 
     private void initCfg(Graph_Config cfg) {

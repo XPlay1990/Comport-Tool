@@ -23,6 +23,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Observer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -50,8 +51,8 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
 
     private String[] portNames;
     private boolean isPaused = false;
-    private HashMap<String, Integer> channelNameNumberAssignment;
-    private HashMap<Integer, String> reversedHashMap;
+    private HashMap<String, Integer> channelNameToNumberMapping;
+    private HashMap<Integer, String> channelNumberToNameMapping;
     ArrayList<String> allChannelNames;
 
     private final String serverSelect_CardLayout = "serverSelect_CardLayout";
@@ -984,12 +985,12 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
     private void jButtonSetChannelNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSetChannelNameActionPerformed
         String oldName = (String) jComboBoxOldChannelName.getSelectedItem();
         String newChannelName = jTextFieldNewChannelName.getText();
-        if (!channelNameNumberAssignment.containsKey(newChannelName)) {
+        if (!channelNameToNumberMapping.containsKey(newChannelName)) {
 
-            Integer index = this.channelNameNumberAssignment.get(oldName);
-            this.channelNameNumberAssignment.remove(oldName);
-            this.channelNameNumberAssignment.put(newChannelName, index);
-            this.reversedHashMap.put(index, newChannelName);
+            Integer index = this.channelNameToNumberMapping.get(oldName);
+            this.channelNameToNumberMapping.remove(oldName);
+            this.channelNameToNumberMapping.put(newChannelName, index);
+            this.channelNumberToNameMapping.put(index, newChannelName);
 
             DefaultListModel activeModel = (DefaultListModel) jListActiveChannels.getModel();
             DefaultListModel inactiveModel = (DefaultListModel) jListInactiveChannels.getModel();
@@ -1048,17 +1049,18 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
 
         //Check if join was successful
 //        if(joinmessage_received){
+        //init GUI
+        initChannelLists();
+        initChannelNameNumberMapping();
+
         //create Graph and dataevaluator
-        graph = new JFreeChart_2DLine_Graph(channelNameNumberAssignment, graphConfig, selectedHW_Interface);
+        graph = new JFreeChart_2DLine_Graph(channelNameToNumberMapping, graphConfig, selectedHW_Interface);
         dataEvaluator = new MWO_DataEvaluator(graph, selectedHW_Interface);
         dataEvaluator.addObserver(this);
 
         //give framehandler access to dataevaluator
         socketHandler.initGraphComponents(dataEvaluator);
 //        frame_handler.set
-
-          //TODO: create reversed-map
-//        initChannelLists();
 
         this.jComboBoxValuesShown.setSelectedItem(Integer.toString(graphConfig.getX_Values_Shown()));
         this.jToggleButtonChannelOnOff.setSelected(true);
@@ -1093,30 +1095,31 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
     /**
      *
      */
-    public void initChannelLists() {
-        channelNameNumberAssignment = new HashMap<>();
-        reversedHashMap = new HashMap<>();
-
+    private void initChannelLists() {
         DefaultListModel listModelActiveChannels = new DefaultListModel();
         jListActiveChannels.setModel(listModelActiveChannels);
 
-        int shownChannelNumber = Integer.valueOf(jTextFieldNewChannelNumber.getText());
-
         allChannelNames = new ArrayList<>();
 
-        DefaultListModel allChannels = new DefaultListModel();
-        for (int i = 0; i < shownChannelNumber; i++) {
-            String channelName = "Channel_" + i;
-            allChannelNames.add(channelName);
-            allChannels.addElement(channelName);
-            channelNameNumberAssignment.put(channelName, i);
-            reversedHashMap.put(i, channelName);
-        }
+        DefaultListModel activeChannels = new DefaultListModel();
+        DefaultListModel inactiveChannels = new DefaultListModel();
 
-        allChannelNames.sort(new AlphanumComparator());
+        ArrayList<Integer> activeChannelList = graphConfig.getActiveChannelList();
+        graphConfig.getChannelNumberToNameMapping().entrySet().stream().map((entity) -> {
+            if (activeChannelList.contains(entity.getKey())) {
+                activeChannels.addElement(entity.getValue());
+            } else {
+                inactiveChannels.addElement(entity.getValue());
+            }
+            return entity;
+        }).forEachOrdered((entity) -> {
+            allChannelNames.add(entity.getValue());
+        });
+
+        jListActiveChannels.setModel(activeChannels);
+        jListInactiveChannels.setModel(inactiveChannels);
+
         reinitOldChannelName(allChannelNames);
-
-        jListInactiveChannels.setModel(allChannels);
 
         jScrollPaneActiveChannels.setWheelScrollingEnabled(true);
         jScrollPaneActiveChannels.setPreferredSize(new Dimension(150, 250));
@@ -1129,6 +1132,14 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
         this.setSize(this.getPreferredSize());
         channelPanel.validate();
         channelPanel.repaint();
+    }
+
+    private void initChannelNameNumberMapping() {
+        channelNumberToNameMapping = graphConfig.getChannelNumberToNameMapping();
+        channelNameToNumberMapping = new HashMap<>();
+        channelNumberToNameMapping.entrySet().forEach((entry) -> {
+            channelNameToNumberMapping.put(entry.getValue(), entry.getKey());
+        });
     }
 
     private void setChannelsToActive() {
