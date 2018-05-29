@@ -3,6 +3,7 @@
  */
 package Graphs;
 
+import HelpClasses.ValuesList;
 import java.util.ArrayList;
 
 /**
@@ -34,10 +35,18 @@ public interface Graph extends Runnable {
      * @param newName
      */
     public void changeSeriesName(String oldName, String newName);
-    
+
     /**
      *
      * @param data
      */
-    public void setDataToProcess(ArrayList<Integer> data);
+    public void setDataToProcess(ValuesList data);
+
+    public void setyAxisAutorange(boolean bool);
+
+    public void setAntiAlias(Boolean bool);
+
+    public void setyAxisRange(int lower, int upper);
+
+    public void setxAxisRange(Integer xAxisRange);
 }

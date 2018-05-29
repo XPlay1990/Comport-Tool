@@ -9,7 +9,7 @@ import java.util.ArrayList;
  *
  * @author Jan.Adamczyk
  */
-public class MultipleSeriesHolder extends ArrayList<SeriesHolder> {
+public class MultipleSeriesHolder extends ArrayList<ArrayList<SeriesNameAndData>> {
 
     /**
      *

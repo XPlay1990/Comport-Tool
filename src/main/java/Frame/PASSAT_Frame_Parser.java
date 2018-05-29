@@ -7,6 +7,7 @@ import Frame.PASSAT_DATA_Frame.Passat_Data_Frame;
 import Frame.Schema.PASSAT_Frame;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import java.util.ArrayList;
 
 /**
  *
@@ -44,12 +45,16 @@ public class PASSAT_Frame_Parser {
     }
 
     /**
+     * REMOVE AFTER CORRECT IMPL parses jsonstring to object
      *
-     * @param jsonString
+     * @param jsonStrings
      * @return
      */
-    public Passat_Data_Frame parseTest(String jsonString) {
-        Passat_Data_Frame frame = gson.fromJson(jsonString, Passat_Data_Frame.class);
-        return frame;
+    public ArrayList<Passat_Data_Frame> parseTest(ArrayList<String> jsonStrings) {
+        ArrayList<Passat_Data_Frame> frames = new ArrayList<>();
+        jsonStrings.stream().map((jsonString) -> gson.fromJson(jsonString, Passat_Data_Frame.class)).forEachOrdered((frame) -> {
+            frames.add(frame);
+        });
+        return frames;
     }
 }

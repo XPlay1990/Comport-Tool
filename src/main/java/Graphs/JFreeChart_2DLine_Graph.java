@@ -4,7 +4,9 @@
 package Graphs;
 
 import Config.Tool_Config.Graph_Config;
+import HelpClasses.MultipleSeriesHolder;
 import HelpClasses.SeriesNameAndData;
+import HelpClasses.ValuesList;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -53,11 +55,12 @@ public final class JFreeChart_2DLine_Graph extends ApplicationFrame implements G
     private XYPlot plot;
     private ChartpanelUnzoomFixx chartPanel;
 
-    private ArrayList<SeriesNameAndData> seriesNameandData;
+    private MultipleSeriesHolder seriesHolder;
 
     //Config
     private final Graph_Config config;
     private HashMap<String, Integer> channelNameToNumberMapping;
+    private ArrayList<Integer> activeChannelList;
     private int seriesMaxLength = 2500;
     private Integer xAxisRange = 500;
     private int lowerY = 0;
@@ -69,7 +72,8 @@ public final class JFreeChart_2DLine_Graph extends ApplicationFrame implements G
         try {
             dataset.setNotify(false);
 
-            addValuesToSeries(seriesNameandData);
+            addValuesToSeries(seriesHolder);
+            seriesHolder = new MultipleSeriesHolder();
             dataset.setNotify(true);
         } catch (NullPointerException e) {
             System.out.println(e + ": DataSet was not existing yet");
@@ -80,12 +84,21 @@ public final class JFreeChart_2DLine_Graph extends ApplicationFrame implements G
      *
      * @param dataList
      */
-    public void setDataToProcess(ArrayList<Integer> dataList) {
-        seriesNameandData = new ArrayList<>();
-        for (int i = 0; i < dataList.size(); i++) {
-            SeriesNameAndData seriesNameAndData = new SeriesNameAndData(config.getChannelNumberToNameMapping().get(i), dataList.get(i));
-            seriesNameandData.add(seriesNameAndData);
-        }
+    @Override
+    public void setDataToProcess(ValuesList dataList) {
+        dataList.stream().map((valueList) -> {
+            ArrayList<SeriesNameAndData> seriesNameandData = new ArrayList<>();
+            for (int i = 0; i < valueList.size(); i++) {
+                if (activeChannelList.contains(i)) {
+                    SeriesNameAndData seriesNameAndData = new SeriesNameAndData(config.getChannelNumberToNameMapping().get(i), valueList.get(i));
+                    seriesNameandData.add(seriesNameAndData);
+                }
+
+            }
+            return seriesNameandData;
+        }).forEachOrdered((seriesNameandData) -> {
+            seriesHolder.add(seriesNameandData);
+        });
     }
 
     /**
@@ -98,13 +111,20 @@ public final class JFreeChart_2DLine_Graph extends ApplicationFrame implements G
         setApplicationIcon();
 
         //init config
-        this.channelNameToNumberMapping = cfg.getChannelNameToNumberMapping();
         this.config = cfg;
         initCfg(cfg);
 
         //create Graph
         dataset = new XYSeriesCollection();
         jfreeChart = createChart(dataset);
+        this.seriesHolder = new MultipleSeriesHolder();
+
+        ArrayList<String> activeChannelNames = new ArrayList<>();
+        activeChannelList.forEach((i) -> {
+            activeChannelNames.add(config.getChannelNumberToNameMapping().get(i));
+        });
+
+        addChannels(activeChannelNames);
 
         this.setMinimumSize(new Dimension(500, 500));
         this.pack();
@@ -114,6 +134,9 @@ public final class JFreeChart_2DLine_Graph extends ApplicationFrame implements G
     }
 
     private void initCfg(Graph_Config cfg) {
+        this.channelNameToNumberMapping = config.getChannelNameToNumberMapping();
+        this.activeChannelList = config.getActiveChannelList();
+
         this.xAxisRange = cfg.getX_Values_Shown();
         this.seriesMaxLength = cfg.getMaximum_x_Values_Shown();
         this.lowerY = cfg.getMin_y();
@@ -248,20 +271,24 @@ public final class JFreeChart_2DLine_Graph extends ApplicationFrame implements G
 
     /**
      *
-     * @param valueList
+     * @param seriesHolder
      */
-    public synchronized void addValuesToSeries(ArrayList<SeriesNameAndData> valueList) {
-        try {
-            valueList.forEach((value) -> {
-                XYSeries series = dataset.getSeries(value.getNAME());
-                series.add((Number) actualIndex, value.getDATA());
-            });
-        } catch (UnknownKeyException ex) {
-            //Series was active in Comporthandler but not in Graph -> probably deactivated while Pausing
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(null, ex);
-        }
-        actualIndex++;
+    public synchronized void addValuesToSeries(MultipleSeriesHolder seriesHolder) {
+        seriesHolder.stream().map((valueList) -> {
+            try {
+                valueList.forEach((value) -> {
+                    XYSeries series = dataset.getSeries(value.getNAME());
+                    series.add((Number) actualIndex, value.getDATA());
+                });
+            } catch (UnknownKeyException ex) {
+                //Series was active in Comporthandler but not in Graph -> probably deactivated while Pausing
+            } catch (Exception ex) {
+//                JOptionPane.showMessageDialog(null, ex);
+            }
+            return valueList;
+        }).forEachOrdered((_item) -> {
+            actualIndex++;
+        });
     }
 
     /**
@@ -328,6 +355,7 @@ public final class JFreeChart_2DLine_Graph extends ApplicationFrame implements G
      * @param bool
      */
     public void setyAxisAutorange(boolean bool) {
+        resetYRange();
         valueAxis.setAutoRange(bool);
         valueAxis2.setAutoRange(bool);
         Range range = valueAxis.getRange();
@@ -344,14 +372,6 @@ public final class JFreeChart_2DLine_Graph extends ApplicationFrame implements G
 
     /**
      *
-     * @param channelNameNumberAssigment
-     */
-    public void setHashMap(HashMap<String, Integer> channelNameNumberAssigment) {
-        this.channelNameToNumberMapping = channelNameNumberAssigment;
-    }
-
-    /**
-     *
      * @param channelNames
      */
     @Override
@@ -359,8 +379,9 @@ public final class JFreeChart_2DLine_Graph extends ApplicationFrame implements G
         channelNames.forEach((name) -> {
             try {
                 XYSeries series = dataset.getSeries(name);
-                series.clear();
+//                series.clear();
                 dataset.removeSeries(series);
+                activeChannelList.remove(channelNameToNumberMapping.get(series.getKey().toString()));
                 setAllSeriesColor();
             } catch (UnknownKeyException e) {
                 //Series isnt in List

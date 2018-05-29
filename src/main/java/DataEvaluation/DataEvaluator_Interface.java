@@ -3,7 +3,7 @@
  */
 package DataEvaluation;
 
-import java.util.ArrayList;
+import HelpClasses.ValuesList;
 
 /**
  *
@@ -15,7 +15,7 @@ public interface DataEvaluator_Interface extends Runnable {
      *
      * @param data
      */
-    public void setData(ArrayList<Integer> data);
+    public void setData(ValuesList data);
 
     /**
      *

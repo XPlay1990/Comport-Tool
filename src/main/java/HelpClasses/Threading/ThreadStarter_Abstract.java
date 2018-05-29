@@ -22,15 +22,13 @@ public abstract class ThreadStarter_Abstract extends Observable {
      *
      * @param runnable
      * @param executor
+     * @throws java.lang.InterruptedException
+     * @throws java.util.concurrent.ExecutionException
      */
-    public void startThreadAndWaitForCompletition(Runnable runnable, ExecutorService executor) {
+    public void startThreadAndWaitForCompletition(Runnable runnable, ExecutorService executor) throws InterruptedException, ExecutionException {
         Future<?> future = executor.submit(runnable);
 
-        try {
-            future.get();   //Wait for thread to finish successfull
-        } catch (ExecutionException | InterruptedException ex) {
-//            Logger.getLogger(SocketReader.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        future.get();   //Wait for thread to finish successfull
     }
 
     /**

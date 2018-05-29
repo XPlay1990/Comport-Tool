@@ -22,15 +22,15 @@ import HelpClasses.Threading.ThreadStarter_Abstract;
  */
 public class SocketHandler extends ThreadStarter_Abstract {
 
-    DataEvaluator_Interface dataHandler;
+    private DataEvaluator_Interface dataHandler;
 
-    Socket socket;
-    BufferedReader reader;
-    PrintWriter writer;
+    private final Socket socket;
+    private final BufferedReader reader;
+    private final PrintWriter writer;
 
-    SocketReader socketReader;
-    SocketWriter socketWriter;
-    ExecutorService writeExecutor;
+    private SocketReader socketReader;
+    private SocketWriter socketWriter;
+    private ExecutorService writeExecutor;
 
     /**
      *
@@ -95,5 +95,16 @@ public class SocketHandler extends ThreadStarter_Abstract {
      */
     public synchronized void initGraphComponents(DataEvaluator_Abstract dataEvaluator) {
         socketReader.initGraphComponents(dataEvaluator);
+    }
+
+    public void stopInputAndWait() {
+        socketReader.stopInput();
+
+        //wait for running frame-evaluation threads to finish
+        socketReader.isInputting();
+    }
+
+    public void startInput() {
+        socketReader.startInput();
     }
 }

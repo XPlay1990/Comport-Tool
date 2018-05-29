@@ -932,7 +932,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
 
     private void disconnect() {
         allChannelOff();
-        setCardLayout("toolConnect");
+        setCardLayout(toolConnect_CardLayout);
 //        init();
         this.validate();
         this.repaint();
@@ -954,17 +954,24 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
         try {
             int upper = Integer.valueOf(jTextFieldMaxY.getText());
             int lower = Integer.valueOf(jTextFieldMinY.getText());
+            graph.setyAxisRange(lower, upper);
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(null, ex);
+            JOptionPane.showMessageDialog(this, ex);
         }
     }//GEN-LAST:event_jButtonSetMinMaxYActionPerformed
 
     private void jButtonResetYActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonResetYActionPerformed
-
+        graph.setyAxisAutorange(true);
     }//GEN-LAST:event_jButtonResetYActionPerformed
 
     private void jComboBoxValuesShownActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBoxValuesShownActionPerformed
         String selectedItem = (String) jComboBoxValuesShown.getSelectedItem();
+        try {
+            Integer valueOf = Integer.valueOf(selectedItem);
+            graph.setxAxisRange(valueOf);
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, ex);
+        }
     }//GEN-LAST:event_jComboBoxValuesShownActionPerformed
 
     private void jButtonSetChannelNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSetChannelNameActionPerformed
@@ -973,10 +980,8 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
 
     private void jToggleButtonOffsetRawActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButtonOffsetRawActionPerformed
         if (jToggleButtonOffsetRaw.isSelected()) {
-
             jToggleButtonOffsetRaw.setText("Show Rawdata");
         } else {
-
             jToggleButtonOffsetRaw.setText("Set Offset");
         }
     }//GEN-LAST:event_jToggleButtonOffsetRawActionPerformed
@@ -984,8 +989,10 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
     private void jToggleButtonAntiAliasingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButtonAntiAliasingActionPerformed
         if (jToggleButtonAntiAliasing.isSelected()) {
             jToggleButtonAntiAliasing.setText("enable");
+            graph.setAntiAlias(false);
         } else {
             jToggleButtonAntiAliasing.setText("disable");
+            graph.setAntiAlias(true);
         }
     }//GEN-LAST:event_jToggleButtonAntiAliasingActionPerformed
 
@@ -1010,15 +1017,6 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
 
         //init Graph Components
         initGraphComponents(selectedHW_Interface);
-
-        //give framehandler access to dataevaluator
-        socketHandler.initGraphComponents(dataEvaluator);
-//        frame_handler.set
-
-        this.jComboBoxValuesShown.setSelectedItem(Integer.toString(graphConfig.getX_Values_Shown()));
-        this.jToggleButtonChannelOnOff.setSelected(true);
-        setCardLayout(channelSelect_CardLayout);
-        //        }
     }//GEN-LAST:event_connectAQ_ButtonActionPerformed
 
     private void connectServer_ButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectServer_ButtonActionPerformed
@@ -1087,16 +1085,20 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
     }
 
     private void initGraphComponents(String selectedHW_Interface) {
+        socketHandler.stopInputAndWait();
+
         graph = new JFreeChart_2DLine_Graph(graphConfig, selectedHW_Interface);
         dataEvaluator = new MWO_DataEvaluator(graph, selectedHW_Interface);
         dataEvaluator.addObserver(this);
 
-        ArrayList<String> activeChannelNames = new ArrayList<>();
-        activeChannelList.forEach((i) -> {
-            activeChannelNames.add(channelNumberToNameMapping.get(i));
-        });
+        //give framehandler access to dataevaluator
+        socketHandler.initGraphComponents(dataEvaluator);
 
-        graph.addChannels(activeChannelNames);
+        this.jComboBoxValuesShown.setSelectedItem(Integer.toString(graphConfig.getX_Values_Shown()));
+        this.jToggleButtonChannelOnOff.setSelected(true);
+        setCardLayout(channelSelect_CardLayout);
+
+        socketHandler.startInput();
     }
 
     private void initChannelMapping() {
@@ -1105,6 +1107,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
     }
 
     private void setChannelsToActive() {
+        socketHandler.stopInputAndWait();
         ArrayList<String> channelsToActive = new ArrayList<>();
         channelsToActive.addAll(jListInactiveChannels.getSelectedValuesList());
 
@@ -1126,9 +1129,11 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
         });
 
         sortChannelLists();
+        socketHandler.startInput();
     }
 
     private void setChannelsToInactive() {
+        socketHandler.stopInputAndWait();
         ArrayList<String> channelsToInactive = new ArrayList<>();
         channelsToInactive.addAll(jListActiveChannels.getSelectedValuesList());
 
@@ -1150,6 +1155,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
         });
 
         sortChannelLists();
+        socketHandler.startInput();
     }
 
     private void setCardLayout(String cardName) {

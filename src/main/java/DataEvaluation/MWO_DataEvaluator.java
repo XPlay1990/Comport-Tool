@@ -4,6 +4,7 @@
 package DataEvaluation;
 
 import Graphs.Graph;
+import HelpClasses.ValuesList;
 import Logs.TxtLog;
 import java.io.FileNotFoundException;
 import java.lang.reflect.InvocationTargetException;
@@ -12,6 +13,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
@@ -24,8 +26,7 @@ import javax.swing.SwingUtilities;
  */
 public class MWO_DataEvaluator extends DataEvaluator_Abstract {
 
-    private ArrayList<Integer> data;
-    private Integer dataCounter;
+    private ValuesList data;
 
     private ExecutorService executor;
     private final Graph graph;
@@ -38,13 +39,18 @@ public class MWO_DataEvaluator extends DataEvaluator_Abstract {
 
         //Process data
 //        processData();
+
         //set Graph-data
         graph.setDataToProcess(data);
         //build logline
         txtLogger.newLogLine(timeStamp.toString() + "\t\t" + data);
 
-        //print graph && log data to txt
-        startThreadAndWaitForCompletition(txtLogger, executor);
+        try {
+            //print graph && log data to txt
+            startThreadAndWaitForCompletition(txtLogger, executor);
+        } catch (InterruptedException | ExecutionException ex) {
+            Logger.getLogger(MWO_DataEvaluator.class.getName()).log(Level.SEVERE, null, ex);
+        }
         try {
             SwingUtilities.invokeAndWait(graph);
         } catch (InterruptedException | InvocationTargetException ex) {
@@ -58,7 +64,8 @@ public class MWO_DataEvaluator extends DataEvaluator_Abstract {
      *
      * @param data
      */
-    public void setData(ArrayList<Integer> data) {
+    @Override
+    public void setData(ValuesList data) {
         this.data = data;
     }
 
@@ -78,7 +85,7 @@ public class MWO_DataEvaluator extends DataEvaluator_Abstract {
      */
     public MWO_DataEvaluator(Graph graph, String hw_Interface) {
         this.graph = graph;
-        executor = Executors.newSingleThreadExecutor();
+        this.executor = Executors.newSingleThreadExecutor();
         try {
             txtLogger = new TxtLog(hw_Interface);
         } catch (FileNotFoundException ex) {

@@ -75,8 +75,8 @@
         59
       ],
       "channelNumberToNameMapping": {
-        "0": "lol",
-        "1": "tatam",
+        "0": "Channel_0",
+        "1": "Channel_1",
         "2": "Channel_2",
         "3": "Channel_3",
         "4": "Channel_4",
