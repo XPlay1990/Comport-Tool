@@ -52,6 +52,12 @@ public interface Graph_Config {
      *
      * @return
      */
+    public HashMap<String, Integer> getChannelNameToNumberMapping();
+
+    /**
+     *
+     * @return
+     */
     public int getX_Values_Shown();
 
     /**
@@ -119,4 +125,9 @@ public interface Graph_Config {
      * @param maximum_x_Values_Shown
      */
     public void setMaximum_x_Values_Shown(int maximum_x_Values_Shown);
+
+    /**
+     *
+     */
+    public void createChannelNameToNumberMapping();
 }

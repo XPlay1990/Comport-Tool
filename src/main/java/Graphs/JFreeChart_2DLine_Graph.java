@@ -5,7 +5,6 @@ package Graphs;
 
 import Config.Tool_Config.Graph_Config;
 import HelpClasses.SeriesNameAndData;
-import HelpClasses.SeriesHolder;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -52,24 +51,25 @@ public final class JFreeChart_2DLine_Graph extends ApplicationFrame implements G
 
     private final JFreeChart jfreeChart;
     private XYPlot plot;
-    private HashMap<String, Integer> channelNameToNumberMapping;
     private ChartpanelUnzoomFixx chartPanel;
 
-    private ArrayList<Integer> x_indexList;
-    private ArrayList<SeriesHolder> seriesNameandData;
+    private ArrayList<SeriesNameAndData> seriesNameandData;
 
     //Config
+    private final Graph_Config config;
+    private HashMap<String, Integer> channelNameToNumberMapping;
     private int seriesMaxLength = 2500;
     private Integer xAxisRange = 500;
     private int lowerY = 0;
     private int upperY = 0;
 
+    Integer actualIndex = 0;
+
     public void run() {
         try {
             dataset.setNotify(false);
-            for (int index = 0; index < x_indexList.size(); index++) {
-                addValuesToSeries(x_indexList.get(index), seriesNameandData.get(index));
-            }
+
+            addValuesToSeries(seriesNameandData);
             dataset.setNotify(true);
         } catch (NullPointerException e) {
             System.out.println(e + ": DataSet was not existing yet");
@@ -78,26 +78,28 @@ public final class JFreeChart_2DLine_Graph extends ApplicationFrame implements G
 
     /**
      *
-     * @param indexList
-     * @param seriesNameAndData
+     * @param dataList
      */
-    public void setDataToProcess(ArrayList<Integer> indexList, ArrayList<SeriesHolder> seriesNameAndData) {
-        this.x_indexList = indexList;
-        this.seriesNameandData = seriesNameAndData;
+    public void setDataToProcess(ArrayList<Integer> dataList) {
+        seriesNameandData = new ArrayList<>();
+        for (int i = 0; i < dataList.size(); i++) {
+            SeriesNameAndData seriesNameAndData = new SeriesNameAndData(config.getChannelNumberToNameMapping().get(i), dataList.get(i));
+            seriesNameandData.add(seriesNameAndData);
+        }
     }
 
     /**
      *
-     * @param channelNameToNumberMapping
      * @param cfg
      * @param hw_Interface
      */
-    public JFreeChart_2DLine_Graph(HashMap<String, Integer> channelNameToNumberMapping, Graph_Config cfg, String hw_Interface) {
+    public JFreeChart_2DLine_Graph(Graph_Config cfg, String hw_Interface) {
         super(hw_Interface);
         setApplicationIcon();
 
         //init config
-        this.channelNameToNumberMapping = channelNameToNumberMapping;
+        this.channelNameToNumberMapping = cfg.getChannelNameToNumberMapping();
+        this.config = cfg;
         initCfg(cfg);
 
         //create Graph
@@ -164,37 +166,6 @@ public final class JFreeChart_2DLine_Graph extends ApplicationFrame implements G
      */
     public void removeAllSeries() {
         dataset.removeAllSeries();
-    }
-
-    /**
-     *
-     * @param names
-     */
-    public void removeAllSeries(ArrayList<String> names) {
-        names.forEach((name) -> {
-            try {
-                XYSeries series = dataset.getSeries(name);
-                series.clear();
-                dataset.removeSeries(series);
-                setAllSeriesColor();
-            } catch (UnknownKeyException e) {
-                //Series isnt in List
-            }
-        });
-    }
-
-    /**
-     *
-     * @param channelNames
-     */
-    public void addAllSeries(ArrayList<String> channelNames) {
-        channelNames.forEach((channelName) -> {
-            XYSeries series = new XYSeries(channelName, false, false);
-            series.setMaximumItemCount(seriesMaxLength);
-            dataset.addSeries(series);
-            plot.getRenderer().setSeriesStroke(dataset.getSeriesIndex(channelName), new BasicStroke(FATNESS));
-        });
-        setAllSeriesColor();
     }
 
     /**
@@ -277,20 +248,20 @@ public final class JFreeChart_2DLine_Graph extends ApplicationFrame implements G
 
     /**
      *
-     * @param index
      * @param valueList
      */
-    public synchronized void addValuesToSeries(int index, ArrayList<SeriesNameAndData> valueList) {
+    public synchronized void addValuesToSeries(ArrayList<SeriesNameAndData> valueList) {
         try {
             valueList.forEach((value) -> {
                 XYSeries series = dataset.getSeries(value.getNAME());
-                series.add(index, value.getDATA());
+                series.add((Number) actualIndex, value.getDATA());
             });
         } catch (UnknownKeyException ex) {
             //Series was active in Comporthandler but not in Graph -> probably deactivated while Pausing
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(null, ex);
         }
+        actualIndex++;
     }
 
     /**
@@ -377,6 +348,39 @@ public final class JFreeChart_2DLine_Graph extends ApplicationFrame implements G
      */
     public void setHashMap(HashMap<String, Integer> channelNameNumberAssigment) {
         this.channelNameToNumberMapping = channelNameNumberAssigment;
+    }
+
+    /**
+     *
+     * @param channelNames
+     */
+    @Override
+    public void removeChannels(ArrayList<String> channelNames) {
+        channelNames.forEach((name) -> {
+            try {
+                XYSeries series = dataset.getSeries(name);
+                series.clear();
+                dataset.removeSeries(series);
+                setAllSeriesColor();
+            } catch (UnknownKeyException e) {
+                //Series isnt in List
+            }
+        });
+    }
+
+    /**
+     *
+     * @param channelNames
+     */
+    @Override
+    public void addChannels(ArrayList<String> channelNames) {
+        channelNames.forEach((channelName) -> {
+            XYSeries series = new XYSeries(channelName, false, false);
+            series.setMaximumItemCount(seriesMaxLength);
+            dataset.addSeries(series);
+            plot.getRenderer().setSeriesStroke(dataset.getSeriesIndex(channelName), new BasicStroke(FATNESS));
+        });
+        setAllSeriesColor();
     }
 
     private class ChartpanelUnzoomFixx extends ChartPanel {

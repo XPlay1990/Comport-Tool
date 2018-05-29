@@ -23,7 +23,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Observer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -44,6 +43,8 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
     private Graph_Config graphConfig;
     private String config_FileName = "Config.json";
     private final String config_Fallback_FileName = "Fallback_Config.json";
+
+    ArrayList<Integer> activeChannelList;
 
     private SocketHandler socketHandler;
     private DataEvaluator_Abstract dataEvaluator;
@@ -103,6 +104,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
 
         this.serverConfig = toolConfig.getServer_Config();
         this.graphConfig = toolConfig.getGraph_Config();
+        this.activeChannelList = graphConfig.getActiveChannelList();
     }
 
     private void saveConfigOnClose() {
@@ -161,23 +163,6 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
         this.setIconImage(img);
     }
 
-//    private void initConfig() {
-//        SerialPort[] commPorts = SerialPort.getCommPorts();
-//        ArrayList<String> portnameList = new ArrayList<>();
-//        for (SerialPort comport : commPorts) {
-//            portnameList.add(comport.getDescriptivePortName());
-//        }
-//        boolean contains = portnameList.contains(portname);
-//        refreshAndSetToolConnect();
-//        if (contains) {
-//            comboBoxPortChooser.setSelectedItem(portname);
-//        }
-//
-//        jTextFieldBaudrate.setText(String.valueOf(baudrate));
-//        jTextFieldDataBits.setText(String.valueOf(dataBits));
-//        jTextFieldStopBits.setText(String.valueOf(stopBits));
-//        jTextFieldNewChannelNumber.setText(String.valueOf(shownChannels));
-//    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -983,37 +968,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
     }//GEN-LAST:event_jComboBoxValuesShownActionPerformed
 
     private void jButtonSetChannelNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSetChannelNameActionPerformed
-        String oldName = (String) jComboBoxOldChannelName.getSelectedItem();
-        String newChannelName = jTextFieldNewChannelName.getText();
-        if (!channelNameToNumberMapping.containsKey(newChannelName)) {
-
-            Integer index = this.channelNameToNumberMapping.get(oldName);
-            this.channelNameToNumberMapping.remove(oldName);
-            this.channelNameToNumberMapping.put(newChannelName, index);
-            this.channelNumberToNameMapping.put(index, newChannelName);
-
-            DefaultListModel activeModel = (DefaultListModel) jListActiveChannels.getModel();
-            DefaultListModel inactiveModel = (DefaultListModel) jListInactiveChannels.getModel();
-            if (activeModel.contains(oldName)) {
-                activeModel.removeElement(oldName);
-                activeModel.addElement(newChannelName);
-                sortChannelLists();
-            } else if (inactiveModel.contains(oldName)) {
-                inactiveModel.removeElement(oldName);
-                inactiveModel.addElement(newChannelName);
-                sortChannelLists();
-            } else {
-                JOptionPane.showMessageDialog(null, "Name already taken!");
-                return;
-            }
-
-            allChannelNames.set(allChannelNames.indexOf(oldName), newChannelName);
-            allChannelNames.sort(new AlphanumComparator());
-            reinitOldChannelName(allChannelNames);
-
-        } else {
-            JOptionPane.showMessageDialog(null, "Name already taken!");
-        }
+        renameChannel();
     }//GEN-LAST:event_jButtonSetChannelNameActionPerformed
 
     private void jToggleButtonOffsetRawActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButtonOffsetRawActionPerformed
@@ -1050,13 +1005,11 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
         //Check if join was successful
 //        if(joinmessage_received){
         //init GUI
+        initChannelMapping();
         initChannelLists();
-        initChannelNameNumberMapping();
 
-        //create Graph and dataevaluator
-        graph = new JFreeChart_2DLine_Graph(channelNameToNumberMapping, graphConfig, selectedHW_Interface);
-        dataEvaluator = new MWO_DataEvaluator(graph, selectedHW_Interface);
-        dataEvaluator.addObserver(this);
+        //init Graph Components
+        initGraphComponents(selectedHW_Interface);
 
         //give framehandler access to dataevaluator
         socketHandler.initGraphComponents(dataEvaluator);
@@ -1104,8 +1057,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
         DefaultListModel activeChannels = new DefaultListModel();
         DefaultListModel inactiveChannels = new DefaultListModel();
 
-        ArrayList<Integer> activeChannelList = graphConfig.getActiveChannelList();
-        graphConfig.getChannelNumberToNameMapping().entrySet().stream().map((entity) -> {
+        channelNumberToNameMapping.entrySet().stream().map((entity) -> {
             if (activeChannelList.contains(entity.getKey())) {
                 activeChannels.addElement(entity.getValue());
             } else {
@@ -1129,49 +1081,74 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
         jScrollPaneInactiveChannels.repaint();
         jScrollPaneActiveChannels.validate();
         jScrollPaneInactiveChannels.repaint();
-        this.setSize(this.getPreferredSize());
+        this.pack();
         channelPanel.validate();
         channelPanel.repaint();
     }
 
-    private void initChannelNameNumberMapping() {
-        channelNumberToNameMapping = graphConfig.getChannelNumberToNameMapping();
-        channelNameToNumberMapping = new HashMap<>();
-        channelNumberToNameMapping.entrySet().forEach((entry) -> {
-            channelNameToNumberMapping.put(entry.getValue(), entry.getKey());
+    private void initGraphComponents(String selectedHW_Interface) {
+        graph = new JFreeChart_2DLine_Graph(graphConfig, selectedHW_Interface);
+        dataEvaluator = new MWO_DataEvaluator(graph, selectedHW_Interface);
+        dataEvaluator.addObserver(this);
+
+        ArrayList<String> activeChannelNames = new ArrayList<>();
+        activeChannelList.forEach((i) -> {
+            activeChannelNames.add(channelNumberToNameMapping.get(i));
         });
+
+        graph.addChannels(activeChannelNames);
+    }
+
+    private void initChannelMapping() {
+        channelNumberToNameMapping = graphConfig.getChannelNumberToNameMapping();
+        channelNameToNumberMapping = graphConfig.getChannelNameToNumberMapping();
     }
 
     private void setChannelsToActive() {
-        ArrayList<String> selectedValuesList = new ArrayList<>();
-        selectedValuesList.addAll(jListInactiveChannels.getSelectedValuesList());
-        selectedValuesList.stream().map((listItem) -> {
-            DefaultListModel activeModel = (DefaultListModel) jListActiveChannels.getModel();
-            activeModel.addElement(listItem);
-            return listItem;
-        }).map((listItem) -> {
-            DefaultListModel inactiveModel = (DefaultListModel) jListInactiveChannels.getModel();
-            inactiveModel.removeElement(listItem);
-            return listItem;
-        }).forEachOrdered((listItem) -> {
+        ArrayList<String> channelsToActive = new ArrayList<>();
+        channelsToActive.addAll(jListInactiveChannels.getSelectedValuesList());
+
+        DefaultListModel inactiveModel = (DefaultListModel) jListInactiveChannels.getModel();
+        DefaultListModel activeModel = (DefaultListModel) jListActiveChannels.getModel();
+        channelsToActive.stream().map((channelName) -> {
+            inactiveModel.removeElement(channelName);
+            return channelName;
+        }).forEachOrdered((channelName) -> {
+            activeModel.addElement(channelName);
         });
+
+        //update Graph
+        graph.addChannels(channelsToActive);
+
+        //update Config
+        channelsToActive.forEach((channelName) -> {
+            activeChannelList.add(channelNameToNumberMapping.get(channelName));
+        });
+
         sortChannelLists();
     }
 
     private void setChannelsToInactive() {
-        ArrayList<String> selectedValuesList = new ArrayList<>();
-        selectedValuesList.addAll(jListActiveChannels.getSelectedValuesList());
+        ArrayList<String> channelsToInactive = new ArrayList<>();
+        channelsToInactive.addAll(jListActiveChannels.getSelectedValuesList());
 
-        selectedValuesList.stream().map((listItem) -> {
-            DefaultListModel activeModel = (DefaultListModel) jListInactiveChannels.getModel();
-            activeModel.addElement(listItem);
-            return listItem;
-        }).map((listItem) -> {
-            DefaultListModel inactiveModel = (DefaultListModel) jListActiveChannels.getModel();
-            inactiveModel.removeElement(listItem);
-            return listItem;
-        }).forEachOrdered((listItem) -> {
+        DefaultListModel inactiveModel = (DefaultListModel) jListInactiveChannels.getModel();
+        DefaultListModel activeModel = (DefaultListModel) jListActiveChannels.getModel();
+        channelsToInactive.stream().map((channelName) -> {
+            inactiveModel.addElement(channelName);
+            return channelName;
+        }).forEachOrdered((channelName) -> {
+            activeModel.removeElement(channelName);
         });
+
+        //update Graph
+        graph.removeChannels(channelsToInactive);
+
+        //update Config
+        channelsToInactive.forEach((channelName) -> {
+            activeChannelList.remove(channelNameToNumberMapping.get(channelName));
+        });
+
         sortChannelLists();
     }
 
@@ -1192,15 +1169,50 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
         }
     }
 
+    private void renameChannel() {
+        String oldName = (String) jComboBoxOldChannelName.getSelectedItem();
+        String newChannelName = jTextFieldNewChannelName.getText();
+        if (!channelNameToNumberMapping.containsKey(newChannelName)) {
+
+            Integer index = this.channelNameToNumberMapping.get(oldName);
+            this.channelNameToNumberMapping.remove(oldName);
+            this.channelNameToNumberMapping.put(newChannelName, index);
+            this.channelNumberToNameMapping.put(index, newChannelName);
+
+            DefaultListModel activeModel = (DefaultListModel) jListActiveChannels.getModel();
+            DefaultListModel inactiveModel = (DefaultListModel) jListInactiveChannels.getModel();
+            if (activeModel.contains(oldName)) {
+                activeModel.removeElement(oldName);
+                activeModel.addElement(newChannelName);
+                sortChannelLists();
+            } else if (inactiveModel.contains(oldName)) {
+                inactiveModel.removeElement(oldName);
+                inactiveModel.addElement(newChannelName);
+                sortChannelLists();
+            } else {
+                JOptionPane.showMessageDialog(null, "Name already taken!");
+                return;
+            }
+
+            allChannelNames.set(allChannelNames.indexOf(oldName), newChannelName);
+            allChannelNames.sort(new AlphanumComparator());
+            reinitOldChannelName(allChannelNames);
+
+            graph.changeSeriesName(oldName, newChannelName);
+        } else {
+            JOptionPane.showMessageDialog(null, "Name already taken!");
+        }
+    }
+
     /**
-     *
+     * Method for Hotkey
      */
     public void klickPausePlay() {
         jButtonPlayPause.doClick();
     }
 
     /**
-     *
+     * Method for Hotkey
      */
     public void klickAllOnOff() {
         jToggleButtonChannelOnOff.doClick();

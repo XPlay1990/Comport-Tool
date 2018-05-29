@@ -29,7 +29,7 @@ public abstract class ThreadStarter_Abstract extends Observable {
         try {
             future.get();   //Wait for thread to finish successfull
         } catch (ExecutionException | InterruptedException ex) {
-            Logger.getLogger(SocketReader.class.getName()).log(Level.SEVERE, null, ex);
+//            Logger.getLogger(SocketReader.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

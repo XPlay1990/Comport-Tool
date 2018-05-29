@@ -12,7 +12,6 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
@@ -40,9 +39,9 @@ public class MWO_DataEvaluator extends DataEvaluator_Abstract {
         //Process data
 //        processData();
         //set Graph-data
-//        graph.setDataToProcess(data, seriesNameAndData);
+        graph.setDataToProcess(data);
         //build logline
-        txtLogger.newLogLine("t");
+        txtLogger.newLogLine(timeStamp.toString() + "\t\t" + data);
 
         //print graph && log data to txt
         startThreadAndWaitForCompletition(txtLogger, executor);
@@ -52,7 +51,6 @@ public class MWO_DataEvaluator extends DataEvaluator_Abstract {
             Logger.getLogger(MWO_DataEvaluator.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        dataCounter++;
         updateFrameLatencys(timeStamp);
     }
 
@@ -104,7 +102,7 @@ public class MWO_DataEvaluator extends DataEvaluator_Abstract {
 //            if (embeddedLatency > maxEmbeddedLatency) {
 //                maxEmbeddedLatency = embeddedLatency;
 //            }
-        int toolLatency = (int) eventReceived_Time.until(getTimeStamp(), ChronoUnit.MICROS);
+        int toolLatency = (int) eventReceived_Time.until(getTimeStamp(), ChronoUnit.MILLIS);
         setChanged();
         notifyObservers(toolLatency);
 //        comportReceivedLine_Time = eventReceived_Time;

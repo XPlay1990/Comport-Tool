@@ -29,6 +29,7 @@ public class Config_JSON {
     public static Config_JSON main(String fileName) throws FileNotFoundException {
         Gson gson = new Gson();
         Config_JSON cfg = gson.fromJson(new FileReader(fileName), Config_JSON.class);
+        cfg.getTool_Config().getGraph_Config().createChannelNameToNumberMapping();
         return cfg;
     }
 

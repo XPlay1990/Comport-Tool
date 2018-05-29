@@ -3,6 +3,7 @@
  */
 package Frame;
 
+import Frame.PASSAT_DATA_Frame.Passat_Data_Frame;
 import Frame.Schema.PASSAT_Frame;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -40,5 +41,15 @@ public class PASSAT_Frame_Parser {
     public String parsePASSATtoJSONString(PASSAT_Frame frame) {
         String jsonString = gson.toJson(frame);
         return jsonString;
+    }
+
+    /**
+     *
+     * @param jsonString
+     * @return
+     */
+    public Passat_Data_Frame parseTest(String jsonString) {
+        Passat_Data_Frame frame = gson.fromJson(jsonString, Passat_Data_Frame.class);
+        return frame;
     }
 }

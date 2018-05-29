@@ -89,7 +89,11 @@ public class SocketHandler extends ThreadStarter_Abstract {
 //        }
     }
 
-    public void initGraphComponents(DataEvaluator_Abstract dataEvaluator) {
+    /**
+     *
+     * @param dataEvaluator
+     */
+    public synchronized void initGraphComponents(DataEvaluator_Abstract dataEvaluator) {
         socketReader.initGraphComponents(dataEvaluator);
     }
 }

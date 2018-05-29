@@ -16,6 +16,7 @@ public class JFree_2DLine_Config implements Graph_Config {
     private int channelNumber = 60;
     private ArrayList<Integer> activeChannelList = new ArrayList<>();
     private HashMap<Integer, String> channelNumberToNameMapping = new HashMap<>();
+    private transient HashMap<String, Integer> channelNameToNumberMapping = new HashMap<>();
     private int x_Values_Shown = 500;
     private int maximum_x_Values_Shown = 2500;
     private boolean autoRange = true;
@@ -32,6 +33,8 @@ public class JFree_2DLine_Config implements Graph_Config {
         for (int i = 0; i < channelNumber; i++) {
             channelNumberToNameMapping.put(i, "Channel_" + i);
         }
+
+        createChannelNameToNumberMapping();
     }
 
     /**
@@ -80,6 +83,16 @@ public class JFree_2DLine_Config implements Graph_Config {
      */
     public void setChannelNumberToNameMapping(HashMap<Integer, String> channelNumberToNameMapping) {
         this.channelNumberToNameMapping = channelNumberToNameMapping;
+        createChannelNameToNumberMapping();
+    }
+
+    //@JsonIgnore
+    /**
+     *
+     * @return
+     */
+    public HashMap<String, Integer> getChannelNameToNumberMapping() {
+        return channelNameToNumberMapping;
     }
 
     /**
@@ -172,4 +185,13 @@ public class JFree_2DLine_Config implements Graph_Config {
         this.max_y = max_y;
     }
 
+    /**
+     *
+     */
+    public void createChannelNameToNumberMapping() {
+        channelNameToNumberMapping = new HashMap<>();
+        channelNumberToNameMapping.entrySet().forEach((entry) -> {
+            channelNameToNumberMapping.put(entry.getValue(), entry.getKey());
+        });
+    }
 }

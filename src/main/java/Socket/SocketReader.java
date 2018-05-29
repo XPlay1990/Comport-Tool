@@ -62,7 +62,11 @@ public class SocketReader extends ThreadStarter_Abstract implements Runnable {
         this.frame_Handler = new Frame_Handler();
     }
 
-    public void initGraphComponents(DataEvaluator_Abstract dataEvaluator) {
+    /**
+     *
+     * @param dataEvaluator
+     */
+    public synchronized void initGraphComponents(DataEvaluator_Abstract dataEvaluator) {
         frame_Handler.initGraphComponents(dataEvaluator);
     }
 }
