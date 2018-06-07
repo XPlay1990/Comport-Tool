@@ -1,5 +1,5 @@
 
-package Frame.PASSAT_DATA_Frame;
+package Frame.generated_PASSAT_DATA_Frame;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

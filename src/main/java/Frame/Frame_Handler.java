@@ -4,9 +4,9 @@
 package Frame;
 
 import DataEvaluation.DataEvaluator_Abstract;
-import Frame.PASSAT_DATA_Frame.DataArray;
-import Frame.PASSAT_DATA_Frame.Header;
-import Frame.PASSAT_DATA_Frame.Passat_Data_Frame;
+import Frame.generated_PASSAT_DATA_Frame.DataArray;
+import Frame.generated_PASSAT_DATA_Frame.Header;
+import Frame.generated_PASSAT_DATA_Frame.Passat_Data_Frame;
 import Frame.Schema.PASSAT_Frame;
 import Frame.Schema.PASSAT_Header;
 import HelpClasses.ValuesList;

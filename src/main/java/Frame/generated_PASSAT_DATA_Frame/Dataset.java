@@ -1,5 +1,5 @@
 
-package Frame.PASSAT_DATA_Frame;
+package Frame.generated_PASSAT_DATA_Frame;
 
 import java.util.List;
 import com.google.gson.annotations.Expose;

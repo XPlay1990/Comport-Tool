@@ -1,4 +1,4 @@
-package Frame.generatedJSONFrame;
+package Frame.optimized_PASSAT_Frame;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

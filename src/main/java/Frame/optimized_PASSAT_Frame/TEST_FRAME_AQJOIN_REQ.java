@@ -1,4 +1,4 @@
-package Frame.PASSAT_DATA_Frame;
+package Frame.optimized_PASSAT_Frame;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -8,19 +8,20 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import jdk.nashorn.internal.codegen.CompilerConstants;
 
 /**
  *
  * @author jan.adamczyk
  */
-public class Passat_Data_Frame {
+public class TEST_FRAME_AQJOIN_REQ {
 
     @SerializedName("header")
     @Expose
-    private Header header;
+    private Header header = new Header();
     @SerializedName("data")
     @Expose
-    private Data data;
+    private Data data = new Data();
 
     /**
      *
@@ -63,7 +64,7 @@ public class Passat_Data_Frame {
             gson.toJson(this, filewriter);
             filewriter.flush();
         } catch (IOException ex) {
-            Logger.getLogger(Passat_Data_Frame.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(TEST_FRAME_AQJOIN_REQ.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -72,9 +73,9 @@ public class Passat_Data_Frame {
      * @param json
      * @return
      */
-    public static Passat_Data_Frame fromJSON(String json) {
+    public static TEST_FRAME_AQJOIN_REQ fromJSON(String json) {
         Gson gson = new GsonBuilder().create();
-        Passat_Data_Frame fromJson = gson.fromJson(json, Passat_Data_Frame.class);
+        TEST_FRAME_AQJOIN_REQ fromJson = gson.fromJson(json, TEST_FRAME_AQJOIN_REQ.class);
         return fromJson;
     }
 }

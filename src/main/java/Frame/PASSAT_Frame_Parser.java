@@ -3,7 +3,7 @@
  */
 package Frame;
 
-import Frame.PASSAT_DATA_Frame.Passat_Data_Frame;
+import Frame.generated_PASSAT_DATA_Frame.Passat_Data_Frame;
 import Frame.Schema.PASSAT_Frame;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

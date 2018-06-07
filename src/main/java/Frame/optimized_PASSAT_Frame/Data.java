@@ -1,9 +1,9 @@
-
-package Frame.PASSAT_DATA_Frame;
+package Frame.optimized_PASSAT_Frame;
 
 import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import java.util.ArrayList;
 
 /**
  *
@@ -13,7 +13,16 @@ public class Data {
 
     @SerializedName("targets")
     @Expose
-    private List<Target> targets = null;
+    private List<Target> targets = new ArrayList<>();
+
+    /**
+     *
+     */
+    public Data() {
+        for (int i = 0; i < 3; i++) {
+            targets.add(new Target());
+        }
+    }
 
     /**
      *
