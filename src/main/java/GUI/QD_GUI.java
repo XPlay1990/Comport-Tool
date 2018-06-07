@@ -9,7 +9,7 @@ import Config.Tool_Config.Server_Config;
 import Config.Tool_Config.Tool_Config;
 import DataEvaluation.DataEvaluator_Abstract;
 import DataEvaluation.MWO_DataEvaluator;
-import Frame.newpackage.TEST_FRAME_AQJOIN_REQ;
+import Frame.generatedJSONFrame.TEST_FRAME_AQJOIN_REQ;
 import Graphs.Graph;
 import Graphs.JFreeChart_2DLine_Graph;
 import Socket.SocketHandler;
