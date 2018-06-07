@@ -78,6 +78,9 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
 
         initConfig();
         saveConfigOnClose();
+        if (serverConfig.getAutoConnectToServer()) {
+            connectServer_Button.doClick();
+        }
 
         this.validate();
         this.repaint();
@@ -927,13 +930,19 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
     }//GEN-LAST:event_jTextFieldNewChannelNameKeyPressed
 
     private void jButtonDisconnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDisconnectActionPerformed
-        disconnect();
+        disconnectAQ();
     }//GEN-LAST:event_jButtonDisconnectActionPerformed
 
-    private void disconnect() {
+    private void disconnectAQ() {
         allChannelOff();
         setCardLayout(toolConnect_CardLayout);
 //        init();
+        graph.dispose();
+        graph = null;
+        dataEvaluator = null;
+        socketHandler.stopInputAndWait();
+        socketHandler.initGraphComponents(dataEvaluator);
+        socketHandler.startInput();
         this.validate();
         this.repaint();
     }
@@ -955,6 +964,9 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
             int upper = Integer.valueOf(jTextFieldMaxY.getText());
             int lower = Integer.valueOf(jTextFieldMinY.getText());
             graph.setyAxisRange(lower, upper);
+            graphConfig.setMax_y(upper);
+            graphConfig.setMin_y(lower);
+            graphConfig.setAutoRange(false);
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, ex);
         }
@@ -962,6 +974,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
 
     private void jButtonResetYActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonResetYActionPerformed
         graph.setyAxisAutorange(true);
+        graphConfig.setAutoRange(true);
     }//GEN-LAST:event_jButtonResetYActionPerformed
 
     private void jComboBoxValuesShownActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBoxValuesShownActionPerformed
@@ -969,6 +982,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
         try {
             Integer valueOf = Integer.valueOf(selectedItem);
             graph.setxAxisRange(valueOf);
+            graphConfig.setX_Values_Shown(valueOf);
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, ex);
         }
@@ -979,19 +993,27 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
     }//GEN-LAST:event_jButtonSetChannelNameActionPerformed
 
     private void jToggleButtonOffsetRawActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButtonOffsetRawActionPerformed
+        boolean offsetState;
         if (jToggleButtonOffsetRaw.isSelected()) {
             jToggleButtonOffsetRaw.setText("Show Rawdata");
+            offsetState = true;
         } else {
             jToggleButtonOffsetRaw.setText("Set Offset");
+            offsetState = false;
         }
+        socketHandler.stopInputAndWait();
+        graph.setOffset(offsetState);
+        socketHandler.startInput();
     }//GEN-LAST:event_jToggleButtonOffsetRawActionPerformed
 
     private void jToggleButtonAntiAliasingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButtonAntiAliasingActionPerformed
         if (jToggleButtonAntiAliasing.isSelected()) {
             jToggleButtonAntiAliasing.setText("enable");
+            graphConfig.setAntiAliasing(false);
             graph.setAntiAlias(false);
         } else {
             jToggleButtonAntiAliasing.setText("disable");
+            graphConfig.setAntiAliasing(true);
             graph.setAntiAlias(true);
         }
     }//GEN-LAST:event_jToggleButtonAntiAliasingActionPerformed
@@ -1034,9 +1056,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
         //Connect to Server
         try {
             socketHandler = new SocketHandler(serverConfig.getServerList().get(selectedItem), serverConfig.getPort());
-
             refreshAndSetToolConnect();
-
         } catch (IOException ex) {
             Logger.getLogger(QD_GUI.class.getName()).log(Level.SEVERE, null, ex);
             JOptionPane.showMessageDialog(this, "Connection to " + selectedItem + " failed!");
@@ -1169,10 +1189,18 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
         if (isPaused) {
             isPaused = false;
             setPlayPauseIcon("pause");
+            handle_Graph_Pause();
         } else {
             isPaused = true;
             setPlayPauseIcon("play");
+            handle_Graph_Pause();
         }
+    }
+
+    private void handle_Graph_Pause() {
+        socketHandler.stopInputAndWait();
+        graph.setPause(isPaused);
+        socketHandler.startInput();
     }
 
     private void renameChannel() {

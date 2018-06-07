@@ -20,7 +20,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import javax.swing.ImageIcon;
-import javax.swing.JOptionPane;
 import org.jfree.chart.ChartColor;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -54,7 +53,6 @@ public final class JFreeChart_2DLine_Graph extends ApplicationFrame implements G
     private final JFreeChart jfreeChart;
     private XYPlot plot;
     private ChartpanelUnzoomFixx chartPanel;
-
     private MultipleSeriesHolder seriesHolder;
 
     //Config
@@ -66,15 +64,20 @@ public final class JFreeChart_2DLine_Graph extends ApplicationFrame implements G
     private int lowerY = 0;
     private int upperY = 0;
 
-    Integer actualIndex = 0;
+    private boolean pauseState = false;
+    private boolean offsetState = false;
+    private Integer actualIndex = 0;
+    private ArrayList<Integer> offsetList = new ArrayList<>();
 
     public void run() {
         try {
-            dataset.setNotify(false);
+            if (!pauseState) {
+                dataset.setNotify(false);
 
-            addValuesToSeries(seriesHolder);
-            seriesHolder = new MultipleSeriesHolder();
-            dataset.setNotify(true);
+                addValuesToSeries(seriesHolder);
+                seriesHolder = new MultipleSeriesHolder();
+                dataset.setNotify(true);
+            }
         } catch (NullPointerException e) {
             System.out.println(e + ": DataSet was not existing yet");
         }
@@ -82,18 +85,25 @@ public final class JFreeChart_2DLine_Graph extends ApplicationFrame implements G
 
     /**
      *
-     * @param dataList
+     * @param valuesList
      */
     @Override
-    public void setDataToProcess(ValuesList dataList) {
-        dataList.stream().map((valueList) -> {
+    public void setDataToProcess(ValuesList valuesList) {
+        valuesList.stream().map((dataList) -> {
+            if (!offsetState) {
+                offsetList = new ArrayList<>();
+            }
             ArrayList<SeriesNameAndData> seriesNameandData = new ArrayList<>();
-            for (int i = 0; i < valueList.size(); i++) {
+            for (int i = 0; i < dataList.size(); i++) {
+                if (offsetState) {
+                    dataList.set(i, (dataList.get(i) - offsetList.get(i)));
+                } else {
+                    offsetList.add(i, dataList.get(i));
+                }
                 if (activeChannelList.contains(i)) {
-                    SeriesNameAndData seriesNameAndData = new SeriesNameAndData(config.getChannelNumberToNameMapping().get(i), valueList.get(i));
+                    SeriesNameAndData seriesNameAndData = new SeriesNameAndData(config.getChannelNumberToNameMapping().get(i), dataList.get(i));
                     seriesNameandData.add(seriesNameAndData);
                 }
-
             }
             return seriesNameandData;
         }).forEachOrdered((seriesNameandData) -> {
@@ -125,6 +135,11 @@ public final class JFreeChart_2DLine_Graph extends ApplicationFrame implements G
         });
 
         addChannels(activeChannelNames);
+
+        setyAxisRange(upperY, lowerY);
+        if (cfg.isAutoRange()) {
+            setyAxisAutorange(true);
+        }
 
         this.setMinimumSize(new Dimension(500, 500));
         this.pack();
@@ -172,7 +187,7 @@ public final class JFreeChart_2DLine_Graph extends ApplicationFrame implements G
         chart.setBackgroundPaint(Color.GRAY);
         chartPanel = new ChartpanelUnzoomFixx(chart, lowerY, upperY);
         this.add(chartPanel, BorderLayout.CENTER);
-        chart.setAntiAlias(true);
+        chart.setAntiAlias(config.isAntiAliasing());
         return chart;
     }
 
@@ -358,8 +373,8 @@ public final class JFreeChart_2DLine_Graph extends ApplicationFrame implements G
         resetYRange();
         valueAxis.setAutoRange(bool);
         valueAxis2.setAutoRange(bool);
-        Range range = valueAxis.getRange();
-        valueAxis2.setRange(range);
+//        Range range = valueAxis.getRange();
+//        valueAxis2.setRange(range);
     }
 
     /**
@@ -402,6 +417,16 @@ public final class JFreeChart_2DLine_Graph extends ApplicationFrame implements G
             plot.getRenderer().setSeriesStroke(dataset.getSeriesIndex(channelName), new BasicStroke(FATNESS));
         });
         setAllSeriesColor();
+    }
+
+    @Override
+    public void setPause(boolean state) {
+        pauseState = state;
+    }
+
+    @Override
+    public void setOffset(boolean state) {
+        offsetState = state;
     }
 
     private class ChartpanelUnzoomFixx extends ChartPanel {

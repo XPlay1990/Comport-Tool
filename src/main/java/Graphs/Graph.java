@@ -49,4 +49,10 @@ public interface Graph extends Runnable {
     public void setyAxisRange(int lower, int upper);
 
     public void setxAxisRange(Integer xAxisRange);
+
+    public void setPause(boolean state);
+
+    public void dispose();
+    
+    public void setOffset(boolean state);
 }

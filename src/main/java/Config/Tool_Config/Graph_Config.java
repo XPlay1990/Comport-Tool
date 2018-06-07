@@ -28,18 +28,6 @@ public interface Graph_Config {
      *
      * @return
      */
-    public Boolean getOffset();
-
-    /**
-     *
-     * @param offset
-     */
-    public void setOffset(Boolean offset);
-
-    /**
-     *
-     * @return
-     */
     public HashMap<Integer, String> getChannelNumberToNameMapping();
 
     /**
@@ -125,6 +113,10 @@ public interface Graph_Config {
      * @param maximum_x_Values_Shown
      */
     public void setMaximum_x_Values_Shown(int maximum_x_Values_Shown);
+
+    public boolean isAntiAliasing();
+
+    public void setAntiAliasing(boolean antiAliasing);
 
     /**
      *

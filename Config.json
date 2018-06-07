@@ -10,7 +10,6 @@
       "autoConnectToServer": false
     },
     "graph_Config": {
-      "offset": false,
       "channelNumber": 60,
       "activeChannelList": [
         0,
@@ -139,8 +138,9 @@
       "x_Values_Shown": 500,
       "maximum_x_Values_Shown": 2500,
       "autoRange": true,
-      "min_y": 0,
-      "max_y": 0
+      "antiAliasing": true,
+      "min_y": 50,
+      "max_y": -50
     }
   },
   "hw_Config": {

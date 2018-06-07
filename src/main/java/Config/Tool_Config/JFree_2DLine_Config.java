@@ -12,7 +12,6 @@ import java.util.HashMap;
  */
 public class JFree_2DLine_Config implements Graph_Config {
 
-    private Boolean offset = false;
     private int channelNumber = 60;
     private ArrayList<Integer> activeChannelList = new ArrayList<>();
     private HashMap<Integer, String> channelNumberToNameMapping = new HashMap<>();
@@ -20,6 +19,7 @@ public class JFree_2DLine_Config implements Graph_Config {
     private int x_Values_Shown = 500;
     private int maximum_x_Values_Shown = 2500;
     private boolean autoRange = true;
+    private boolean antiAliasing = true;
     private int min_y;
     private int max_y;
 
@@ -51,22 +51,6 @@ public class JFree_2DLine_Config implements Graph_Config {
      */
     public void setActiveChannelList(ArrayList<Integer> activeChannelList) {
         this.activeChannelList = activeChannelList;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public Boolean getOffset() {
-        return offset;
-    }
-
-    /**
-     *
-     * @param offset
-     */
-    public void setOffset(Boolean offset) {
-        this.offset = offset;
     }
 
     /**
@@ -183,6 +167,14 @@ public class JFree_2DLine_Config implements Graph_Config {
     @Override
     public void setMax_y(int max_y) {
         this.max_y = max_y;
+    }
+
+    public boolean isAntiAliasing() {
+        return antiAliasing;
+    }
+
+    public void setAntiAliasing(boolean antiAliasing) {
+        this.antiAliasing = antiAliasing;
     }
 
     /**
