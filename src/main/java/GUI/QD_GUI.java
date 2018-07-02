@@ -3,6 +3,8 @@
  */
 package GUI;
 
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import Config.Config_JSON;
 import Config.Tool_Config.Graph_Config;
 import Config.Tool_Config.Server_Config;
@@ -25,7 +27,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Observer;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
@@ -59,6 +60,8 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
     private final String serverSelect_CardLayout = "serverSelect_CardLayout";
     private final String toolConnect_CardLayout = "toolConnect_CardLayout";
     private final String channelSelect_CardLayout = "channelSelect_CardLayout";
+
+    private static final Logger ERROR_LOGGER = LogManager.getLogger(QD_GUI.class.getName());
 
     /**
      * Creates new form Frame
@@ -94,12 +97,16 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
     }
 
     private void getConfig() {
+        ERROR_LOGGER.info("Loading config");
         try {
             config = Config_JSON.main(config_FileName);
+            ERROR_LOGGER.info("Loading successful");
         } catch (FileNotFoundException ex) {
             config = new Config_JSON();
+            ERROR_LOGGER.info("Config did not exist, creating new");
         } catch (JsonSyntaxException ex) {
             JOptionPane.showMessageDialog(this, config_FileName + " corrupted. Creating " + config_Fallback_FileName);
+            ERROR_LOGGER.info("Config corrupted, creating new");
             config = new Config_JSON();
             config_FileName = config_Fallback_FileName;
         }
@@ -1057,8 +1064,11 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
         try {
             socketHandler = new SocketHandler(serverConfig.getServerList().get(selectedItem), serverConfig.getPort());
             refreshAndSetToolConnect();
+
+            ERROR_LOGGER.info("Connected to Server");
         } catch (IOException ex) {
-            Logger.getLogger(QD_GUI.class.getName()).log(Level.SEVERE, null, ex);
+            ERROR_LOGGER.error("Server connect failed", ex);
+//            Logger.getLogger("").log(Level.SEVERE, null, ex);
             JOptionPane.showMessageDialog(this, "Connection to " + selectedItem + " failed!");
         }
     }//GEN-LAST:event_connectServer_ButtonActionPerformed
