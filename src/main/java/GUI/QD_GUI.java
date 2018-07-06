@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Observer;
-import java.util.logging.Level;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
@@ -123,6 +122,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
             @Override
             public void windowClosing(java.awt.event.WindowEvent windowEvent) {
                 saveConfigToFile();
+                ERROR_LOGGER.info("Closing Program");
                 System.exit(0);
             }
         });
@@ -1050,6 +1050,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
 
     private void connectServer_ButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectServer_ButtonActionPerformed
         String selectedItem = serverSelect_ComboBox.getSelectedItem().toString();
+        boolean autoConnect = autoConnect_Checkbox.isSelected();
 
         //Update Config
         try {
@@ -1058,17 +1059,19 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
         } catch (NullPointerException e) {
             //nothing was selected yet
         }
-        serverConfig.setAutoConnectToServer(autoConnect_Checkbox.isSelected());
+        serverConfig.setAutoConnectToServer(autoConnect);
 
         //Connect to Server
+        ERROR_LOGGER.info("Selected-Server: " + selectedItem + ", " + "AutoConnect: " + autoConnect);
+        ERROR_LOGGER.info("Connecting to Server...");
         try {
             socketHandler = new SocketHandler(serverConfig.getServerList().get(selectedItem), serverConfig.getPort());
             refreshAndSetToolConnect();
 
             ERROR_LOGGER.info("Connected to Server");
         } catch (IOException ex) {
-            ERROR_LOGGER.error("Server connect failed", ex);
-//            Logger.getLogger("").log(Level.SEVERE, null, ex);
+            ERROR_LOGGER.error("Server connect failed");
+//            ERROR_LOGGER.error("Server connect failed", ex);
             JOptionPane.showMessageDialog(this, "Connection to " + selectedItem + " failed!");
         }
     }//GEN-LAST:event_connectServer_ButtonActionPerformed

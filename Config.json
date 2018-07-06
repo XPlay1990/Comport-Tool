@@ -138,9 +138,9 @@
       "x_Values_Shown": 500,
       "maximum_x_Values_Shown": 2500,
       "autoRange": true,
-      "antiAliasing": true,
-      "min_y": 50,
-      "max_y": -50
+      "antiAliasing": false,
+      "min_y": -60,
+      "max_y": 50
     }
   },
   "hw_Config": {
