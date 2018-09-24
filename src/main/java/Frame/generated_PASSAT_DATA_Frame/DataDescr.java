@@ -15,7 +15,7 @@ public class DataDescr {
     private String dataType;
     @SerializedName("data_value")
     @Expose
-    private Integer dataValue;
+    private double dataValue;
 
     /**
      *
@@ -37,7 +37,7 @@ public class DataDescr {
      *
      * @return
      */
-    public Integer getDataValue() {
+    public double getDataValue() {
         return dataValue;
     }
 
@@ -45,7 +45,7 @@ public class DataDescr {
      *
      * @param dataValue
      */
-    public void setDataValue(Integer dataValue) {
+    public void setDataValue(double dataValue) {
         this.dataValue = dataValue;
     }
 

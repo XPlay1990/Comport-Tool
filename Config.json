@@ -6,7 +6,7 @@
         "Ruslan": "10.131.251.208"
       },
       "defaultServer": "localhost",
-      "port": 1337,
+      "port": 3000,
       "autoConnectToServer": false
     },
     "graph_Config": {
@@ -138,18 +138,18 @@
       "x_Values_Shown": 500,
       "maximum_x_Values_Shown": 2500,
       "autoRange": true,
-      "antiAliasing": false,
-      "min_y": -60,
-      "max_y": 50
+      "antiAliasing": true,
+      "min_y": 0,
+      "max_y": 0
     }
   },
   "hw_Config": {
     "comport_Config": {
       "last_Used_Port": "COM1",
       "config": {
-        "baudrate": 400000.0,
-        "stopBits": 1.0,
-        "dataBits": 8.0
+        "baudrate": 400000,
+        "stopBits": 1,
+        "dataBits": 8
       }
     }
   }

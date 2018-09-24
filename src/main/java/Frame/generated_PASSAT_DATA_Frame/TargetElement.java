@@ -25,7 +25,9 @@ public class TargetElement {
     @SerializedName("dataset")
     @Expose
     private Dataset dataset;
-
+    @SerializedName("result")
+    @Expose
+    private Result result;
     /**
      *
      * @return
@@ -104,6 +106,22 @@ public class TargetElement {
      */
     public void setDataset(Dataset dataset) {
         this.dataset = dataset;
+    }
+    
+    /**
+     *
+     * @return
+     */
+    public Result getResult() {
+        return result;
+    }
+
+    /**
+     *
+     * @param result
+     */
+    public void setResult(Result result) {
+        this.result = result;
     }
 
 }

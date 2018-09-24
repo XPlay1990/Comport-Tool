@@ -10,9 +10,28 @@ import com.google.gson.annotations.SerializedName;
  */
 public class Configuration {
 
+    @SerializedName("hardware")
+    @Expose
+    private Hardware hardware;
     @SerializedName("protocol")
     @Expose
     private Protocol protocol;
+
+    /**
+     *
+     * @return
+     */
+    public Hardware getHardware() {
+        return hardware;
+    }
+
+    /**
+     *
+     * @param hardware
+     */
+    public void setHardware(Hardware hardware) {
+        this.hardware = hardware;
+    }
 
     /**
      *

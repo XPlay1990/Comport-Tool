@@ -67,6 +67,11 @@ public class Passat_Data_Frame {
         }
     }
 
+    public String toJson_string() {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        return gson.toJson(this);
+    }
+    
     /**
      *
      * @param json

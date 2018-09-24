@@ -13,7 +13,10 @@ public class Dataset {
 
     @SerializedName("timestamp")
     @Expose
-    private Integer timestamp;
+    private Double timestamp;
+    @SerializedName("data_args")
+    @Expose
+    private String data_args;
     @SerializedName("data_array")
     @Expose
     private List<DataArray> dataArray = null;
@@ -22,7 +25,7 @@ public class Dataset {
      *
      * @return
      */
-    public Integer getTimestamp() {
+    public Double getTimestamp() {
         return timestamp;
     }
 
@@ -30,8 +33,24 @@ public class Dataset {
      *
      * @param timestamp
      */
-    public void setTimestamp(Integer timestamp) {
+    public void setTimestamp(Double timestamp) {
         this.timestamp = timestamp;
+    }
+    
+    /**
+     *
+     * @return
+     */
+    public String getData_args() {
+        return data_args;
+    }
+
+    /**
+     *
+     * @param data_args
+     */
+    public void setData_args(String data_args) {
+        this.data_args = data_args;
     }
 
     /**

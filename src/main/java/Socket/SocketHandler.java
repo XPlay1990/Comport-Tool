@@ -3,6 +3,7 @@
  */
 package Socket;
 
+import DataEvaluation.AQ_Response_Evaluator;
 import DataEvaluation.DataEvaluator_Abstract;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -96,6 +97,16 @@ public class SocketHandler extends ThreadStarter_Abstract {
     public synchronized void initGraphComponents(DataEvaluator_Abstract dataEvaluator) {
         socketReader.initGraphComponents(dataEvaluator);
     }
+    
+    public synchronized void initGraphComponents(DataEvaluator_Abstract dataEvaluator,
+            AQ_Response_Evaluator aq_info_implementer) {
+        socketReader.initGraphComponents(dataEvaluator,aq_info_implementer);
+    }
+    
+    public synchronized void initGraphComponents(AQ_Response_Evaluator aq_info_implementer) {
+        socketReader.initGraphComponents(aq_info_implementer);
+    }
+    
 
     public void stopInputAndWait() {
         socketReader.stopInput();

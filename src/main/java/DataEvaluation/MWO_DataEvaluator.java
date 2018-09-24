@@ -12,11 +12,9 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
@@ -29,17 +27,15 @@ public class MWO_DataEvaluator extends DataEvaluator_Abstract {
 
     private ValuesList data;
 
-    private final ExecutorService executor;
+    private ExecutorService executor;
     private final Graph graph;
     private TxtLog txtLogger;
-    private ArrayList<Future<?>> futureList = new ArrayList<>();
 
     @Override
     public void run() {
         //TimeStamp for Tool-Latency
         LocalTime timeStamp = getTimeStamp();
-        futureList.clear();
-        
+
         //Process data
 //        processData();
 
@@ -48,26 +44,17 @@ public class MWO_DataEvaluator extends DataEvaluator_Abstract {
         //build logline
         txtLogger.newLogLine(timeStamp.toString() + "\t\t" + data);
 
-        //print graph && log data to txt
-        //Fill List of Threads to be executed
-        Future<?> txtLoggerFuture = executor.submit(txtLogger);
-        futureList.add(txtLoggerFuture);
-        
-        //Paint Graph
+        try {
+            //print graph && log data to txt
+            startThreadAndWaitForCompletition(txtLogger, executor);
+        } catch (InterruptedException | ExecutionException ex) {
+            Logger.getLogger(MWO_DataEvaluator.class.getName()).log(Level.SEVERE, null, ex);
+        }
         try {
             SwingUtilities.invokeAndWait(graph);
         } catch (InterruptedException | InvocationTargetException ex) {
             Logger.getLogger(MWO_DataEvaluator.class.getName()).log(Level.SEVERE, null, ex);
         }
-
-        //Wait for all Threads to finish
-        futureList.forEach((future) -> {
-            try {
-                future.get();
-            } catch (InterruptedException | ExecutionException ex) {
-                Logger.getLogger(MWO_DataEvaluator.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        });
 
         updateFrameLatencys(timeStamp);
     }

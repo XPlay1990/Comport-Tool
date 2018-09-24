@@ -9,9 +9,20 @@ import Config.Config_JSON;
 import Config.Tool_Config.Graph_Config;
 import Config.Tool_Config.Server_Config;
 import Config.Tool_Config.Tool_Config;
+import DataEvaluation.AQ_Response_Evaluator;
 import DataEvaluation.DataEvaluator_Abstract;
 import DataEvaluation.MWO_DataEvaluator;
-import Frame.optimized_PASSAT_Frame.TEST_FRAME_AQJOIN_REQ;
+import Frame.Frame_Handler;
+import Frame.PASSAT_Frame_Parser;
+import Frame.generated_PASSAT_DATA_Frame.Configuration;
+import Frame.generated_PASSAT_DATA_Frame.Data;
+import Frame.generated_PASSAT_DATA_Frame.Hardware;
+import Frame.generated_PASSAT_DATA_Frame.Header;
+import Frame.generated_PASSAT_DATA_Frame.Ifconfig;
+import Frame.generated_PASSAT_DATA_Frame.Passat_Data_Frame;
+import Frame.generated_PASSAT_DATA_Frame.Protocol;
+import Frame.generated_PASSAT_DATA_Frame.Target;
+import Frame.generated_PASSAT_DATA_Frame.TargetElement;
 import Graphs.Graph;
 import Graphs.JFreeChart_2DLine_Graph;
 import Socket.SocketHandler;
@@ -25,11 +36,14 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Observer;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 
 /**
  * GUI class to access the tool
@@ -48,6 +62,11 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
 
     private SocketHandler socketHandler;
     private DataEvaluator_Abstract dataEvaluator;
+
+    private AQ_Response_Evaluator aq_info_dataImplementer;
+    DefaultTableModel table_aq_uuid_model;
+    //ArrayList<String> ar1;// = new ArrayList();
+
     private Graph graph;
 
     private String[] portNames;
@@ -55,6 +74,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
     private HashMap<String, Integer> channelNameToNumberMapping;
     private HashMap<Integer, String> channelNumberToNameMapping;
     ArrayList<String> allChannelNames;
+    private Map<String, TargetElement> runningAcquisitionsMap;// = new HashMap<PASSAT_Frame_Parser.headerDestination , String>()
 
     private final String serverSelect_CardLayout = "serverSelect_CardLayout";
     private final String toolConnect_CardLayout = "toolConnect_CardLayout";
@@ -67,7 +87,9 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
      *
      */
     public QD_GUI() {
+
         init();
+
     }
 
     /**
@@ -83,6 +105,15 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
         if (serverConfig.getAutoConnectToServer()) {
             connectServer_Button.doClick();
         }
+
+        table_aq_uuid_model = new DefaultTableModel();
+
+        String[] columnNames = {"AQ UUID", "Interface", "Protocol", "Created"};
+        Object[][] table_data = {{"Create new acquisition ..."}/*{"UUID", "COM2", "MWO"},*/};
+        table_aq_uuid_model = new DefaultTableModel(table_data, columnNames);
+        table_AcquisitionsInfo.setDefaultEditor(Object.class, null);
+        table_AcquisitionsInfo.setModel(table_aq_uuid_model);
+        runningAcquisitionsMap = new HashMap<>();
 
         this.validate();
         this.repaint();
@@ -144,8 +175,8 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
             }
         }
 
-        TEST_FRAME_AQJOIN_REQ x = new TEST_FRAME_AQJOIN_REQ();
-        x.toJson();
+        //TEST_FRAME_AQJOIN_REQ x = new TEST_FRAME_AQJOIN_REQ();
+        //x.toJson();
     }
 
     private void initGUI() {
@@ -196,13 +227,18 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
         jLabelBaudrate = new javax.swing.JLabel();
         jLabelDataBits = new javax.swing.JLabel();
         jLabelStopBits = new javax.swing.JLabel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        table_AcquisitionsInfo = new javax.swing.JTable();
+        jLabel2 = new javax.swing.JLabel();
         jPanelLogoPanel = new javax.swing.JPanel();
         jLabelQDIcon = new javax.swing.JLabel();
         jTextFieldNewChannelNumber = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
-        connectAQ_Button = new javax.swing.JButton();
         disconnectServer_Button = new javax.swing.JButton();
         comboBoxPortChooser = new javax.swing.JComboBox<>();
+        refresh_AQ_Button = new javax.swing.JButton();
+        connectAQ_Button = new javax.swing.JButton();
+        get_hardware_Button = new javax.swing.JButton();
         channelSelect = new javax.swing.JPanel();
         jPanelControlPanel = new javax.swing.JPanel();
         channelPanel = new javax.swing.JPanel();
@@ -247,6 +283,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
         jButtonResetY = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setResizable(false);
 
         mainPanel.setLayout(new java.awt.CardLayout());
 
@@ -255,6 +292,11 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
         jLabelQDIcon1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Pictures/logo.jpg"))); // NOI18N
 
         autoConnect_Checkbox.setText("AutoConnect");
+        autoConnect_Checkbox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                autoConnect_CheckboxActionPerformed(evt);
+            }
+        });
 
         connectServer_Button.setText("Connect");
         connectServer_Button.addActionListener(new java.awt.event.ActionListener() {
@@ -272,7 +314,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
                 .addGroup(serverSelect_PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(connectServer_Button, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(serverSelect_PanelLayout.createSequentialGroup()
-                        .addComponent(serverSelect_ComboBox, 0, 476, Short.MAX_VALUE)
+                        .addComponent(serverSelect_ComboBox, 0, 753, Short.MAX_VALUE)
                         .addGap(18, 18, 18)
                         .addComponent(jLabelQDIcon1, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(serverSelect_PanelLayout.createSequentialGroup()
@@ -288,7 +330,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
                     .addComponent(jLabelQDIcon1, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(autoConnect_Checkbox)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 390, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 632, Short.MAX_VALUE)
                 .addComponent(connectServer_Button, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -307,39 +349,65 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
 
         jLabelStopBits.setText("StopBits:");
 
+        table_AcquisitionsInfo.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        table_AcquisitionsInfo.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                table_AcquisitionsInfoMouseClicked(evt);
+            }
+        });
+        jScrollPane2.setViewportView(table_AcquisitionsInfo);
+
+        jLabel2.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        jLabel2.setText("Available acquisitions");
+
         javax.swing.GroupLayout jPanelConnectButtonPanelLayout = new javax.swing.GroupLayout(jPanelConnectButtonPanel);
         jPanelConnectButtonPanel.setLayout(jPanelConnectButtonPanelLayout);
         jPanelConnectButtonPanelLayout.setHorizontalGroup(
             jPanelConnectButtonPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 729, Short.MAX_VALUE)
             .addGroup(jPanelConnectButtonPanelLayout.createSequentialGroup()
                 .addGroup(jPanelConnectButtonPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabelBaudrate, javax.swing.GroupLayout.DEFAULT_SIZE, 193, Short.MAX_VALUE)
-                    .addComponent(jTextFieldBaudrate, javax.swing.GroupLayout.DEFAULT_SIZE, 114, Short.MAX_VALUE)
-                    .addComponent(jLabelDataBits, javax.swing.GroupLayout.DEFAULT_SIZE, 134, Short.MAX_VALUE)
-                    .addComponent(jTextFieldDataBits, javax.swing.GroupLayout.DEFAULT_SIZE, 176, Short.MAX_VALUE)
-                    .addComponent(jLabelStopBits, javax.swing.GroupLayout.DEFAULT_SIZE, 168, Short.MAX_VALUE)
-                    .addComponent(jTextFieldStopBits, javax.swing.GroupLayout.DEFAULT_SIZE, 166, Short.MAX_VALUE))
-                .addContainerGap(253, Short.MAX_VALUE))
+                    .addGroup(jPanelConnectButtonPanelLayout.createSequentialGroup()
+                        .addGroup(jPanelConnectButtonPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jTextFieldBaudrate)
+                            .addComponent(jLabelBaudrate, javax.swing.GroupLayout.DEFAULT_SIZE, 103, Short.MAX_VALUE))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanelConnectButtonPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabelDataBits, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jTextFieldDataBits, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanelConnectButtonPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jLabelStopBits, javax.swing.GroupLayout.DEFAULT_SIZE, 57, Short.MAX_VALUE)
+                            .addComponent(jTextFieldStopBits)))
+                    .addComponent(jLabel2))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
-
-        jPanelConnectButtonPanelLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jLabelBaudrate, jLabelDataBits, jLabelStopBits, jTextFieldBaudrate, jTextFieldDataBits, jTextFieldStopBits});
-
         jPanelConnectButtonPanelLayout.setVerticalGroup(
             jPanelConnectButtonPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanelConnectButtonPanelLayout.createSequentialGroup()
-                .addGap(82, 82, 82)
-                .addComponent(jLabelBaudrate, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanelConnectButtonPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabelBaudrate, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabelDataBits, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabelStopBits, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jTextFieldBaudrate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanelConnectButtonPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jTextFieldBaudrate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jTextFieldDataBits, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jTextFieldStopBits, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addComponent(jLabelDataBits, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jTextFieldDataBits, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jLabel2)
                 .addGap(18, 18, 18)
-                .addComponent(jLabelStopBits, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jTextFieldStopBits, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(98, Short.MAX_VALUE))
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         jPanelConnectButtonPanelLayout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {jLabelBaudrate, jLabelDataBits, jLabelStopBits, jTextFieldBaudrate, jTextFieldDataBits, jTextFieldStopBits});
@@ -370,19 +438,11 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
             .addGroup(jPanelLogoPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabelQDIcon, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 675, Short.MAX_VALUE)
                 .addComponent(jLabel1)
-                .addGap(10, 10, 10)
-                .addComponent(jTextFieldNewChannelNumber, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addGap(35, 35, 35)
+                .addComponent(jTextFieldNewChannelNumber, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
-
-        connectAQ_Button.setText("Connect AQ");
-        connectAQ_Button.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                connectAQ_ButtonActionPerformed(evt);
-            }
-        });
 
         disconnectServer_Button.setText("Disconnect Server");
         disconnectServer_Button.addActionListener(new java.awt.event.ActionListener() {
@@ -393,22 +453,51 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
 
         comboBoxPortChooser.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Choose Port" }));
 
+        refresh_AQ_Button.setText("Refresh AQ List");
+        refresh_AQ_Button.setMaximumSize(new java.awt.Dimension(99, 23));
+        refresh_AQ_Button.setMinimumSize(new java.awt.Dimension(99, 23));
+        refresh_AQ_Button.setPreferredSize(new java.awt.Dimension(99, 23));
+        refresh_AQ_Button.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                refresh_AQ_ButtonActionPerformed(evt);
+            }
+        });
+
+        connectAQ_Button.setText("Connect AQ");
+        connectAQ_Button.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                connectAQ_ButtonActionPerformed(evt);
+            }
+        });
+
+        get_hardware_Button.setText("Get Hardware");
+        get_hardware_Button.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                get_hardware_ButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout toolConnectLayout = new javax.swing.GroupLayout(toolConnect);
         toolConnect.setLayout(toolConnectLayout);
         toolConnectLayout.setHorizontalGroup(
             toolConnectLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(toolConnectLayout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(toolConnectLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(toolConnectLayout.createSequentialGroup()
+                        .addContainerGap()
                         .addGroup(toolConnectLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jPanelConnectButtonPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(comboBoxPortChooser, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addGap(12, 12, 12))
                     .addGroup(toolConnectLayout.createSequentialGroup()
-                        .addComponent(connectAQ_Button, javax.swing.GroupLayout.PREFERRED_SIZE, 211, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(32, 32, 32)
-                        .addComponent(disconnectServer_Button, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(95, 95, 95)
+                        .addComponent(refresh_AQ_Button, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(get_hardware_Button, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(connectAQ_Button, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(disconnectServer_Button, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addComponent(jPanelLogoPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -422,14 +511,15 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jPanelConnectButtonPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(toolConnectLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(connectAQ_Button, javax.swing.GroupLayout.DEFAULT_SIZE, 67, Short.MAX_VALUE)
-                            .addComponent(disconnectServer_Button, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(toolConnectLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(connectAQ_Button, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(toolConnectLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(get_hardware_Button, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(refresh_AQ_Button, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(disconnectServer_Button, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addComponent(jPanelLogoPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
-
-        toolConnectLayout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {comboBoxPortChooser, connectAQ_Button});
 
         mainPanel.add(toolConnect, "toolConnect_CardLayout");
 
@@ -577,16 +667,18 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(channelControlPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(channelControlPanelLayout.createSequentialGroup()
-                        .addGroup(channelControlPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabelOldChannelName, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jComboBoxOldChannelName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(channelControlPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jTextFieldNewChannelName, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabelNewChannelName, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(channelControlPanelLayout.createSequentialGroup()
-                        .addGap(46, 46, 46)
-                        .addComponent(jButtonSetChannelName)))
+                        .addGroup(channelControlPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jLabelOldChannelName, javax.swing.GroupLayout.DEFAULT_SIZE, 81, Short.MAX_VALUE)
+                            .addComponent(jComboBoxOldChannelName, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGroup(channelControlPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(channelControlPanelLayout.createSequentialGroup()
+                                .addGap(18, 18, 18)
+                                .addComponent(jLabelNewChannelName, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(channelControlPanelLayout.createSequentialGroup()
+                                .addGap(8, 8, 8)
+                                .addComponent(jTextFieldNewChannelName)
+                                .addGap(5, 5, 5))))
+                    .addComponent(jButtonSetChannelName, javax.swing.GroupLayout.Alignment.TRAILING))
                 .addContainerGap())
         );
         channelControlPanelLayout.setVerticalGroup(
@@ -606,6 +698,28 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButtonSetChannelName)))
                 .addGap(23, 23, 23))
+        );
+
+        javax.swing.GroupLayout jPanelControlPanelLayout = new javax.swing.GroupLayout(jPanelControlPanel);
+        jPanelControlPanel.setLayout(jPanelControlPanelLayout);
+        jPanelControlPanelLayout.setHorizontalGroup(
+            jPanelControlPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelControlPanelLayout.createSequentialGroup()
+                .addComponent(channelPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
+            .addGroup(jPanelControlPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(channelControlPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(264, Short.MAX_VALUE))
+        );
+        jPanelControlPanelLayout.setVerticalGroup(
+            jPanelControlPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelControlPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(channelPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(59, 59, 59)
+                .addComponent(channelControlPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         jButtonDisconnect.setText("Disconnect");
@@ -788,7 +902,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
                                     .addComponent(jLabelValueNumber, javax.swing.GroupLayout.Alignment.TRAILING)))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, ControlButtonsLayout.createSequentialGroup()
                                 .addComponent(jButtonSetMinMaxY, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 54, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 64, Short.MAX_VALUE)
                                 .addComponent(jToggleButtonOffsetRaw, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, ControlButtonsLayout.createSequentialGroup()
                                 .addGap(0, 0, Short.MAX_VALUE)
@@ -800,13 +914,13 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
                                 .addGap(18, 18, 18)
                                 .addGroup(ControlButtonsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addComponent(EmbeddedLatencyPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(ToolLatencyPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                                    .addComponent(ToolLatencyPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                             .addGroup(ControlButtonsLayout.createSequentialGroup()
                                 .addGroup(ControlButtonsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jTextFieldMinY, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(jLabelMinY)
-                                    .addComponent(jButtonDisconnect)
-                                    .addComponent(jButtonResetY))
+                                    .addComponent(jButtonResetY)
+                                    .addComponent(jButtonDisconnect))
                                 .addGap(0, 0, Short.MAX_VALUE)))))
                 .addContainerGap())
         );
@@ -833,7 +947,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
                     .addComponent(jToggleButtonOffsetRaw))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButtonResetY)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabelAntiAliasing)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jToggleButtonAntiAliasing)
@@ -847,29 +961,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
                         .addComponent(ToolLatencyPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(EmbeddedLatencyPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap())
-        );
-
-        javax.swing.GroupLayout jPanelControlPanelLayout = new javax.swing.GroupLayout(jPanelControlPanel);
-        jPanelControlPanel.setLayout(jPanelControlPanelLayout);
-        jPanelControlPanelLayout.setHorizontalGroup(
-            jPanelControlPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanelControlPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(ControlButtons, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanelControlPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(channelPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(channelControlPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
-        );
-        jPanelControlPanelLayout.setVerticalGroup(
-            jPanelControlPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanelControlPanelLayout.createSequentialGroup()
-                .addComponent(channelPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGap(12, 12, 12)
-                .addComponent(channelControlPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-            .addComponent(ControlButtons, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap(381, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout channelSelectLayout = new javax.swing.GroupLayout(channelSelect);
@@ -877,7 +969,9 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
         channelSelectLayout.setHorizontalGroup(
             channelSelectLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(channelSelectLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap()
+                .addComponent(ControlButtons, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(38, 38, 38)
                 .addComponent(jPanelControlPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0))
         );
@@ -885,8 +979,13 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
             channelSelectLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(channelSelectLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanelControlPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGap(5, 5, 5))
+                .addGroup(channelSelectLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(channelSelectLayout.createSequentialGroup()
+                        .addComponent(ControlButtons, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addContainerGap())
+                    .addGroup(channelSelectLayout.createSequentialGroup()
+                        .addComponent(jPanelControlPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(5, 5, 5))))
         );
 
         mainPanel.add(channelSelect, "channelSelect_CardLayout");
@@ -930,12 +1029,6 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
         }
     }//GEN-LAST:event_jTextFieldMinYKeyPressed
 
-    private void jTextFieldNewChannelNameKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextFieldNewChannelNameKeyPressed
-        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-            jButtonSetChannelName.doClick();
-        }
-    }//GEN-LAST:event_jTextFieldNewChannelNameKeyPressed
-
     private void jButtonDisconnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDisconnectActionPerformed
         disconnectAQ();
     }//GEN-LAST:event_jButtonDisconnectActionPerformed
@@ -948,7 +1041,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
         graph = null;
         dataEvaluator = null;
         socketHandler.stopInputAndWait();
-        socketHandler.initGraphComponents(dataEvaluator);
+        socketHandler.initGraphComponents(dataEvaluator, aq_info_dataImplementer);
         socketHandler.startInput();
         this.validate();
         this.repaint();
@@ -957,14 +1050,6 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
     private void jButtonPlayPauseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonPlayPauseActionPerformed
         togglePause();
     }//GEN-LAST:event_jButtonPlayPauseActionPerformed
-
-    private void ChannelRemoveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ChannelRemoveActionPerformed
-        setChannelsToInactive();
-    }//GEN-LAST:event_ChannelRemoveActionPerformed
-
-    private void ChannelAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ChannelAddActionPerformed
-        setChannelsToActive();
-    }//GEN-LAST:event_ChannelAddActionPerformed
 
     private void jButtonSetMinMaxYActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSetMinMaxYActionPerformed
         try {
@@ -995,9 +1080,6 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
         }
     }//GEN-LAST:event_jComboBoxValuesShownActionPerformed
 
-    private void jButtonSetChannelNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSetChannelNameActionPerformed
-        renameChannel();
-    }//GEN-LAST:event_jButtonSetChannelNameActionPerformed
 
     private void jToggleButtonOffsetRawActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButtonOffsetRawActionPerformed
         boolean offsetState;
@@ -1025,33 +1107,10 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
         }
     }//GEN-LAST:event_jToggleButtonAntiAliasingActionPerformed
 
-    private void disconnectServer_ButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_disconnectServer_ButtonActionPerformed
-        socketHandler.disconnect();
-        socketHandler = null;
-        setCardLayout(serverSelect_CardLayout);
-    }//GEN-LAST:event_disconnectServer_ButtonActionPerformed
-
-    private void connectAQ_ButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectAQ_ButtonActionPerformed
-        String selectedHW_Interface = comboBoxPortChooser.getSelectedItem().toString();
-        int selectedBaudrate = Integer.valueOf(jTextFieldBaudrate.getText());
-        int selectedDataBits = Integer.valueOf(jTextFieldDataBits.getText());
-        int selectedStopBits = Integer.valueOf(jTextFieldStopBits.getText());
-        int channelCount = Integer.valueOf(jTextFieldNewChannelNumber.getText());
-
-        //Check if join was successful
-//        if(joinmessage_received){
-        //init GUI
-        initChannelMapping();
-        initChannelLists();
-
-        //init Graph Components
-        initGraphComponents(selectedHW_Interface);
-    }//GEN-LAST:event_connectAQ_ButtonActionPerformed
-
     private void connectServer_ButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectServer_ButtonActionPerformed
         String selectedItem = serverSelect_ComboBox.getSelectedItem().toString();
         boolean autoConnect = autoConnect_Checkbox.isSelected();
-
+        
         //Update Config
         try {
             String defaultServer = selectedItem;
@@ -1071,10 +1130,224 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
             ERROR_LOGGER.info("Connected to Server");
         } catch (IOException ex) {
             ERROR_LOGGER.error("Server connect failed");
-//            ERROR_LOGGER.error("Server connect failed", ex);
             JOptionPane.showMessageDialog(this, "Connection to " + selectedItem + " failed!");
         }
     }//GEN-LAST:event_connectServer_ButtonActionPerformed
+
+    private void autoConnect_CheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_autoConnect_CheckboxActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_autoConnect_CheckboxActionPerformed
+
+    private void get_hardware_ButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_get_hardware_ButtonActionPerformed
+        // TODO add your handling code here:
+        get_available_Hardware();
+    }//GEN-LAST:event_get_hardware_ButtonActionPerformed
+
+    private void connectAQ_ButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectAQ_ButtonActionPerformed
+
+        //Check if join was successful
+        //        if(joinmessage_received){
+        //init GUI
+        String aq_uuid = table_aq_uuid_model.getValueAt(
+                table_AcquisitionsInfo.getSelectedRow(), 0
+        ).toString();
+        connectAcquisition(aq_uuid);
+
+        /*
+            String selectedHW_Interface = comboBoxPortChooser.getSelectedItem().toString();
+            int selectedBaudrate = Integer.valueOf(jTextFieldBaudrate.getText());
+            int selectedDataBits = Integer.valueOf(jTextFieldDataBits.getText());
+            int selectedStopBits = Integer.valueOf(jTextFieldStopBits.getText());
+            int channelCount = Integer.valueOf(jTextFieldNewChannelNumber.getText());
+            initChannelMapping();
+            initChannelLists();
+            //init Graph Components
+            initGraphComponents(selectedHW_Interface);
+         */
+    }//GEN-LAST:event_connectAQ_ButtonActionPerformed
+
+    private void refresh_AQ_ButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refresh_AQ_ButtonActionPerformed
+        // TODO add your handling code here:
+
+        refreshAcquisitionsList();
+    }//GEN-LAST:event_refresh_AQ_ButtonActionPerformed
+
+    private void disconnectServer_ButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_disconnectServer_ButtonActionPerformed
+        socketHandler.disconnect();
+        socketHandler = null;
+        setCardLayout(serverSelect_CardLayout);
+    }//GEN-LAST:event_disconnectServer_ButtonActionPerformed
+
+    private void table_AcquisitionsInfoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_table_AcquisitionsInfoMouseClicked
+
+        if (evt.getClickCount() == 2) {
+            String aq_uuid = table_aq_uuid_model.getValueAt(
+                    table_AcquisitionsInfo.getSelectedRow(), 0
+            ).toString();
+            if (!aq_uuid.startsWith("Create")) {
+                connectAcquisition(aq_uuid);
+            } else {
+                System.out.println("table_AcquisitionsInfoMouseClicked... create new AQ JOIN Request");
+
+                Passat_Data_Frame aq_join_frame = new Passat_Data_Frame();
+                Header header = new Header();
+                Data data = new Data();
+                List<Target> targets = new ArrayList<>();
+                Target target = new Target();
+                TargetElement targetElement = new TargetElement();
+                Hardware hardware = new Hardware();
+                Configuration configuration = new Configuration();
+                Ifconfig ifconfig = new Ifconfig();
+                Protocol protocol = new Protocol();
+
+                // config for serial port
+                ifconfig.setBitrate(Integer.parseInt(jTextFieldBaudrate.getText().trim()));
+                ifconfig.setDataBits(Integer.parseInt(jTextFieldDataBits.getText().trim()));
+                ifconfig.setStopBits(Integer.parseInt(jTextFieldStopBits.getText().trim()));
+                ifconfig.setParityBits("n");
+                ifconfig.setPortname(comboBoxPortChooser.getSelectedItem().toString().trim());
+                //
+                protocol.setProtId(1);
+                protocol.setProtName("mwo");
+                protocol.setProtVersion("1");
+
+                hardware.setIftype("serial");
+                hardware.setIfconfig(ifconfig);
+                configuration.setHardware(hardware);
+                configuration.setProtocol(protocol);
+                // header config
+                header.setSource("client");
+                header.setTarget("acquisition");
+                header.setCmdclass("control");
+                header.setCommand("join");
+                header.setType("request");
+
+                targetElement.setConfiguration(configuration);
+                targetElement.setCreated("");
+                targetElement.setTargetName("my first acquisition");
+                targetElement.setTargetUuid("");
+                target.setTargetElement(targetElement);
+                targets.add(target);
+                data.setTargets(targets);
+
+                aq_join_frame.setHeader(header);
+                aq_join_frame.setData(data);
+                socketHandler.stopInputAndWait();
+                socketHandler.writeToSocket(aq_join_frame.toJson_string());
+                socketHandler.startInput();
+                //System.out.println(aq_join_frame.toJson_string());
+            }
+        }
+    }//GEN-LAST:event_table_AcquisitionsInfoMouseClicked
+
+    private void jButtonSetChannelNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSetChannelNameActionPerformed
+        renameChannel();
+    }//GEN-LAST:event_jButtonSetChannelNameActionPerformed
+
+    private void jTextFieldNewChannelNameKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextFieldNewChannelNameKeyPressed
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+            jButtonSetChannelName.doClick();
+        }
+    }//GEN-LAST:event_jTextFieldNewChannelNameKeyPressed
+
+    private void ChannelAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ChannelAddActionPerformed
+        setChannelsToActive();
+    }//GEN-LAST:event_ChannelAddActionPerformed
+
+    private void ChannelRemoveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ChannelRemoveActionPerformed
+        setChannelsToInactive();
+    }//GEN-LAST:event_ChannelRemoveActionPerformed
+
+    private void get_available_Hardware() {
+        socketHandler.stopInputAndWait();
+        if (aq_info_dataImplementer == null) {
+            aq_info_dataImplementer = new AQ_Response_Evaluator();
+            aq_info_dataImplementer.addObserver(this);
+            //give aq_info_dataImplementer access to dataevaluator
+            socketHandler.initGraphComponents(aq_info_dataImplementer);
+        }
+        Passat_Data_Frame passat_Frame = new Passat_Data_Frame();
+        TargetElement te = new TargetElement();
+        List<Target> targets = new ArrayList<Target>();
+        Target target = new Target();
+        Data data = new Data();
+        Configuration configuration = new Configuration();
+        Header header = new Header();
+        header.setTarget(PASSAT_Frame_Parser.headerDestinationMap.get(PASSAT_Frame_Parser.headerDestination.hardware_manager));
+        header.setSource(PASSAT_Frame_Parser.headerDestinationMap.get(PASSAT_Frame_Parser.headerDestination.client));
+        header.setCommand(PASSAT_Frame_Parser.headerCommandMap.get(PASSAT_Frame_Parser.headerCommand.info));
+        header.setCmdclass(PASSAT_Frame_Parser.headerCmdClassMap.get(PASSAT_Frame_Parser.headerCmdClass.employ));
+        header.setType(PASSAT_Frame_Parser.headerTypeMap.get(PASSAT_Frame_Parser.headerType.request));
+        passat_Frame.setHeader(header);
+
+        te.setTargetName("");
+        te.setTargetUuid("");
+        te.setCreated("");
+        te.setConfiguration(configuration);
+        target.setTargetElement(te);
+        targets.add(target);
+        data.setTargets(targets);
+        passat_Frame.setData(data);
+        socketHandler.startInput();
+        socketHandler.writeToSocket(passat_Frame.toJson_string());
+    }
+
+    private void start_AcquisitionGUI() {
+        String selectedHW_Interface = comboBoxPortChooser.getSelectedItem().toString();
+        initChannelMapping();
+        initChannelLists();
+        //init Graph Components
+        initGraphComponents(selectedHW_Interface);
+    }
+
+    private void connectAcquisition(String aq_uuid) {
+        String join_aq1 = "{ \"header\": { \"source\": \"client\", \"target\": \"acquisition\", \"type\": \"request\", \"cmdclass\": \"control\", \"command\": \"join\" }, \"data\": { \"targets\": [ { \"target_element\": { \"target_name\": \"\", \"target_uuid\": \"9ba57abb-d66b-4f48-8c93-a8785483720e\", \"created\": \"YYYY-MM-DDTHH:mm:ss.sssZ\", \"configuration\": { \"hardware\": { \"iftype\": \"serial\", \"ifconfig\": { \"portname\": \"ttyUSB0\", \"bitrate\": 11500, \"data_bits\": 8, \"stop_bits\": 1, \"parity_bits\": \"n\" } }, \"protocol\": { \"prot_name\": \"mwo_1\", \"prot_id\": 1, \"prot_version\": \"1.2\" } } } } ] } }";
+        //socketHandler.writeToSocket(join_aq1);
+        System.out.println("##################### connectAcquisition " + aq_uuid + " #####################");
+        Passat_Data_Frame passat_Frame = new Passat_Data_Frame();
+        TargetElement te = runningAcquisitionsMap.get(aq_uuid);
+        List<Target> targets = new ArrayList<Target>();
+        Target target = new Target();
+        Data data = new Data();
+        Header header = new Header();
+        header.setTarget(PASSAT_Frame_Parser.headerDestinationMap.get(PASSAT_Frame_Parser.headerDestination.acquisition));
+        header.setSource(PASSAT_Frame_Parser.headerDestinationMap.get(PASSAT_Frame_Parser.headerDestination.client));
+        header.setCommand(PASSAT_Frame_Parser.headerCommandMap.get(PASSAT_Frame_Parser.headerCommand.join));
+        header.setCmdclass(PASSAT_Frame_Parser.headerCmdClassMap.get(PASSAT_Frame_Parser.headerCmdClass.control));
+        header.setType(PASSAT_Frame_Parser.headerTypeMap.get(PASSAT_Frame_Parser.headerType.request));
+        passat_Frame.setHeader(header);
+        if (te != null) {
+            target.setTargetElement(te);
+            targets.add(target);
+            data.setTargets(targets);
+            passat_Frame.setData(data);
+            socketHandler.writeToSocket(passat_Frame.toJson_string());
+        } else {
+            te = new TargetElement();
+            Configuration configuration = new Configuration();
+            Protocol protocol = new Protocol();
+            target.setTargetElement(te);
+        }
+
+        //socketHandler.writeToSocket(join_aq1);
+        //runn
+        //passat_Frame.setData(data);
+    }
+
+    private void refreshAcquisitionsList() {
+        socketHandler.stopInputAndWait();
+        if (aq_info_dataImplementer == null) {
+            aq_info_dataImplementer = new AQ_Response_Evaluator();
+            aq_info_dataImplementer.addObserver(this);
+            //give aq_info_dataImplementer access to dataevaluator
+            socketHandler.initGraphComponents(aq_info_dataImplementer);
+        }
+
+        String aq_info = "{\"header\": { \"source\": \"client\", \"target\": \"acquisition\", \"type\": \"request\", \"cmdclass\": \"employ\", \"command\": \"info\" },\"data\": {\"targets\": [    {\"target_element\": {\"target_name\": \"name that Aquisition should have after creation, if name is empty, the name will be generated by aquisition automaticaly\",\"target_uuid\": \"\",\"created\": \"YYYY-MM-DDTHH:mm:ss.sssZ\"}}]}}";
+
+        socketHandler.startInput();
+        socketHandler.writeToSocket(aq_info);
+    }
 
     /**
      *
@@ -1121,9 +1394,20 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
         socketHandler.stopInputAndWait();
 
         graph = new JFreeChart_2DLine_Graph(graphConfig, selectedHW_Interface);
-        dataEvaluator = new MWO_DataEvaluator(graph, selectedHW_Interface);
-        dataEvaluator.addObserver(this);
 
+        if (dataEvaluator == null) {
+            dataEvaluator = new MWO_DataEvaluator(graph, selectedHW_Interface);
+            dataEvaluator.addObserver(this);
+        }
+
+        /*
+        if(aq_info_dataImplementer == null) {
+            aq_info_dataImplementer = new AQ_Response_Evaluator();
+            aq_info_dataImplementer.addObserver(this);
+            
+            System.out.println("QD_GUI.java:" + "initGraphComponents");
+        }
+         */
         //give framehandler access to dataevaluator
         socketHandler.initGraphComponents(dataEvaluator);
 
@@ -1305,18 +1589,66 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
         //get HW && config-fields from Server
 
         //init HW-List
-        initHW_Interface_List();
-
+        //initHW_Interface_List();
+        refreshAcquisitionsList();
+        get_available_Hardware();
         //set last used HW if possible && create configuration of hw
         setCardLayout(toolConnect_CardLayout);
+
     }
 
-    private void initHW_Interface_List() {
+    private void refreshAQ_List(List<Target> target) {
+        //DefaultListModel<String> model = new DefaultListModel<String>();
+        runningAcquisitionsMap.clear();
+
+        for (int i = table_aq_uuid_model.getRowCount() - 1; i > 0; i--) {
+            table_aq_uuid_model.removeRow(i);
+        }
+        target.forEach((te) -> {
+            //System.out.println("AQ_Response_Evaluator: " + te.getTargetElement().getTargetUuid() );
+            runningAcquisitionsMap.put(te.getTargetElement().getTargetUuid(), te.getTargetElement());
+            //System.out.println("getTargetUuid(): " + te.getTargetElement().getTargetUuid() );
+            /**/
+            table_aq_uuid_model.addRow(
+                    new Object[]{
+                        te.getTargetElement().getTargetUuid(),
+                        te.getTargetElement().getConfiguration().getHardware().getIfconfig().getPortname(),
+                        te.getTargetElement().getConfiguration().getProtocol().getProtName(),
+                        te.getTargetElement().getCreated()
+                    });
+
+        });
+
+        table_AcquisitionsInfo.setModel(table_aq_uuid_model);
+    }
+
+    private void initHW_Interface_List_obsolete() {
         //TODO: Temporary, until RST fixes HW-Request/Response
         ArrayList<String> portnameList = new ArrayList<>();
         for (int i = 0; i < 30; i++) {
             portnameList.add("Com" + (i + 1));
         }
+
+        this.portNames = portnameList.toArray(new String[portnameList.size()]);
+
+        if (portNames.length > 0) {
+            comboBoxPortChooser.setModel(new javax.swing.DefaultComboBoxModel<>(portNames));
+        } else {
+            comboBoxPortChooser.setModel(new javax.swing.DefaultComboBoxModel<>(new String[]{"No active Port found"}));
+        }
+    }
+
+    private void initHW_Interface_List(List<Target> targets) {
+        //TODO: Temporary, until RST fixes HW-Request/Response
+        ArrayList<String> portnameList = new ArrayList<>();
+        targets.forEach((var) -> {
+            //System.out.println(var.getTargetElement().getConfiguration().getHardware().getIftype());
+            if (var.getTargetElement().getConfiguration().getHardware().getIftype().equals("serial")) {
+                portnameList.add(var.getTargetElement().getConfiguration().getHardware().getIfconfig().getPortname());
+            } else if (var.getTargetElement().getConfiguration().getHardware().getIftype().equals("ethernet")) {
+                portnameList.add(var.getTargetElement().getConfiguration().getHardware().getIfconfig().getPortname());
+            }
+        });
 
         this.portNames = portnameList.toArray(new String[portnameList.size()]);
 
@@ -1389,6 +1721,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
     private javax.swing.JButton connectAQ_Button;
     private javax.swing.JButton connectServer_Button;
     private javax.swing.JButton disconnectServer_Button;
+    private javax.swing.JButton get_hardware_Button;
     private javax.swing.JButton jButtonDisconnect;
     private javax.swing.JButton jButtonPlayPause;
     private javax.swing.JButton jButtonResetY;
@@ -1397,6 +1730,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
     private javax.swing.JComboBox<String> jComboBoxOldChannelName;
     private javax.swing.JComboBox<String> jComboBoxValuesShown;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabelActiveChannels;
     private javax.swing.JLabel jLabelAntiAliasing;
     private javax.swing.JLabel jLabelBaudrate;
@@ -1418,6 +1752,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
     private javax.swing.JPanel jPanelConnectButtonPanel;
     private javax.swing.JPanel jPanelControlPanel;
     private javax.swing.JPanel jPanelLogoPanel;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPaneActiveChannels;
     private javax.swing.JScrollPane jScrollPaneInactiveChannels;
     private javax.swing.JTextField jTextFieldBaudrate;
@@ -1435,13 +1770,59 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
     private javax.swing.JToggleButton jToggleButtonOffsetRaw;
     private javax.swing.JPanel mainPanel;
     private javax.swing.JTextField maxEmbeddedLatency;
+    private javax.swing.JButton refresh_AQ_Button;
     private javax.swing.JComboBox<String> serverSelect_ComboBox;
     private javax.swing.JPanel serverSelect_Panel;
+    private javax.swing.JTable table_AcquisitionsInfo;
     private javax.swing.JPanel toolConnect;
     // End of variables declaration//GEN-END:variables
 
     @Override
     public void update(java.util.Observable o, Object arg) {
         this.jTextFieldToolLatency.setText(arg.toString());
+
+        if (o instanceof AQ_Response_Evaluator) {
+            Frame_Handler fh = new Frame_Handler();
+            Passat_Data_Frame passat_Frame = (Passat_Data_Frame) arg;
+            PASSAT_Frame_Parser.frameVariant _frameVariant = fh.getFrameVariant(passat_Frame.getHeader());
+
+            switch (_frameVariant) {
+                case aq_join_res:
+                    System.out.println("QD_GUI " + "aq_join_res frame received.");
+                    System.out.println(passat_Frame.toJson_string());
+                    refreshAcquisitionsList();
+                    String selectedHW_Interface = comboBoxPortChooser.getSelectedItem().toString();
+                    initChannelMapping();
+                    initChannelLists();
+                    //init Graph Components
+                    initGraphComponents(selectedHW_Interface);
+                    break;
+                case aq_info_res:
+                    System.out.println("QD_GUI " + "aq_info_res frame received.");
+                    refreshAQ_List(passat_Frame.getData().getTargets());
+                    break;
+                case aq_exit_res:
+                    break;
+                case hw_info_res:
+                    System.out.println("QD_GUI " + "hw_info_res frame received.");
+                    initHW_Interface_List(passat_Frame.getData().getTargets());
+                    break;
+                default:
+                    break;
+            }
+        }
+        /*
+        if (o instanceof AQ_Response_Evaluator) {
+            Data data = (Data) arg;
+            
+            System.out.println("update from AQ_Response_Evaluator: " + arg.toString());
+            data.getTargets().forEach((te) -> {
+                System.out.println("AQ_Response_Evaluator: " + te.getTargetElement().getTargetUuid() );
+            });
+            
+            
+            refreshAQ_List(data.getTargets());
+        }
+         */
     }
 }
