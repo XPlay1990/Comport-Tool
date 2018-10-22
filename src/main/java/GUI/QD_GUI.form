@@ -82,7 +82,7 @@
                       </Group>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
                       <Component id="autoConnect_Checkbox" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="632" max="32767" attributes="0"/>
+                      <EmptySpace pref="704" max="32767" attributes="0"/>
                       <Component id="connectServer_Button" min="-2" pref="89" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -213,10 +213,15 @@
                                       <Component id="jLabelStopBits" pref="57" max="32767" attributes="0"/>
                                       <Component id="jTextFieldStopBits" max="32767" attributes="0"/>
                                   </Group>
+                                  <EmptySpace min="-2" pref="26" max="-2" attributes="0"/>
+                                  <Group type="103" groupAlignment="0" attributes="0">
+                                      <Component id="jTextFieldAcqName" min="-2" pref="226" max="-2" attributes="0"/>
+                                      <Component id="jLabelAcqName" min="-2" pref="141" max="-2" attributes="0"/>
+                                  </Group>
                               </Group>
                               <Component id="jLabel2" alignment="0" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace max="32767" attributes="0"/>
+                          <EmptySpace pref="223" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -227,12 +232,14 @@
                               <Component id="jLabelBaudrate" linkSize="9" alignment="3" min="-2" pref="38" max="-2" attributes="0"/>
                               <Component id="jLabelDataBits" linkSize="9" alignment="3" min="-2" pref="35" max="-2" attributes="0"/>
                               <Component id="jLabelStopBits" linkSize="9" alignment="3" min="-2" pref="28" max="-2" attributes="0"/>
+                              <Component id="jLabelAcqName" alignment="3" min="-2" pref="28" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="3" attributes="0">
                               <Component id="jTextFieldBaudrate" linkSize="9" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="jTextFieldDataBits" linkSize="9" alignment="3" min="-2" pref="41" max="-2" attributes="0"/>
                               <Component id="jTextFieldStopBits" linkSize="9" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="jTextFieldAcqName" alignment="3" min="-2" pref="41" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace type="separate" max="-2" attributes="0"/>
                           <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
@@ -258,6 +265,14 @@
                     <Property name="text" type="java.lang.String" value="1"/>
                   </Properties>
                 </Component>
+                <Component class="javax.swing.JTextField" name="jTextFieldAcqName">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="new Acqusition"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jTextFieldAcqNameActionPerformed"/>
+                  </Events>
+                </Component>
                 <Component class="javax.swing.JLabel" name="jLabelBaudrate">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Baudrate:"/>
@@ -271,6 +286,11 @@
                 <Component class="javax.swing.JLabel" name="jLabelStopBits">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="StopBits:"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JLabel" name="jLabelAcqName">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Acqusition name:"/>
                   </Properties>
                 </Component>
                 <Container class="javax.swing.JScrollPane" name="jScrollPane2">
@@ -333,7 +353,7 @@
                       <Group type="102" alignment="0" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="jLabelQDIcon" min="-2" pref="96" max="-2" attributes="0"/>
-                          <EmptySpace pref="675" max="32767" attributes="0"/>
+                          <EmptySpace pref="747" max="32767" attributes="0"/>
                           <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
                           <EmptySpace min="-2" pref="35" max="-2" attributes="0"/>
                           <Component id="jTextFieldNewChannelNumber" min="-2" pref="38" max="-2" attributes="0"/>
@@ -885,7 +905,7 @@
                                   <Component id="EmbeddedLatencyPanel" min="-2" max="-2" attributes="0"/>
                               </Group>
                           </Group>
-                          <EmptySpace pref="381" max="32767" attributes="0"/>
+                          <EmptySpace pref="453" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>

@@ -108,7 +108,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
 
         table_aq_uuid_model = new DefaultTableModel();
 
-        String[] columnNames = {"AQ UUID", "Interface", "Protocol", "Created"};
+        String[] columnNames = {"AQ UUID", "Interface", "Protocol", "Created", "AQ Name"};
         Object[][] table_data = {{"Create new acquisition ..."}/*{"UUID", "COM2", "MWO"},*/};
         table_aq_uuid_model = new DefaultTableModel(table_data, columnNames);
         table_AcquisitionsInfo.setDefaultEditor(Object.class, null);
@@ -224,9 +224,11 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
         jTextFieldBaudrate = new javax.swing.JTextField();
         jTextFieldDataBits = new javax.swing.JTextField();
         jTextFieldStopBits = new javax.swing.JTextField();
+        jTextFieldAcqName = new javax.swing.JTextField();
         jLabelBaudrate = new javax.swing.JLabel();
         jLabelDataBits = new javax.swing.JLabel();
         jLabelStopBits = new javax.swing.JLabel();
+        jLabelAcqName = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
         table_AcquisitionsInfo = new javax.swing.JTable();
         jLabel2 = new javax.swing.JLabel();
@@ -330,7 +332,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
                     .addComponent(jLabelQDIcon1, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(autoConnect_Checkbox)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 632, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 704, Short.MAX_VALUE)
                 .addComponent(connectServer_Button, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -343,11 +345,20 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
 
         jTextFieldStopBits.setText("1");
 
+        jTextFieldAcqName.setText("new Acqusition");
+        jTextFieldAcqName.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextFieldAcqNameActionPerformed(evt);
+            }
+        });
+
         jLabelBaudrate.setText("Baudrate:");
 
         jLabelDataBits.setText("DataBits:");
 
         jLabelStopBits.setText("StopBits:");
+
+        jLabelAcqName.setText("Acqusition name:");
 
         table_AcquisitionsInfo.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -388,9 +399,13 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
                         .addGap(18, 18, 18)
                         .addGroup(jPanelConnectButtonPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jLabelStopBits, javax.swing.GroupLayout.DEFAULT_SIZE, 57, Short.MAX_VALUE)
-                            .addComponent(jTextFieldStopBits)))
+                            .addComponent(jTextFieldStopBits))
+                        .addGap(26, 26, 26)
+                        .addGroup(jPanelConnectButtonPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jTextFieldAcqName, javax.swing.GroupLayout.PREFERRED_SIZE, 226, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabelAcqName, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addComponent(jLabel2))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(223, Short.MAX_VALUE))
         );
         jPanelConnectButtonPanelLayout.setVerticalGroup(
             jPanelConnectButtonPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -398,12 +413,14 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
                 .addGroup(jPanelConnectButtonPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabelBaudrate, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabelDataBits, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabelStopBits, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jLabelStopBits, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabelAcqName, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanelConnectButtonPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jTextFieldBaudrate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jTextFieldDataBits, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextFieldStopBits, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jTextFieldStopBits, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jTextFieldAcqName, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(jLabel2)
                 .addGap(18, 18, 18)
@@ -438,7 +455,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
             .addGroup(jPanelLogoPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabelQDIcon, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 675, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 747, Short.MAX_VALUE)
                 .addComponent(jLabel1)
                 .addGap(35, 35, 35)
                 .addComponent(jTextFieldNewChannelNumber, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -961,7 +978,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
                         .addComponent(ToolLatencyPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(EmbeddedLatencyPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(381, Short.MAX_VALUE))
+                .addContainerGap(453, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout channelSelectLayout = new javax.swing.GroupLayout(channelSelect);
@@ -1110,7 +1127,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
     private void connectServer_ButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectServer_ButtonActionPerformed
         String selectedItem = serverSelect_ComboBox.getSelectedItem().toString();
         boolean autoConnect = autoConnect_Checkbox.isSelected();
-        
+
         //Update Config
         try {
             String defaultServer = selectedItem;
@@ -1224,7 +1241,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
 
                 targetElement.setConfiguration(configuration);
                 targetElement.setCreated("");
-                targetElement.setTargetName("my first acquisition");
+                targetElement.setTargetName(jTextFieldAcqName.getText().trim());//("my first acquisition");
                 targetElement.setTargetUuid("");
                 target.setTargetElement(targetElement);
                 targets.add(target);
@@ -1257,6 +1274,10 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
     private void ChannelRemoveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ChannelRemoveActionPerformed
         setChannelsToInactive();
     }//GEN-LAST:event_ChannelRemoveActionPerformed
+
+    private void jTextFieldAcqNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldAcqNameActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextFieldAcqNameActionPerformed
 
     private void get_available_Hardware() {
         socketHandler.stopInputAndWait();
@@ -1614,7 +1635,8 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
                         te.getTargetElement().getTargetUuid(),
                         te.getTargetElement().getConfiguration().getHardware().getIfconfig().getPortname(),
                         te.getTargetElement().getConfiguration().getProtocol().getProtName(),
-                        te.getTargetElement().getCreated()
+                        te.getTargetElement().getCreated(),
+                        te.getTargetElement().getTargetName()
                     });
 
         });
@@ -1731,6 +1753,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
     private javax.swing.JComboBox<String> jComboBoxValuesShown;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabelAcqName;
     private javax.swing.JLabel jLabelActiveChannels;
     private javax.swing.JLabel jLabelAntiAliasing;
     private javax.swing.JLabel jLabelBaudrate;
@@ -1755,6 +1778,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPaneActiveChannels;
     private javax.swing.JScrollPane jScrollPaneInactiveChannels;
+    private javax.swing.JTextField jTextFieldAcqName;
     private javax.swing.JTextField jTextFieldBaudrate;
     private javax.swing.JTextField jTextFieldDataBits;
     private javax.swing.JTextField jTextFieldEmbeddedLatency;
