@@ -31,19 +31,20 @@ public class SocketReader extends ThreadStarter_Abstract implements Runnable {
     private boolean inputAllowed = true;
     boolean isInputting = false;
 
-    /*
     @Override
-    public void run_orig() {
+    public void run() {
         ArrayList<String> inputList = new ArrayList<>();
         String input;
+        char[] ch_array;
         try {
             while (true) {
-                while ((input = reader.readLine()) != null) {
+                while (reader.ready()) {
+                    input = reader.readLine();
                     inputList.add(input);
                     //System.out.println(TAG + "inputList: " + input);
-                    if ((future == null || future.isDone() == true) && inputAllowed) {
+                    if ((future == null || future.isDone() == true) && inputAllowed && !inputList.isEmpty()) {
                         isInputting = true;
-                        frame_Handler.setJsonString(inputList);
+                        frame_Handler.setJsonString((ArrayList<String>) inputList.clone());
                         future = executor.submit(frame_Handler);
 
                         inputList = new ArrayList<>();
@@ -54,38 +55,6 @@ public class SocketReader extends ThreadStarter_Abstract implements Runnable {
         } catch (IOException ex) {
             //Socket closed!
             Logger.getLogger(SocketHandler.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-     */
-    @Override
-    public void run() {
-        ArrayList<String> inputList = new ArrayList<>();
-        String input;
-        char[] ch_array = new char[50000];
-        int charCount = 0;
-        try {
-            while (true) {
-                if ((charCount = reader.read(ch_array, 0, 50000)) > 0) {
-                    input = new String(ch_array, 0, charCount);
-                    inputList.add(input);
-//                    System.out.println(inputList);
-                    //System.out.println(TAG + "Recv data: " + input);
-                }
-                
-                if ((future == null || future.isDone() == true) && inputAllowed && !inputList.isEmpty()) {
-                    isInputting = true;
-                    frame_Handler.setJsonString((ArrayList<String>)inputList.clone());
-                    future = executor.submit(frame_Handler);
-
-                    inputList.clear();
-                    isInputting = false;
-                }
-            }
-        } catch (IOException ex) {
-            //Socket closed!
-            Logger.getLogger(SocketHandler.class.getName()).log(Level.SEVERE, null, ex);
-            ex.printStackTrace();
-            System.out.println(TAG + "inputList: " + ex.toString());
         }
     }
 
