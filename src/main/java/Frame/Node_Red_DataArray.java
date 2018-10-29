@@ -1,15 +1,14 @@
 /*
  *  Copyright (C) Jan Adamczyk (j_adamczyk@hotmail.com) 2017
  */
-package HelpClasses;
+package Frame;
 
-import Frame.Node_Red_DataArray;
 import java.util.ArrayList;
 
 /**
  *
  * @author jan.adamczyk
  */
-public class ValuesList extends ArrayList<Node_Red_DataArray>{
+public class Node_Red_DataArray extends ArrayList<Integer>{
     
 }

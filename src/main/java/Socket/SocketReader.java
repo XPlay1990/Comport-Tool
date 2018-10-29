@@ -35,11 +35,11 @@ public class SocketReader extends ThreadStarter_Abstract implements Runnable {
     public void run() {
         ArrayList<String> inputList = new ArrayList<>();
         String input;
-        char[] ch_array;
         try {
             while (true) {
                 while (reader.ready()) {
                     input = reader.readLine();
+//                    System.out.println(input);
                     inputList.add(input);
                     //System.out.println(TAG + "inputList: " + input);
                     if ((future == null || future.isDone() == true) && inputAllowed && !inputList.isEmpty()) {

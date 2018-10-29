@@ -13,7 +13,7 @@ public class Server_Config {
 
     private HashMap<String, String> serverList = new HashMap<>();
     private String defaultServer = null;
-    private int port = 3000;//1337;
+    private int port = 1881;//1337;
     private Boolean autoConnectToServer = false;
 
     /**

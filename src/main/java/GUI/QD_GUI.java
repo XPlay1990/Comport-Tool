@@ -1611,11 +1611,11 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
 
         //init HW-List
         //initHW_Interface_List();
-        refreshAcquisitionsList();
-        get_available_Hardware();
+//        refreshAcquisitionsList();
+//        get_available_Hardware();
         //set last used HW if possible && create configuration of hw
         setCardLayout(toolConnect_CardLayout);
-
+        start_AcquisitionGUI();
     }
 
     private void refreshAQ_List(List<Target> target) {

@@ -54,76 +54,19 @@ public class Frame_Handler extends DataEvaluator_Abstract {
      */
     private void handleJSONString(ArrayList<String> jsonInputs) {
         try {
-//            PASSAT_Frame passat_Frame = parser.parseJSONStringtoPASSAT(json);
-//            evaluatePASSAT_FRAME(passat_Frame);
-            ArrayList<Passat_Data_Frame> frames = parser.parseTest(jsonInputs);
-            evaluateTest(frames);
-        } catch (JsonSyntaxException e) {
+//            PASSAT_Frame frame = parser.parseJSONStringtoPASSAT(json);
+//            evaluatePASSAT_FRAME(frame);
+            ValuesList frames = (ValuesList) parser.parseJSONStringToNodeRedFrame(jsonInputs);
+            evaluateFrame(frames);
+        } catch (Exception e) {
             //update GUI-Errorcounter
             System.out.println("FRAME PARSING ERROR! " + e.toString());
         }
     }
 
-    /*
-    private void evaluatePASSAT_FRAME(PASSAT_Frame passat_Frame) {
-        PASSAT_Header header = passat_Frame.getHeader();
-        HashMap<String, String> headerMessage = header.getmessage();
-
-        switch (headerMessage.get("type")) {
-            case "":
-                break;
-            case "1":
-                break;
-            case "data":
-//                dataEvaluator.setData(passat_Frame.getData());
-
-                break;
-            default:
-                break;
-        }
-    }
-     */
-    //TODO: REMOVE after correct IMPL
-    private void evaluateTest(ArrayList<Passat_Data_Frame> passat_Frames) {
-        ValuesList valueLists = new ValuesList();
-        for (Passat_Data_Frame passat_Frame : passat_Frames) {
-            Header header = passat_Frame.getHeader();
-            //String command = header.getCommand();
-            PASSAT_Frame_Parser.frameVariant _frameVariant = getFrameVariant(header);
-
-            switch (_frameVariant) {
-                case aq_join_res:
-                    //System.out.println("evaluateTest "  + "aq_join_res frame received.");
-                    aq_info_implementer.updateAcquisitionsList(passat_Frame);
-                    break;
-                case aq_info_res:
-                    //System.out.println("evaluateTest "  + "aq_info_res frame received.");
-                    //aq_info_implementer.updateAcquisitionsList(passat_Frame.getData() );
-                    aq_info_implementer.updateAcquisitionsList(passat_Frame);
-                    break;
-                case aq_data:
-                    ArrayList<Integer> valueList = new ArrayList<>();
-                    List<DataArray> dataArray = passat_Frame.getData().getTargets().get(0).getTargetElement().getDataset().getDataArray();
-                    dataArray.forEach((data) -> {
-                        valueList.add((int) data.getDataDescr().getDataValue());
-                    });
-                    valueLists.add(valueList);
-                    //System.out.println("valueLists size: " + valueLists.size());
-                    break;
-                case aq_exit_res:
-                    aq_info_implementer.updateAcquisitionsList(passat_Frame);
-                    break;
-                case hw_info_res:
-                    //System.out.println("evaluateTest "  + "hw_info_res frame received.");
-                    aq_info_implementer.updateAcquisitionsList(passat_Frame);
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        if (!valueLists.isEmpty() && dataEvaluator != null) {
-            dataEvaluator.setData(valueLists);
+    private void evaluateFrame(ValuesList frames) {
+        if (!frames.isEmpty() && dataEvaluator != null) {
+            dataEvaluator.setData(frames);
             {
                 try {
                     startThreadAndWaitForCompletition(dataEvaluator, executor);

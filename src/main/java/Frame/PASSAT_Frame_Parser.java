@@ -5,6 +5,7 @@ package Frame;
 
 import Frame.generated_PASSAT_DATA_Frame.Passat_Data_Frame;
 import Frame.Schema.PASSAT_Frame;
+import HelpClasses.ValuesList;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.util.ArrayList;
@@ -48,50 +49,206 @@ public class PASSAT_Frame_Parser {
     }
 
     /**
-     * REMOVE AFTER CORRECT IMPL parses jsonstring to object
      *
      * @param jsonStrings
      * @return
      */
-    public ArrayList<Passat_Data_Frame> parseTest(ArrayList<String> jsonStrings) {
+    public ArrayList<Passat_Data_Frame> parseJSONStringToPASSAT(ArrayList<String> jsonStrings) {
         ArrayList<Passat_Data_Frame> frames = new ArrayList<>();
         jsonStrings.stream().map((jsonString) -> gson.fromJson(jsonString, Passat_Data_Frame.class)).forEachOrdered((frame) -> {
             frames.add(frame);
-        });        
+        });
         return frames;
     }
-    
-    public enum headerDestination{unknown,client,hardware_manager,storage_manager,acquisition};
-    public static final Map<headerDestination , String> headerDestinationMap = new HashMap<headerDestination , String>() {{
-        put(headerDestination.client,             "client");
-        put(headerDestination.hardware_manager,   "hardware_manager");
-        put(headerDestination.storage_manager,    "storage_manager");
-        put(headerDestination.acquisition,        "acquisition");
-    }};
-    
-    public enum headerType{unknown,request,response,general};
-    public static final Map<headerType , String> headerTypeMap = new HashMap<headerType , String>() {{
-        put(headerType.request,    "request");
-        put(headerType.response,"response");
-        put(headerType.general,    "general");
-    }};	    
-    
-    
-    public enum headerCmdClass{unknown,employ,control};
-    public static final Map<headerCmdClass , String> headerCmdClassMap = new HashMap<headerCmdClass , String>() {{
-        put(headerCmdClass.employ,    "employ");
-        put(headerCmdClass.control,   "control");
-    }};
-    
-    public enum headerCommand{unknown,info,join,exit,data,acquisition };
-    public static final Map<headerCommand , String> headerCommandMap = new HashMap<headerCommand , String>() {{
-        put(headerCommand.info,       "info");
-        put(headerCommand.join,       "join");
-        put(headerCommand.exit,       "exit");
-        put(headerCommand.data,       "data");
-        put(headerCommand.acquisition,"acquisition");
-    }};
-    
-    public enum frameVariant{unknown,aq_info_res,aq_join_res,aq_exit_res,aq_data,hw_info_res};
-    
+
+    /**
+     *
+     * @param jsonStrings
+     * @return
+     */
+    public ValuesList parseJSONStringToNodeRedFrame(ArrayList<String> jsonStrings) {
+        ValuesList frames = new ValuesList();
+        jsonStrings.stream().map((jsonString) -> gson.fromJson(jsonString, Node_Red_DataArray.class)).forEachOrdered((frame) -> {
+            frames.add(frame);
+        });
+        return frames;
+    }
+
+    /**
+     *
+     */
+    public enum headerDestination {
+
+        /**
+         *
+         */
+        unknown,
+        /**
+         *
+         */
+        client,
+        /**
+         *
+         */
+        hardware_manager,
+        /**
+         *
+         */
+        storage_manager,
+        /**
+         *
+         */
+        acquisition
+    };
+
+    /**
+     *
+     */
+    public static final Map<headerDestination, String> headerDestinationMap = new HashMap<headerDestination, String>() {
+        {
+            put(headerDestination.client, "client");
+            put(headerDestination.hardware_manager, "hardware_manager");
+            put(headerDestination.storage_manager, "storage_manager");
+            put(headerDestination.acquisition, "acquisition");
+        }
+    };
+
+    /**
+     *
+     */
+    public enum headerType {
+
+        /**
+         *
+         */
+        unknown,
+        /**
+         *
+         */
+        request,
+        /**
+         *
+         */
+        response,
+        /**
+         *
+         */
+        general
+    };
+
+    /**
+     *
+     */
+    public static final Map<headerType, String> headerTypeMap = new HashMap<headerType, String>() {
+        {
+            put(headerType.request, "request");
+            put(headerType.response, "response");
+            put(headerType.general, "general");
+        }
+    };
+
+    /**
+     *
+     */
+    public enum headerCmdClass {
+
+        /**
+         *
+         */
+        unknown,
+        /**
+         *
+         */
+        employ,
+        /**
+         *
+         */
+        control
+    };
+
+    /**
+     *
+     */
+    public static final Map<headerCmdClass, String> headerCmdClassMap = new HashMap<headerCmdClass, String>() {
+        {
+            put(headerCmdClass.employ, "employ");
+            put(headerCmdClass.control, "control");
+        }
+    };
+
+    /**
+     *
+     */
+    public enum headerCommand {
+
+        /**
+         *
+         */
+        unknown,
+        /**
+         *
+         */
+        info,
+        /**
+         *
+         */
+        join,
+        /**
+         *
+         */
+        exit,
+        /**
+         *
+         */
+        data,
+        /**
+         *
+         */
+        acquisition
+    };
+
+    /**
+     *
+     */
+    public static final Map<headerCommand, String> headerCommandMap = new HashMap<headerCommand, String>() {
+        {
+            put(headerCommand.info, "info");
+            put(headerCommand.join, "join");
+            put(headerCommand.exit, "exit");
+            put(headerCommand.data, "data");
+            put(headerCommand.acquisition, "acquisition");
+        }
+    };
+
+    /**
+     *
+     */
+    public enum frameVariant {
+
+        /**
+         *
+         */
+        unknown,
+        /**
+         *
+         */
+        aq_info_res,
+        /**
+         *
+         */
+        aq_join_res,
+        /**
+         *
+         */
+        aq_exit_res,
+        /**
+         *
+         */
+        aq_data,
+        /**
+         *
+         */
+        hw_info_res
+    };
+
 }
