@@ -17,7 +17,7 @@ public class JFree_2DLine_Config implements Graph_Config {
     private HashMap<Integer, String> channelNumberToNameMapping = new HashMap<>();
     private transient HashMap<String, Integer> channelNameToNumberMapping = new HashMap<>();
     private int x_Values_Shown = 500;
-    private int maximum_x_Values_Shown = 2500;
+    private int maximum_x_Values_Shown = 5000;
     private boolean autoRange = true;
     private boolean antiAliasing = true;
     private int min_y;

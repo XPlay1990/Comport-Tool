@@ -215,7 +215,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
 
         mainPanel = new javax.swing.JPanel();
         serverSelect_Panel = new javax.swing.JPanel();
-        serverSelect_ComboBox = new javax.swing.JComboBox<>();
+        serverSelect_ComboBox = new javax.swing.JComboBox<String>();
         jLabelQDIcon1 = new javax.swing.JLabel();
         autoConnect_Checkbox = new javax.swing.JCheckBox();
         connectServer_Button = new javax.swing.JButton();
@@ -237,7 +237,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
         jTextFieldNewChannelNumber = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
         disconnectServer_Button = new javax.swing.JButton();
-        comboBoxPortChooser = new javax.swing.JComboBox<>();
+        comboBoxPortChooser = new javax.swing.JComboBox<String>();
         refresh_AQ_Button = new javax.swing.JButton();
         connectAQ_Button = new javax.swing.JButton();
         get_hardware_Button = new javax.swing.JButton();
@@ -245,9 +245,9 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
         jPanelControlPanel = new javax.swing.JPanel();
         channelPanel = new javax.swing.JPanel();
         jScrollPaneInactiveChannels = new javax.swing.JScrollPane();
-        jListInactiveChannels = new javax.swing.JList<>();
+        jListInactiveChannels = new javax.swing.JList<String>();
         jScrollPaneActiveChannels = new javax.swing.JScrollPane();
-        jListActiveChannels = new javax.swing.JList<>();
+        jListActiveChannels = new javax.swing.JList<String>();
         ChannelRemove = new GUI.JButtonArrow();
         ChannelAdd = new GUI.JButtonArrow();
         jLabelInactiveChannels = new javax.swing.JLabel();
@@ -257,7 +257,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
         jButtonSetChannelName = new javax.swing.JButton();
         jLabelNewChannelName = new javax.swing.JLabel();
         jLabelOldChannelName = new javax.swing.JLabel();
-        jComboBoxOldChannelName = new javax.swing.JComboBox<>();
+        jComboBoxOldChannelName = new javax.swing.JComboBox<String>();
         ErrorPanel = new javax.swing.JPanel();
         jLabelCommErrors = new javax.swing.JLabel();
         jTextFieldErrorCount = new javax.swing.JTextField();
@@ -270,7 +270,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
         jLabelMinY = new javax.swing.JLabel();
         jTextFieldMaxY = new javax.swing.JTextField();
         jLabelMaxY = new javax.swing.JLabel();
-        jComboBoxValuesShown = new javax.swing.JComboBox<>();
+        jComboBoxValuesShown = new javax.swing.JComboBox<String>();
         jLabelValueNumber = new javax.swing.JLabel();
         jToggleButtonChannelOnOff = new javax.swing.JToggleButton();
         EmbeddedLatencyPanel = new javax.swing.JPanel();
@@ -289,7 +289,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
 
         mainPanel.setLayout(new java.awt.CardLayout());
 
-        serverSelect_ComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Select Server" }));
+        serverSelect_ComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Select Server" }));
 
         jLabelQDIcon1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Pictures/logo.jpg"))); // NOI18N
 
@@ -540,18 +540,18 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
 
         mainPanel.add(toolConnect, "toolConnect_CardLayout");
 
-        jListInactiveChannels.setModel(new javax.swing.AbstractListModel<String>() {
+        jListInactiveChannels.setModel(new javax.swing.AbstractListModel() {
             String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
             public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
+            public Object getElementAt(int i) { return strings[i]; }
         });
         jListInactiveChannels.setAutoscrolls(false);
         jScrollPaneInactiveChannels.setViewportView(jListInactiveChannels);
 
-        jListActiveChannels.setModel(new javax.swing.AbstractListModel<String>() {
+        jListActiveChannels.setModel(new javax.swing.AbstractListModel() {
             String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
             public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
+            public Object getElementAt(int i) { return strings[i]; }
         });
         jScrollPaneActiveChannels.setViewportView(jListActiveChannels);
 
@@ -783,7 +783,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
 
         jLabelMaxY.setText("MaxY:");
 
-        jComboBoxValuesShown.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] {"50", "100", "250", "500", "1000", "2500" }));
+        jComboBoxValuesShown.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] {"50", "100", "250", "500", "1000", "2500", "5000" }));
         jComboBoxValuesShown.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jComboBoxValuesShownActionPerformed(evt);

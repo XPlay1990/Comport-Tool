@@ -3,6 +3,7 @@
  */
 package DataEvaluation;
 
+import Frame.Node_Red_DataArray;
 import Graphs.Graph;
 import HelpClasses.ValuesList;
 import Logs.TxtLog;
@@ -12,6 +13,8 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -25,11 +28,13 @@ import javax.swing.SwingUtilities;
  */
 public class MWO_DataEvaluator extends DataEvaluator_Abstract {
 
-    private ValuesList data;
+    private ValuesList datas;
 
     private ExecutorService executor;
     private final Graph graph;
     private TxtLog txtLogger;
+
+    private final List<String> deleteChars = Arrays.asList("[", "]");
 
     @Override
     public void run() {
@@ -38,11 +43,17 @@ public class MWO_DataEvaluator extends DataEvaluator_Abstract {
 
         //Process data
 //        processData();
-
         //set Graph-data
-        graph.setDataToProcess(data);
+        graph.setDataToProcess(datas);
         //build logline
-        txtLogger.newLogLine(timeStamp.toString() + "\t\t" + data);
+        txtLogger.newLogLine("");
+        datas.stream().forEach((Node_Red_DataArray data) -> {
+            String dataString = "";
+            for (Integer elem : data) {
+                dataString += elem.toString() + "\t";
+            }
+            txtLogger.addToLogLine(timeStamp.toString() + "\t\t" + dataString + "\r\n");
+        });
 
         try {
             //print graph && log data to txt
@@ -65,7 +76,7 @@ public class MWO_DataEvaluator extends DataEvaluator_Abstract {
      */
     @Override
     public void setData(ValuesList data) {
-        this.data = data;
+        this.datas = data;
     }
 
     /**

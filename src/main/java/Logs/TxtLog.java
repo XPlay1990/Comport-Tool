@@ -53,7 +53,7 @@ public final class TxtLog implements Runnable {
      * @param line
      */
     public void writeOut(String line) {
-        writer.println(line);
+        writer.print(line);
         writer.flush();
     }
 
