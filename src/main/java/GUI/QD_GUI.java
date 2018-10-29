@@ -1813,7 +1813,7 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
             switch (_frameVariant) {
                 case aq_join_res:
                     System.out.println("QD_GUI " + "aq_join_res frame received.");
-                    System.out.println(passat_Frame.toJson_string());
+//                    System.out.println(passat_Frame.toJson_string());
                     refreshAcquisitionsList();
                     String selectedHW_Interface = comboBoxPortChooser.getSelectedItem().toString();
                     initChannelMapping();
