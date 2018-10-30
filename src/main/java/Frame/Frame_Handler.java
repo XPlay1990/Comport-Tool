@@ -11,6 +11,7 @@ import Frame.generated_PASSAT_DATA_Frame.Passat_Data_Frame;
 import Frame.Schema.PASSAT_Frame;
 import Frame.Schema.PASSAT_Header;
 import HelpClasses.ValuesList;
+import HelpClasses.ValuesList;
 import com.google.gson.JsonSyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,8 +55,6 @@ public class Frame_Handler extends DataEvaluator_Abstract {
      */
     private void handleJSONString(ArrayList<String> jsonInputs) {
         try {
-//            PASSAT_Frame frame = parser.parseJSONStringtoPASSAT(json);
-//            evaluatePASSAT_FRAME(frame);
             ValuesList frames = (ValuesList) parser.parseJSONStringToNodeRedFrame(jsonInputs);
             evaluateFrame(frames);
         } catch (Exception e) {

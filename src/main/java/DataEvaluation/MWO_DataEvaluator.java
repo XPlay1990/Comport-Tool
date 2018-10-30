@@ -3,7 +3,7 @@
  */
 package DataEvaluation;
 
-import Frame.Node_Red_DataArray;
+import Frame.Node_Red_Frame;
 import Graphs.Graph;
 import HelpClasses.ValuesList;
 import Logs.TxtLog;
@@ -47,12 +47,10 @@ public class MWO_DataEvaluator extends DataEvaluator_Abstract {
         graph.setDataToProcess(datas);
         //build logline
         txtLogger.newLogLine("");
-        datas.stream().forEach((Node_Red_DataArray data) -> {
+        datas.stream().forEach((Node_Red_Frame data) -> {
             String dataString = "";
-            for (Integer elem : data) {
-                dataString += elem.toString() + "\t";
-            }
-            txtLogger.addToLogLine(timeStamp.toString() + "\t\t" + dataString + "\r\n");
+            dataString = data.getData().stream().map((elem) -> elem.toString() + "\t").reduce(dataString, String::concat);
+            txtLogger.addToLogLine(timeStamp.toString() + "\t\t" + "data:\t" + dataString + "frequency: \t" + data.getFrequency() + "\r\n");
         });
 
         try {

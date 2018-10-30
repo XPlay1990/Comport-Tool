@@ -3,13 +3,13 @@
  */
 package HelpClasses;
 
-import Frame.Node_Red_DataArray;
+import Frame.Node_Red_Frame;
 import java.util.ArrayList;
 
 /**
  *
  * @author jan.adamczyk
  */
-public class ValuesList extends ArrayList<Node_Red_DataArray>{
+public class ValuesList extends ArrayList<Node_Red_Frame>{
     
 }

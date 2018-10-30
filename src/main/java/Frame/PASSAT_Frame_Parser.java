@@ -6,6 +6,7 @@ package Frame;
 import Frame.generated_PASSAT_DATA_Frame.Passat_Data_Frame;
 import Frame.Schema.PASSAT_Frame;
 import HelpClasses.ValuesList;
+import HelpClasses.ValuesList;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.util.ArrayList;
@@ -68,7 +69,7 @@ public class PASSAT_Frame_Parser {
      */
     public ValuesList parseJSONStringToNodeRedFrame(ArrayList<String> jsonStrings) {
         ValuesList frames = new ValuesList();
-        jsonStrings.stream().map((jsonString) -> gson.fromJson(jsonString, Node_Red_DataArray.class)).forEachOrdered((frame) -> {
+        jsonStrings.stream().map((jsonString) -> gson.fromJson(jsonString, Node_Red_Frame.class)).forEachOrdered((frame) -> {
             frames.add(frame);
         });
         return frames;
