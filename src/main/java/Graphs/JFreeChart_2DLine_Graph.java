@@ -94,15 +94,15 @@ public final class JFreeChart_2DLine_Graph extends ApplicationFrame implements G
                 offsetList = new ArrayList<>();
             }
             ArrayList<SeriesNameAndData> seriesNameandData = new ArrayList<>();
-            ArrayList<Integer> data = dataList.getData();
-            for (int i = 0; i < data.size(); i++) {
+            ArrayList<Integer> graphData = (ArrayList<Integer>) dataList.getData().clone();
+            for (int i = 0; i < graphData.size(); i++) {
                 if (offsetState) {
-                    data.set(i, (data.get(i) - offsetList.get(i)));
+                    graphData.set(i, (graphData.get(i) - offsetList.get(i)));
                 } else {
-                    offsetList.add(i, data.get(i));
+                    offsetList.add(i, graphData.get(i));
                 }
                 if (activeChannelList.contains(i)) {
-                    SeriesNameAndData seriesNameAndData = new SeriesNameAndData(config.getChannelNumberToNameMapping().get(i), data.get(i));
+                    SeriesNameAndData seriesNameAndData = new SeriesNameAndData(config.getChannelNumberToNameMapping().get(i), graphData.get(i));
                     seriesNameandData.add(seriesNameAndData);
                 }
             }

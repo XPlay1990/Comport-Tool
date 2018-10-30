@@ -44,7 +44,7 @@ public class MWO_DataEvaluator extends DataEvaluator_Abstract {
         //Process data
 //        processData();
         //set Graph-data
-        graph.setDataToProcess(datas);
+        graph.setDataToProcess((ValuesList)datas.clone());
         //build logline
         txtLogger.newLogLine("");
         datas.stream().forEach((Node_Red_Frame data) -> {
