@@ -24,6 +24,8 @@ public class Server_Config {
                 "localhost", "localhost");
         serverList.put(
                 "Ruslan", "10.131.251.208");
+        serverList.put(
+                "Michael-WLAN", "10.131.242.114");
     }
 
     /**

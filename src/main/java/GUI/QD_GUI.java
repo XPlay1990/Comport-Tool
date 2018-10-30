@@ -1048,6 +1048,9 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
 
     private void jButtonDisconnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDisconnectActionPerformed
         disconnectAQ();
+        socketHandler.disconnect();
+        socketHandler = null;
+        setCardLayout(serverSelect_CardLayout);
     }//GEN-LAST:event_jButtonDisconnectActionPerformed
 
     private void disconnectAQ() {
@@ -1171,15 +1174,15 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
         connectAcquisition(aq_uuid);
 
         /*
-            String selectedHW_Interface = comboBoxPortChooser.getSelectedItem().toString();
-            int selectedBaudrate = Integer.valueOf(jTextFieldBaudrate.getText());
-            int selectedDataBits = Integer.valueOf(jTextFieldDataBits.getText());
-            int selectedStopBits = Integer.valueOf(jTextFieldStopBits.getText());
-            int channelCount = Integer.valueOf(jTextFieldNewChannelNumber.getText());
-            initChannelMapping();
-            initChannelLists();
-            //init Graph Components
-            initGraphComponents(selectedHW_Interface);
+         String selectedHW_Interface = comboBoxPortChooser.getSelectedItem().toString();
+         int selectedBaudrate = Integer.valueOf(jTextFieldBaudrate.getText());
+         int selectedDataBits = Integer.valueOf(jTextFieldDataBits.getText());
+         int selectedStopBits = Integer.valueOf(jTextFieldStopBits.getText());
+         int channelCount = Integer.valueOf(jTextFieldNewChannelNumber.getText());
+         initChannelMapping();
+         initChannelLists();
+         //init Graph Components
+         initGraphComponents(selectedHW_Interface);
          */
     }//GEN-LAST:event_connectAQ_ButtonActionPerformed
 
@@ -1422,12 +1425,12 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
         }
 
         /*
-        if(aq_info_dataImplementer == null) {
-            aq_info_dataImplementer = new AQ_Response_Evaluator();
-            aq_info_dataImplementer.addObserver(this);
+         if(aq_info_dataImplementer == null) {
+         aq_info_dataImplementer = new AQ_Response_Evaluator();
+         aq_info_dataImplementer.addObserver(this);
             
-            System.out.println("QD_GUI.java:" + "initGraphComponents");
-        }
+         System.out.println("QD_GUI.java:" + "initGraphComponents");
+         }
          */
         //give framehandler access to dataevaluator
         socketHandler.initGraphComponents(dataEvaluator);
@@ -1836,17 +1839,17 @@ public final class QD_GUI extends javax.swing.JFrame implements Observer {
             }
         }
         /*
-        if (o instanceof AQ_Response_Evaluator) {
-            Data data = (Data) arg;
+         if (o instanceof AQ_Response_Evaluator) {
+         Data data = (Data) arg;
             
-            System.out.println("update from AQ_Response_Evaluator: " + arg.toString());
-            data.getTargets().forEach((te) -> {
-                System.out.println("AQ_Response_Evaluator: " + te.getTargetElement().getTargetUuid() );
-            });
+         System.out.println("update from AQ_Response_Evaluator: " + arg.toString());
+         data.getTargets().forEach((te) -> {
+         System.out.println("AQ_Response_Evaluator: " + te.getTargetElement().getTargetUuid() );
+         });
             
             
-            refreshAQ_List(data.getTargets());
-        }
+         refreshAQ_List(data.getTargets());
+         }
          */
     }
 }
